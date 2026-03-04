@@ -487,7 +487,7 @@ function buildCard(p) {
   const badgeCls = p.etiquetaColor && BADGE_CLASSES[p.etiquetaColor] ? BADGE_CLASSES[p.etiquetaColor] : '';
   const fallback = 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80';
   return `
-    <div class="product-card bg-slate-800 border border-slate-700/60 rounded-2xl overflow-hidden flex flex-col group transition-all duration-300 hover:-translate-y-1.5 hover:border-red-500/40 hover:shadow-2xl hover:shadow-red-950/40">
+    <div class="product-card border border-white/6 rounded-2xl overflow-hidden flex flex-col group transition-all duration-300 hover:-translate-y-2 hover:border-red-500/35 hover:shadow-2xl hover:shadow-red-950/50">
 
       <!-- Imagen -->
       <div class="product-img-wrap relative flex-shrink-0">
@@ -501,9 +501,11 @@ function buildCard(p) {
           : ''}
         <!-- Subcategoría / categoría badge top-right -->
         ${(p.categoria === 'cervezas' && p.subcategoria)
-          ? `<span class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-sky-300 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider border border-sky-500/20">${SUBCAT_LABELS[p.subcategoria] || p.subcategoria}</span>`
-          : `<span class="absolute top-3 right-3 bg-slate-900/70 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider border border-white/10">${p.categoria}</span>`
+          ? `<span class="absolute top-3 right-3 bg-sky-950/80 backdrop-blur-sm text-sky-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-sky-500/25">${SUBCAT_LABELS[p.subcategoria] || p.subcategoria}</span>`
+          : `<span class="absolute top-3 right-3 bg-slate-900/75 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${p.categoria}</span>`
         }
+        <!-- Gradient overlay bottom para fusión suave -->
+        <div class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#0d1a2e]/80 to-transparent pointer-events-none"></div>
       </div>
 
       <!-- Info -->
@@ -515,12 +517,12 @@ function buildCard(p) {
 
         <div class="flex items-end justify-between gap-2 pt-2 border-t border-white/5">
           <div>
-            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold leading-none mb-0.5">Precio</p>
-            <span class="font-display text-2xl font-black text-red-400 leading-none">${formatPeso(p.precio)}</span>
+            <p class="text-[10px] text-slate-600 uppercase tracking-wider font-bold leading-none mb-0.5">Precio</p>
+            <span class="font-display text-2xl font-black leading-none gradient-text">${formatPeso(p.precio)}</span>
           </div>
           ${inCart
-            ? `<div class="flex items-center gap-1.5 bg-slate-700/60 rounded-xl px-1 py-1">
-                 <button onclick="changeQty(${p.id},-1)" class="w-7 h-7 rounded-lg bg-slate-600 hover:bg-red-600 text-white text-base font-black flex items-center justify-center transition-all active:scale-90 leading-none">−</button>
+            ? `<div class="flex items-center gap-1.5 bg-slate-900/60 rounded-xl px-1 py-1 border border-white/5">
+                 <button onclick="changeQty(${p.id},-1)" class="w-7 h-7 rounded-lg bg-slate-700 hover:bg-red-600 text-white text-base font-black flex items-center justify-center transition-all active:scale-90 leading-none">−</button>
                  <span class="w-7 text-center font-black text-white text-sm">${inCart.qty}</span>
                  <button onclick="changeQty(${p.id},1)"  class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-500 text-white text-base font-black flex items-center justify-center transition-all active:scale-90 leading-none">+</button>
                </div>`
@@ -528,10 +530,10 @@ function buildCard(p) {
         </div>
 
         ${!inCart
-          ? `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 active:scale-95 text-white text-sm font-black py-2.5 rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-red-900/30">
+          ? `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 active:scale-95 text-white text-sm font-black py-2.5 rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-red-900/40">
                <i class="fa-solid fa-cart-plus"></i>Agregar al carrito
              </button>`
-          : `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-red-600/30 text-slate-300 hover:text-white text-xs font-semibold py-2 rounded-xl transition-all border border-white/5">
+          : `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-red-600/20 text-slate-400 hover:text-white text-xs font-semibold py-2 rounded-xl transition-all border border-white/6 hover:border-red-500/30">
                <i class="fa-solid fa-plus text-[10px]"></i>Agregar otro
              </button>`
         }
@@ -962,10 +964,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const nav = document.getElementById('navbar');
     if (!nav) return;
     const current = window.scrollY;
-    if (current > 80) {
-      nav.classList.add('backdrop-blur-xl', 'shadow-lg', 'shadow-black/20');
+    if (current > 60) {
+      nav.classList.add('navbar-scrolled');
     } else {
-      nav.classList.remove('backdrop-blur-xl', 'shadow-lg', 'shadow-black/20');
+      nav.classList.remove('navbar-scrolled');
     }
     lastScroll = current;
   });

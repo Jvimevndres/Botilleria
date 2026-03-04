@@ -4,12 +4,76 @@
 ════════════════════════════════════════════════════════ */
 
 /* ─── BASE / SCROLL ───────────────────────────────── */
-html { scroll-behavior: smooth; }
-
+html { scroll-behavior: smooth; }body { background: linear-gradient(180deg, #0a0f1e 0%, #0d1220 40%, #0f172a 100%); min-height: 100vh; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #0f172a; }
 ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+
+/* ─── SECTION LABEL PILL ────────────────────────── */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  background: rgba(239, 68, 68, .07);
+  border: 1px solid rgba(239, 68, 68, .22);
+  color: #f87171;
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  padding: .35rem 1rem;
+  border-radius: 9999px;
+}
+
+/* ─── GRADIENT TEXT ──────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #ef4444 10%, #fb923c 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── HERO ORB DECORATIONS ───────────────────────── */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(100px);
+  z-index: 1;
+}
+
+/* ─── FEATURE CARD HOVER ACCENT ─────────────────── */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #ef4444 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+.feature-card:hover::before { opacity: 1; }
+
+/* ─── NAVBAR SCROLLED ────────────────────────────── */
+.navbar-scrolled {
+  background: rgba(10, 14, 27, 0.88) !important;
+  backdrop-filter: blur(24px) saturate(1.6) !important;
+  box-shadow: 0 1px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.04) !important;
+}
+
+/* ─── GLASS STATS CARD (hero) ────────────────────── */
+.stats-glass {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255,255,255,.07);
+  backdrop-filter: blur(16px);
+  border-radius: 1.5rem;
+  padding: 1rem 1.25rem;
+}
 
 /* ─── BLINK DOT ──────────────────────────────────── */
 .blink-dot {
@@ -30,20 +94,24 @@ html { scroll-behavior: smooth; }
 }
 
 /* ─── PRODUCT CARD ───────────────────────────────── */
+.product-card {
+  background: linear-gradient(168deg, #1e293b 0%, #0d1a2e 100%);
+}
 .product-card:hover {
-  box-shadow: 0 24px 48px -12px rgba(239, 68, 68, 0.18),
-              0 8px 20px -4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 28px 56px -12px rgba(239, 68, 68, 0.22),
+              0 10px 24px -4px rgba(0, 0, 0, 0.6);
 }
 
 /* Contenedor imagen – proporción retrato como La Barra */
 .product-img-wrap {
-  background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%);
+  background: radial-gradient(ellipse at 55% 25%, #1d2f4a 0%, #0d1b30 55%, #060d1c 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 220px;          /* altura fija – imagen portrait centrada */
+  height: 220px;
   padding: 1.25rem;
   overflow: hidden;
+  position: relative;
 }
 
 /* Imagen del producto – objeto completo visible, sin recorte */
@@ -65,6 +133,7 @@ html { scroll-behavior: smooth; }
 
 /* ─── CART DRAWER ────────────────────────────────── */
 .cart-drawer {
+  background: linear-gradient(180deg, #0f172a 0%, #0a1120 100%) !important;
   transition: transform 0.35s cubic-bezier(.22,1,.36,1);
 }
 

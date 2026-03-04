@@ -42,7 +42,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 
-<body class="bg-slate-900 text-white antialiased">
+<body class="text-white antialiased">
 
 <!-- ═══════════════════════════════════════════════════════
      MODAL VERIFICACIÓN DE EDAD
@@ -74,7 +74,7 @@
 <!-- ═══════════════════════════════════════════════════════
      NAVBAR
 ════════════════════════════════════════════════════════ -->
-<header id="navbar" class="sticky top-0 z-40 w-full bg-slate-900/70 border-b border-white/5 transition-all duration-300">
+<header id="navbar" class="sticky top-0 z-40 w-full bg-slate-900/60 border-b border-white/5 transition-all duration-500">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
     <!-- Logo -->
@@ -525,46 +525,59 @@
 <!-- ═══════════════════════════════════════════════════════
      HERO
 ════════════════════════════════════════════════════════ -->
-<section id="hero" class="relative min-h-[88vh] flex items-center justify-center overflow-hidden">
+<section id="hero" class="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
   <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80"
-       alt="Botellas de licores premium" class="absolute inset-0 w-full h-full object-cover object-center opacity-30 scale-105" loading="eager" />
-  <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900"></div>
+       alt="Botellas de licores premium" class="absolute inset-0 w-full h-full object-cover object-center opacity-25 scale-110" loading="eager" />
+  <!-- Gradiente y glow -->
+  <div class="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-slate-900/40 to-slate-900"></div>
+  <div class="hero-orb w-[700px] h-[700px] bg-red-600/15 -top-60 -left-40"></div>
+  <div class="hero-orb w-[500px] h-[500px] bg-orange-600/10 top-1/4 right-[-10%]"></div>
+  <div class="hero-orb w-[300px] h-[300px] bg-red-500/10 bottom-20 left-1/3"></div>
+
   <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
-    <div class="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-6">
+    <!-- Pill de estado -->
+    <div class="inline-flex items-center gap-2.5 bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-full mb-8 shadow-lg shadow-red-900/20">
       <span class="blink-dot w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
-      Delivery Express · Toda la comuna
+      Delivery Express &middot; Toda la comuna
     </div>
-    <h1 class="font-display text-5xl sm:text-6xl md:text-7xl font-black leading-tight mb-5">
-      Tu Sed Termina<br/><span class="text-red-400">Aquí.</span>
+
+    <!-- Headline -->
+    <h1 class="font-display text-5xl sm:text-7xl md:text-8xl font-black leading-[0.92] tracking-tight mb-6">
+      Tu Sed<br/>Termina <span class="gradient-text">Aquí.</span>
     </h1>
-    <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto mb-8 leading-relaxed">
+    <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
       Cervezas heladas, destilados premium, vinos selectos e hielo.<br/>
       <strong class="text-white">Entrega rápida directo a tu puerta.</strong>
     </p>
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="#catalogo" class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-red-900/40">
-        <i class="fa-solid fa-cart-shopping mr-2"></i>Ver Catálogo
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
+      <a href="#catalogo" class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl shadow-red-900/40 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-cart-shopping"></i>Ver Catálogo
       </a>
-      <button onclick="toggleCart()" class="w-full sm:w-auto bg-slate-800/80 border border-white/10 hover:border-red-500/40 text-white font-semibold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 backdrop-blur-sm">
-        <i class="fa-solid fa-cart-plus mr-2"></i>Ver mi carrito
+      <button onclick="toggleCart()" class="w-full sm:w-auto bg-white/5 border border-white/12 hover:border-red-500/40 hover:bg-white/8 text-white font-semibold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 backdrop-blur-sm flex items-center justify-center gap-2">
+        <i class="fa-solid fa-cart-plus mr-1"></i>Ver mi carrito
       </button>
     </div>
-    <div class="mt-14 grid grid-cols-3 gap-4 max-w-sm mx-auto">
-      <div class="text-center">
-        <div class="font-display text-3xl font-black text-red-400" id="hero-stat-products">+20</div>
-        <div class="text-slate-400 text-xs mt-1">Productos</div>
+
+    <!-- Stats glass card -->
+    <div class="stats-glass inline-grid grid-cols-3 gap-0 max-w-xs w-full mx-auto">
+      <div class="text-center px-4 py-1">
+        <div class="font-display text-3xl font-black gradient-text" id="hero-stat-products">+20</div>
+        <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Productos</div>
       </div>
-      <div class="text-center border-x border-white/10">
-        <div class="font-display text-3xl font-black text-red-400">30'</div>
-        <div class="text-slate-400 text-xs mt-1">Delivery</div>
+      <div class="text-center px-4 py-1 border-x border-white/7">
+        <div class="font-display text-3xl font-black gradient-text">30'</div>
+        <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Delivery</div>
       </div>
-      <div class="text-center">
-        <div class="font-display text-3xl font-black text-red-400"><i class="fa-solid fa-star text-xl"></i> 5.0</div>
-        <div class="text-slate-400 text-xs mt-1">Valoración</div>
+      <div class="text-center px-4 py-1">
+        <div class="font-display text-3xl font-black gradient-text"><i class="fa-solid fa-star text-xl"></i> 5.0</div>
+        <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Valoración</div>
       </div>
     </div>
   </div>
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-500 text-xs animate-bounce">
+
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-600 text-xs animate-bounce">
     <span>Desliza</span>
     <i class="fa-solid fa-chevron-down text-xs"></i>
   </div>
@@ -574,12 +587,16 @@
 <!-- ═══════════════════════════════════════════════════════
      CATÁLOGO
 ════════════════════════════════════════════════════════ -->
-<section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-20">
-  <div class="text-center mb-10">
-    <h2 class="font-display text-4xl font-black text-white mb-2">Nuestro <span class="text-red-400">Catálogo</span></h2>
-    <p class="text-slate-400 text-sm">Agrega productos al carrito y envía tu pedido completo por WhatsApp con un solo click</p>
+<section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-24">
+  <!-- Header sección -->
+  <div class="text-center mb-12">
+    <span class="section-label"><i class="fa-solid fa-bag-shopping"></i>Productos</span>
+    <h2 class="font-display text-4xl sm:text-5xl font-black text-white mt-3 mb-3">Nuestro <span class="gradient-text">Catálogo</span></h2>
+    <p class="text-slate-400 text-sm max-w-md mx-auto">Agrega productos al carrito y envía tu pedido completo por WhatsApp con un solo click</p>
   </div>
-  <div class="flex flex-wrap justify-center gap-2 mb-4" id="filtros">
+
+  <!-- Filtros de categoría -->
+  <div class="flex flex-wrap justify-center gap-2 mb-3 px-3 py-3 bg-slate-800/30 border border-white/4 rounded-2xl backdrop-blur-sm" id="filtros">
     <button class="cat-btn active" data-cat="todos"><i class="fa-solid fa-border-all mr-1.5"></i>Todos</button>
     <button class="cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty mr-1.5"></i>Cervezas</button>
     <button class="cat-btn" data-cat="destilados"><i class="fa-solid fa-fire mr-1.5"></i>Destilados</button>
@@ -588,8 +605,8 @@
   </div>
 
   <!-- Sub-filtros Cervezas (oculto por defecto) -->
-  <div id="sub-filtros" class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-2 py-3 bg-slate-800/50 border border-white/5 rounded-2xl">
-    <span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1 w-full text-center sm:w-auto"><i class="fa-solid fa-filter mr-1"></i>Tipo:</span>
+  <div id="sub-filtros" class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-3 py-3 bg-sky-950/30 border border-sky-500/10 rounded-2xl">
+    <span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1 w-full text-center sm:w-auto"><i class="fa-solid fa-filter mr-1 text-sky-600/60"></i>Tipo de cerveza:</span>
     <button class="sub-cat-btn active" data-sub="todos">Todos los tipos</button>
     <button class="sub-cat-btn" data-sub="latones"><i class="fa-solid fa-fill-drip mr-1.5"></i>Latones 473ml</button>
     <button class="sub-cat-btn" data-sub="pack-latas"><i class="fa-solid fa-boxes-stacked mr-1.5"></i>Packs de Latas</button>
@@ -597,7 +614,7 @@
     <button class="sub-cat-btn" data-sub="botellas"><i class="fa-solid fa-wine-bottle mr-1.5"></i>Botellas Grandes</button>
   </div>
 
-  <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-7"></div>
   <div id="no-results" class="hidden text-center py-20 text-slate-500">
     <div class="mb-4"><i class="fa-solid fa-magnifying-glass text-5xl"></i></div>
     <p class="text-lg font-semibold">No hay productos en esta categoría.</p>
@@ -608,35 +625,37 @@
 <!-- ═══════════════════════════════════════════════════════
      ¿POR QUÉ ELEGIRNOS?
 ════════════════════════════════════════════════════════ -->
-<section id="nosotros" class="bg-slate-800/50 border-t border-white/5 py-20 px-4 sm:px-6">
+<section id="nosotros" class="bg-slate-800/30 border-t border-white/5 py-24 px-4 sm:px-6">
   <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-12">
-      <h2 class="font-display text-4xl font-black text-white mb-2">¿Por qué <span class="text-red-400">Lector Jean</span>?</h2>
+    <div class="text-center mb-14">
+      <span class="section-label"><i class="fa-solid fa-shield-halved"></i>¿Por qué elegirnos?</span>
+      <h2 class="font-display text-4xl sm:text-5xl font-black text-white mt-3 mb-2">La experiencia <span class="gradient-text">Lector Jean</span></h2>
+      <p class="text-slate-500 text-sm max-w-sm mx-auto">Velocidad, calidad y la comodidad de pedir sin salir de casa.</p>
     </div>
-    <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center hover:border-red-500/30 transition-all duration-300 hover:-translate-y-1">
-        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center"><i class="fa-solid fa-bolt text-red-400 text-xl"></i></div></div>
-        <h3 class="font-bold text-white mb-1">Delivery Rápido</h3>
-        <p class="text-slate-400 text-sm">En promedio 20–30 minutos hasta tu dirección.</p>
+    <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
+      <div class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
+        <div class="mb-4 flex justify-center"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner"><i class="fa-solid fa-bolt text-red-400 text-xl"></i></div></div>
+        <h3 class="font-bold text-white mb-1.5">Delivery Rápido</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">En promedio 20–30 minutos hasta tu dirección.</p>
       </div>
-      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center hover:border-red-500/30 transition-all duration-300 hover:-translate-y-1">
-        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center"><i class="fa-solid fa-award text-red-400 text-xl"></i></div></div>
-        <h3 class="font-bold text-white mb-1">Calidad Premium</h3>
-        <p class="text-slate-400 text-sm">Productos seleccionados, siempre fríos y en buen estado.</p>
+      <div class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
+        <div class="mb-4 flex justify-center"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner"><i class="fa-solid fa-award text-red-400 text-xl"></i></div></div>
+        <h3 class="font-bold text-white mb-1.5">Calidad Premium</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Productos seleccionados, siempre fríos y en buen estado.</p>
       </div>
-      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center hover:border-red-500/30 transition-all duration-300 hover:-translate-y-1">
-        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center"><i class="fa-brands fa-whatsapp text-green-400 text-xl"></i></div></div>
-        <h3 class="font-bold text-white mb-1">Carrito + WhatsApp</h3>
-        <p class="text-slate-400 text-sm">Arma tu carrito y envía el pedido completo en un click.</p>
+      <div class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-green-500/20 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-green-950/20">
+        <div class="mb-4 flex justify-center"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/5 border border-green-500/20 flex items-center justify-center shadow-inner"><i class="fa-brands fa-whatsapp text-green-400 text-xl"></i></div></div>
+        <h3 class="font-bold text-white mb-1.5">Carrito + WhatsApp</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Arma tu carrito y envía el pedido completo en un click.</p>
       </div>
-      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center hover:border-red-500/30 transition-all duration-300 hover:-translate-y-1">
-        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center"><i class="fa-solid fa-arrow-right-arrow-left text-red-400 text-xl"></i></div></div>
-        <h3 class="font-bold text-white mb-1">Pago Transferencia</h3>
-        <p class="text-slate-400 text-sm">Datos bancarios incluidos en el pedido. Rápido y seguro.</p>
+      <div class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
+        <div class="mb-4 flex justify-center"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner"><i class="fa-solid fa-arrow-right-arrow-left text-red-400 text-xl"></i></div></div>
+        <h3 class="font-bold text-white mb-1.5">Pago Transferencia</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Datos bancarios incluidos en el pedido. Rápido y seguro.</p>
       </div>
     </div>
 
-    <div class="mt-10 bg-gradient-to-r from-red-500/10 to-red-600/5 border border-red-500/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="mt-10 bg-gradient-to-r from-red-500/10 via-red-600/5 to-transparent border border-red-500/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
           <i class="fa-solid fa-motorcycle text-red-400 text-2xl"></i>
@@ -657,7 +676,9 @@
 <!-- ═══════════════════════════════════════════════════════
      FOOTER
 ════════════════════════════════════════════════════════ -->
-<footer id="footer" class="bg-slate-950 border-t border-white/5 pt-16 pb-10 px-4 sm:px-6">
+<footer id="footer" class="bg-gradient-to-b from-slate-950 to-[#060d1c] border-t border-white/5 pt-16 pb-10 px-4 sm:px-6 relative">
+  <!-- Línea gradiente superior -->
+  <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent"></div>
   <div class="max-w-6xl mx-auto">
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
       <div>
