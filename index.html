@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -6,15 +6,26 @@
   <title>Botillería Lector Jean | Delivery Premium</title>
   <meta name="description" content="Botillería Lector Jean – Delivery rápido de cervezas, destilados, vinos, hielo y snacks. ¡Pide por WhatsApp ahora!" />
 
-  <!-- Google Fonts: Plus Jakarta Sans (display) + DM Sans (body) -->
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="Botillería Lector Jean | Delivery Premium" />
+  <meta property="og:description" content="Cervezas heladas, destilados premium, vinos y hielo. Delivery rápido directo a tu puerta. ¡Pide por WhatsApp!" />
+  <meta property="og:image"       content="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80" />
+  <meta property="og:url"         content="https://botillerialectorjean.cl" />
+  <meta property="og:locale"      content="es_CL" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="Botillería Lector Jean | Delivery Premium" />
+  <meta name="twitter:description" content="Cervezas heladas, destilados premium, vinos y hielo. Delivery rápido directo a tu puerta." />
+  <meta name="twitter:image"      content="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80" />
+
+  <!-- Canonical & Theme -->
+  <link rel="canonical" href="https://botillerialectorjean.cl" />
+  <meta name="theme-color" content="#ef4444" />
+  <meta name="robots" content="index, follow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
-
-  <!-- Tailwind CSS CDN (debe ir antes del config) -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Tailwind config: fuentes y tokens extendidos -->
   <script>
     tailwind.config = {
       theme: {
@@ -23,239 +34,552 @@
             display: ['"Plus Jakarta Sans"', 'sans-serif'],
             sans: ['"DM Sans"', 'sans-serif'],
           },
-          colors: {
-            amber: {
-              400: '#fbbf24',
-              500: '#f59e0b',
-              600: '#d97706',
-            },
-          },
         },
       },
     };
   </script>
-
-  <!-- Estilos personalizados -->
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- Font Awesome 6 Free -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 
 <body class="bg-slate-900 text-white antialiased">
 
-<!-- ═══════════════════════════════════════════════════════════════
-     MODAL DE VERIFICACIÓN DE EDAD
-════════════════════════════════════════════════════════════════ -->
-<div id="age-modal"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 p-4">
-  <div id="age-box"
-       class="animate-fadeIn bg-slate-800 border border-amber-500/30 rounded-3xl
-              max-w-sm w-full p-8 text-center shadow-2xl">
-
-    <!-- Ícono copa -->
+<!-- ═══════════════════════════════════════════════════════
+     MODAL VERIFICACIÓN DE EDAD
+════════════════════════════════════════════════════════ -->
+<div id="age-modal" class="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/95 p-4">
+  <div id="age-box" class="age-box-anim bg-slate-800 border border-red-500/30 rounded-3xl max-w-sm w-full p-8 text-center shadow-2xl">
     <div class="mb-6 flex justify-center">
-      <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
-        <i class="fa-solid fa-wine-glass text-3xl text-amber-400"></i>
+      <div class="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center justify-center">
+        <i class="fa-solid fa-wine-glass text-3xl text-red-400"></i>
       </div>
     </div>
-
-    <h2 class="font-display text-3xl font-black text-amber-400 mb-2">
-      Acceso Restringido
-    </h2>
+    <h2 class="font-display text-3xl font-black text-red-400 mb-2">Acceso Restringido</h2>
     <p class="text-slate-300 text-sm mb-6 leading-relaxed">
       Este sitio comercializa bebidas alcohólicas.<br/>
       <strong class="text-white">¿Eres mayor de 18 años?</strong>
     </p>
-
-    <!-- Botones -->
     <div class="flex gap-3">
-      <button onclick="checkAge(true)"
-              class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold
-                     py-3 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95">
-        Sí, soy mayor
-      </button>
-      <button onclick="checkAge(false)"
-              class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold
-                     py-3 rounded-xl transition-all duration-200">
-        No, soy menor
-      </button>
+      <button onclick="checkAge(true)" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95">Sí, soy mayor</button>
+      <button onclick="checkAge(false)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition-all duration-200">No, soy menor</button>
     </div>
-
-    <!-- Mensaje de rechazo (oculto por defecto) -->
-    <div id="age-deny"
-         class="hidden mt-5 bg-red-900/60 border border-red-500/40 rounded-xl p-4">
-      <p class="text-red-300 text-sm font-semibold">
-        <i class="fa-solid fa-ban mr-1"></i> Lo sentimos, debes ser mayor de edad para acceder a este sitio.
-      </p>
+    <div id="age-deny" class="hidden mt-5 bg-red-900/60 border border-red-500/40 rounded-xl p-4">
+      <p class="text-red-300 text-sm font-semibold"><i class="fa-solid fa-ban mr-1"></i> Lo sentimos, debes ser mayor de edad para acceder a este sitio.</p>
     </div>
-
-    <p class="text-slate-600 text-xs mt-5">
-      Al ingresar, aceptas nuestros términos y confirmas tu mayoría de edad.
-    </p>
+    <p class="text-slate-600 text-xs mt-5">Al ingresar, aceptas nuestros términos y confirmas tu mayoría de edad.</p>
   </div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     🔝  NAVBAR STICKY CON GLASSMORPHISM
-════════════════════════════════════════════════════════════════ -->
-<header id="navbar"
-        class="sticky top-0 z-40 w-full bg-slate-900/70 border-b border-white/5
-               transition-all duration-300">
+<!-- ═══════════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════════ -->
+<header id="navbar" class="sticky top-0 z-40 w-full bg-slate-900/70 border-b border-white/5 transition-all duration-300">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
     <!-- Logo -->
-    <a href="#hero" class="flex items-center gap-2 flex-shrink-0">
-      <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
-        <i class="fa-solid fa-champagne-glasses text-amber-400 text-sm"></i>
+    <a href="#hero" id="logo-link" class="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+      <div class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center flex-shrink-0">
+        <i class="fa-solid fa-champagne-glasses text-red-400 text-sm"></i>
       </div>
       <div class="leading-tight">
-        <span class="font-display text-lg font-black text-amber-400 tracking-tight block">
-          Lector Jean
-        </span>
-        <span class="text-[10px] text-slate-400 uppercase tracking-widest -mt-1 block">
-          Botillería Premium
-        </span>
+        <span class="font-display text-lg font-black text-red-400 tracking-tight block">Lector Jean</span>
+        <span class="text-[10px] text-slate-400 uppercase tracking-widest -mt-1 block">Botillería Premium</span>
       </div>
     </a>
 
-    <!-- Nav links (ocultos en mobile) -->
+    <!-- Nav links -->
     <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
-      <a href="#catalogo"  class="text-slate-300 hover:text-amber-400 transition-colors">Catálogo</a>
-      <a href="#nosotros"  class="text-slate-300 hover:text-amber-400 transition-colors">Nosotros</a>
-      <a href="#footer"    class="text-slate-300 hover:text-amber-400 transition-colors">Contacto</a>
+      <a href="#catalogo" class="text-slate-300 hover:text-red-400 transition-colors">Catálogo</a>
+      <a href="#nosotros" class="text-slate-300 hover:text-red-400 transition-colors">Nosotros</a>
+      <a href="#footer"   class="text-slate-300 hover:text-red-400 transition-colors">Contacto</a>
     </nav>
 
-    <!-- Right side -->
-    <div class="flex items-center gap-3">
-      <!-- Indicador "Abierto Ahora" -->
-      <div id="status-badge"
-           class="hidden sm:flex items-center gap-1.5 bg-green-900/50 border border-green-500/30
-                  text-green-400 text-xs font-semibold px-3 py-1.5 rounded-full">
-        <span class="blink-dot inline-block w-2 h-2 rounded-full bg-green-400"></span>
-        Abierto Ahora
+    <!-- Derecha: estado + carrito + wsp -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div id="status-badge" class="hidden sm:flex items-center gap-1.5 bg-green-900/50 border border-green-500/30 text-green-400 text-xs font-semibold px-3 py-1.5 rounded-full">
+        <span class="blink-dot inline-block w-2 h-2 rounded-full bg-green-400"></span>Abierto
       </div>
-      <div id="closed-badge"
-           class="hidden items-center gap-1.5 bg-red-900/40 border border-red-500/30
-                  text-red-400 text-xs font-semibold px-3 py-1.5 rounded-full">
-        <span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>
-        Cerrado
+      <div id="closed-badge" class="hidden items-center gap-1.5 bg-red-900/40 border border-red-500/30 text-red-400 text-xs font-semibold px-3 py-1.5 rounded-full">
+        <span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>Cerrado
       </div>
 
+      <!-- Botón carrito -->
+      <button id="cart-toggle-btn" onclick="toggleCart()" class="relative flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95">
+        <i class="fa-solid fa-cart-shopping text-sm"></i>
+        <span class="hidden sm:inline text-xs font-bold">Carrito</span>
+        <span id="cart-badge" class="hidden absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full items-center justify-center leading-none">0</span>
+      </button>
+
       <!-- CTA WhatsApp -->
-      <a href="https://wa.me/56900000000?text=¡Hola!%20Vengo%20de%20la%20web.%20¿Están%20atendiendo%3F"
-         target="_blank" rel="noopener"
-         class="bg-green-500 hover:bg-green-400 text-white text-xs font-bold
-                px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105
-                flex items-center gap-1.5">
-        <!-- WhatsApp icon SVG -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-        Pedir ya
+      <a id="wa-nav-btn" href="#" target="_blank" rel="noopener"
+         class="bg-green-500 hover:bg-green-400 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 flex items-center gap-1.5">
+        <i class="fa-brands fa-whatsapp text-base"></i>
+        <span class="hidden sm:inline">Pedir ya</span>
       </a>
     </div>
   </div>
 </header>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     🦸  HERO SECTION
-════════════════════════════════════════════════════════════════ -->
-<section id="hero"
-         class="relative min-h-[88vh] flex items-center justify-center overflow-hidden">
+<!-- ═══════════════════════════════════════════════════════
+     CART DRAWER
+════════════════════════════════════════════════════════ -->
+<div id="cart-overlay" class="fixed inset-0 z-50 bg-black/60 hidden" onclick="closeCart()"></div>
 
-  <!-- Fondo Unsplash con overlay gradient -->
-  <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80"
-       alt="Botellas de licores premium"
-       class="absolute inset-0 w-full h-full object-cover object-center opacity-30 scale-105"
-       loading="eager" />
-  <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900"></div>
+<aside id="cart-drawer" class="cart-drawer fixed top-0 right-0 h-full w-full max-w-md z-50 bg-slate-900 border-l border-white/10 flex flex-col shadow-2xl translate-x-full">
 
-  <!-- Contenido hero -->
-  <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+  <div class="flex items-center justify-between px-5 py-4 border-b border-white/10 flex-shrink-0">
+    <div class="flex items-center gap-2.5">
+      <i class="fa-solid fa-cart-shopping text-red-400"></i>
+      <h2 class="font-display text-xl font-black text-white">Mi Carrito</h2>
+      <span id="cart-count-label" class="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">0</span>
+    </div>
+    <button onclick="closeCart()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-all">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
 
-    <!-- Badge superior -->
-    <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30
-                text-amber-400 text-xs font-semibold uppercase tracking-widest
-                px-4 py-1.5 rounded-full mb-6">
-      <span class="blink-dot w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>
-      Delivery Express · Toda la comuna
+  <div id="cart-empty-state" class="flex-1 flex flex-col items-center justify-center gap-4 text-slate-500 px-6">
+    <div class="w-20 h-20 rounded-2xl bg-slate-800 border border-white/5 flex items-center justify-center">
+      <i class="fa-solid fa-cart-shopping text-4xl opacity-25"></i>
+    </div>
+    <div class="text-center">
+      <p class="font-bold text-slate-400 text-base">Tu carrito está vacío</p>
+      <p class="text-sm mt-1 text-slate-600">Agrega productos del catálogo</p>
+    </div>
+    <button onclick="closeCart()" class="mt-2 bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105">
+      <i class="fa-solid fa-magnifying-glass mr-2"></i>Ver Catálogo
+    </button>
+  </div>
+
+  <div id="cart-items-state" class="hidden flex-1 flex-col overflow-hidden">
+    <div id="cart-items-list" class="flex-1 overflow-y-auto px-4 py-3 space-y-3"></div>
+    <div class="border-t border-white/10 px-5 py-4 space-y-3 bg-slate-900 flex-shrink-0">
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between text-slate-400">
+          <span>Subtotal productos</span>
+          <span id="cart-subtotal" class="font-semibold text-white">$0</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Costo delivery</span>
+          <span class="text-red-400 font-semibold">+ $1.500</span>
+        </div>
+        <div class="flex justify-between text-white font-bold text-base border-t border-white/10 pt-2 mt-1">
+          <span>TOTAL A PAGAR</span>
+          <span id="cart-total" class="text-red-400 font-black text-xl">$0</span>
+        </div>
+      </div>
+      <button onclick="clearCart()" class="w-full text-xs text-slate-600 hover:text-red-400 transition-colors py-1 flex items-center justify-center gap-1.5">
+        <i class="fa-solid fa-trash-can"></i>Vaciar carrito
+      </button>
+      <button onclick="openCheckout()" class="w-full bg-green-500 hover:bg-green-400 text-white font-black py-4 rounded-2xl transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-lg shadow-green-900/30">
+        <i class="fa-brands fa-whatsapp text-xl"></i>
+        Proceder al Pedido
+      </button>
+    </div>
+  </div>
+</aside>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     CHECKOUT MODAL
+════════════════════════════════════════════════════════ -->
+<div id="checkout-overlay" class="fixed inset-0 z-[60] bg-black/70 hidden items-center justify-center p-4" onclick="closeCheckoutOutside(event)">
+  <div id="checkout-modal" class="checkout-modal bg-slate-800 border border-white/10 rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl">
+
+    <div class="sticky top-0 bg-slate-800 border-b border-white/10 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+      <div>
+        <h2 class="font-display text-2xl font-black text-white">Finalizar Pedido</h2>
+        <p class="text-slate-400 text-xs mt-0.5">Completa tus datos y envía tu orden por WhatsApp</p>
+      </div>
+      <button onclick="closeCheckout()" class="w-9 h-9 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-400 hover:text-white transition-all">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
 
-    <!-- Título Principal -->
-    <h1 class="font-display text-5xl sm:text-6xl md:text-7xl font-black leading-tight mb-5">
-      Tu Sed Termina<br/>
-      <span class="text-amber-400">Aquí.</span>
-    </h1>
+    <div class="px-6 py-5 space-y-7">
 
-    <!-- Subtítulo -->
+      <div>
+        <h3 class="checkout-section-title"><i class="fa-solid fa-receipt text-red-400"></i> Resumen del Pedido</h3>
+        <div id="checkout-summary" class="bg-slate-900/60 border border-white/5 rounded-2xl divide-y divide-white/5 overflow-hidden"></div>
+        <div class="mt-3 bg-red-500/10 border border-red-500/20 rounded-xl px-5 py-3 flex items-center justify-between">
+          <div>
+            <p class="text-red-400 font-bold text-sm">Total a pagar</p>
+            <p class="text-slate-500 text-xs">Incluye delivery ($1.500)</p>
+          </div>
+          <span id="checkout-total-display" class="font-display text-2xl font-black text-red-400">$0</span>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="checkout-section-title"><i class="fa-solid fa-user text-red-400"></i> Tus Datos</h3>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Nombre completo *</label>
+            <input id="f-nombre" type="text" placeholder="Ej: Juan Pérez" class="form-input" />
+          </div>
+          <div>
+            <label class="form-label">WhatsApp / Teléfono *</label>
+            <input id="f-telefono" type="tel" placeholder="+56 9 XXXX XXXX" class="form-input" />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="checkout-section-title"><i class="fa-solid fa-location-dot text-red-400"></i> Dirección de Entrega</h3>
+        <div class="space-y-3">
+          <div>
+            <label class="form-label">Calle y número *</label>
+            <input id="f-direccion" type="text" placeholder="Ej: Av. Providencia 1234" class="form-input" />
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="form-label">Depto / Piso / Casa</label>
+              <input id="f-depto" type="text" placeholder="Ej: Depto 302, Piso 3" class="form-input" />
+            </div>
+            <div>
+              <label class="form-label">Comuna *</label>
+              <input id="f-comuna" type="text" placeholder="Ej: Providencia" class="form-input" />
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Referencias (opcional)</label>
+            <input id="f-referencia" type="text" placeholder="Ej: Casa entre Calle X y Calle Y, portón negro" class="form-input" />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="checkout-section-title"><i class="fa-solid fa-credit-card text-red-400"></i> Método de Pago</h3>
+        <div class="bg-slate-900/60 border border-red-500/25 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-arrow-right-arrow-left text-red-400"></i>
+            </div>
+            <div class="flex-1">
+              <p class="font-bold text-white text-sm">Transferencia Bancaria</p>
+              <p class="text-xs text-slate-400">Único método aceptado para pedidos con delivery</p>
+            </div>
+            <span class="flex-shrink-0 bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide">Requerido</span>
+          </div>
+          <div id="transfer-info-box" class="bg-slate-800 rounded-xl p-4 space-y-2 border border-white/5 text-sm"></div>
+        </div>
+      </div>
+
+      <div>
+        <label class="flex items-start gap-3 cursor-pointer group p-4 bg-slate-900/40 border border-white/5 rounded-xl hover:border-red-500/20 transition-all">
+          <div class="relative mt-0.5 flex-shrink-0">
+            <input id="f-comprobante" type="checkbox" class="sr-only" onchange="toggleCheckbox(this)" />
+            <div id="f-comprobante-box" class="w-5 h-5 rounded-md border-2 border-slate-600 group-hover:border-red-500 transition-colors flex items-center justify-center bg-slate-800">
+              <i class="fa-solid fa-check text-[10px] text-white hidden" id="f-comprobante-check"></i>
+            </div>
+          </div>
+          <div>
+            <p class="font-semibold text-white text-sm">Solicitar comprobante de transferencia</p>
+            <p class="text-xs text-slate-400 mt-0.5">Recibirás el comprobante una vez confirmado el pago. Puedes enviarlo por el mismo WhatsApp.</p>
+          </div>
+        </label>
+      </div>
+
+      <div>
+        <h3 class="checkout-section-title"><i class="fa-solid fa-note-sticky text-red-400"></i> Notas / Instrucciones Especiales</h3>
+        <textarea id="f-notas" rows="3" placeholder="Ej: Sin vasos, bebidas frías, no tocar timbre, dejar en conserjería…" class="form-input resize-none"></textarea>
+      </div>
+
+      <div id="checkout-error" class="hidden bg-red-900/40 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
+        <span id="checkout-error-msg"></span>
+      </div>
+
+      <button onclick="enviarPedidoWhatsApp()" class="w-full bg-green-500 hover:bg-green-400 active:scale-95 text-white font-black text-lg py-4 rounded-2xl transition-all hover:scale-105 flex items-center justify-center gap-3 shadow-lg shadow-green-900/30">
+        <i class="fa-brands fa-whatsapp text-2xl"></i>
+        Enviar Pedido por WhatsApp
+      </button>
+      <p class="text-center text-xs text-slate-600 -mt-3 pb-1">
+        <i class="fa-solid fa-shield-halved mr-1 text-red-400/40"></i>
+        Tu pedido se envía directamente al número de la botillería
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     ADMIN PANEL
+════════════════════════════════════════════════════════ -->
+<div id="admin-overlay" class="fixed inset-0 z-[70] bg-slate-950 hidden flex-col">
+
+  <div class="bg-slate-900 border-b border-white/10 px-5 py-3.5 flex items-center justify-between flex-shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center">
+        <i class="fa-solid fa-screwdriver-wrench text-red-400 text-sm"></i>
+      </div>
+      <div>
+        <p class="font-display font-black text-white leading-tight">Panel de Administración</p>
+        <p class="text-xs text-slate-500">Botillería Lector Jean</p>
+      </div>
+    </div>
+    <button onclick="closeAdmin()" class="flex items-center gap-2 bg-slate-800 hover:bg-red-900/40 border border-white/10 hover:border-red-500/30 text-slate-400 hover:text-red-400 text-xs font-bold px-4 py-2 rounded-xl transition-all">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      <span class="hidden sm:inline">Salir del panel</span>
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto">
+
+    <!-- LOGIN -->
+    <div id="admin-login" class="flex items-center justify-center min-h-full p-6">
+      <div class="bg-slate-800 border border-white/10 rounded-3xl max-w-sm w-full p-8 text-center shadow-2xl">
+        <div class="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center justify-center mx-auto mb-5">
+          <i class="fa-solid fa-lock text-3xl text-red-400"></i>
+        </div>
+        <h2 class="font-display text-2xl font-black text-white mb-1">Acceso Administrador</h2>
+        <p class="text-slate-400 text-sm mb-6">Ingresa la contraseña para gestionar los productos</p>
+        <input id="admin-pwd-input" type="password" placeholder="Contraseña" class="form-input mb-3 text-center tracking-widest" onkeydown="if(event.key==='Enter')loginAdmin()" />
+        <div id="admin-login-error" class="hidden text-red-400 text-xs mb-3 flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-circle-exclamation"></i> Contraseña incorrecta. Intenta de nuevo.
+        </div>
+        <button onclick="loginAdmin()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl transition-all hover:scale-105 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i> Ingresar
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL GESTIÓN -->
+    <div id="admin-panel" class="hidden p-5 max-w-7xl mx-auto pb-16">
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div class="bg-slate-800 border border-white/5 rounded-2xl p-4 text-center">
+          <div class="font-display text-3xl font-black text-red-400" id="stat-total">0</div>
+          <div class="text-slate-400 text-xs mt-1">Total Productos</div>
+        </div>
+        <div class="bg-slate-800 border border-white/5 rounded-2xl p-4 text-center">
+          <div class="font-display text-3xl font-black text-sky-400" id="stat-cervezas">0</div>
+          <div class="text-slate-400 text-xs mt-1">Cervezas</div>
+        </div>
+        <div class="bg-slate-800 border border-white/5 rounded-2xl p-4 text-center">
+          <div class="font-display text-3xl font-black text-purple-400" id="stat-destilados">0</div>
+          <div class="text-slate-400 text-xs mt-1">Destilados</div>
+        </div>
+        <div class="bg-slate-800 border border-white/5 rounded-2xl p-4 text-center">
+          <div class="font-display text-3xl font-black text-rose-400" id="stat-vinos">0</div>
+          <div class="text-slate-400 text-xs mt-1">Vinos</div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mb-5 gap-4 flex-wrap">
+        <h3 class="font-display text-2xl font-black text-white">Gestión de Productos</h3>
+        <div class="flex gap-3 flex-wrap">
+          <button onclick="resetProducts()" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 border border-white/10 text-slate-300 hover:text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all">
+            <i class="fa-solid fa-rotate-left"></i> Restaurar originales
+          </button>
+          <button onclick="openProductForm(null)" class="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-black px-5 py-2.5 rounded-xl transition-all hover:scale-105">
+            <i class="fa-solid fa-plus"></i> Agregar Producto
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-3" id="admin-filtros">
+        <button class="admin-cat-btn active" data-cat="todos">Todos</button>
+        <button class="admin-cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty mr-1"></i>Cervezas</button>
+        <button class="admin-cat-btn" data-cat="destilados"><i class="fa-solid fa-fire mr-1"></i>Destilados</button>
+        <button class="admin-cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1"></i>Vinos</button>
+        <button class="admin-cat-btn" data-cat="hielo"><i class="fa-solid fa-snowflake mr-1"></i>Hielo & Snacks</button>
+      </div>
+
+      <!-- Sub-filtros cervezas (admin) -->
+      <div id="admin-sub-filtros" class="hidden flex-wrap gap-2 mb-5 items-center px-3 py-2.5 bg-slate-800/60 border border-white/5 rounded-xl">
+        <span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1"><i class="fa-solid fa-filter mr-1"></i>Tipo:</span>
+        <button class="admin-sub-btn active" data-sub="todos">Todos los tipos</button>
+        <button class="admin-sub-btn" data-sub="latones"><i class="fa-solid fa-fill-drip mr-1"></i>Latones 473ml</button>
+        <button class="admin-sub-btn" data-sub="pack-latas"><i class="fa-solid fa-boxes-stacked mr-1"></i>Packs de Latas</button>
+        <button class="admin-sub-btn" data-sub="botellines"><i class="fa-solid fa-box mr-1"></i>Packs Botellines</button>
+        <button class="admin-sub-btn" data-sub="botellas"><i class="fa-solid fa-wine-bottle mr-1"></i>Botellas Grandes</button>
+      </div>
+
+      <div id="admin-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL AGREGAR / EDITAR PRODUCTO
+     ⚠️  SIN onclick en el overlay — no se cierra al hacer clic fuera -->
+<div id="pf-overlay" class="fixed inset-0 z-[80] bg-black/70 hidden items-center justify-center p-4">
+  <div id="pf-modal" class="bg-slate-800 border border-white/10 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div class="sticky top-0 bg-slate-800 border-b border-white/10 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+      <div>
+        <h3 id="pf-title" class="font-display text-xl font-black text-white">Agregar Producto</h3>
+        <p class="text-slate-500 text-xs mt-0.5">Los cambios no se guardan hasta presionar "Guardar Producto"</p>
+      </div>
+      <button onclick="closePFConfirm()" class="w-9 h-9 rounded-xl bg-slate-700 hover:bg-red-600/30 hover:border hover:border-red-500/30 flex items-center justify-center text-slate-400 hover:text-red-400 transition-all" title="Descartar cambios y cerrar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <input type="hidden" id="pf-id" />
+      <div>
+        <label class="form-label">Nombre del producto *</label>
+        <input id="pf-nombre" type="text" placeholder="Ej: Heineken Botella 330ml" class="form-input" />
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">Categoría *</label>
+          <select id="pf-categoria" class="form-input" onchange="toggleSubcatField()">
+            <option value="">Selecciona categoría</option>
+            <option value="cervezas">🍺 Cervezas</option>
+            <option value="destilados">🔥 Destilados</option>
+            <option value="vinos">🍷 Vinos</option>
+            <option value="hielo">❄️ Hielo & Snacks</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Precio * (ej: $1.490)</label>
+          <input id="pf-precio" type="text" placeholder="$1.490" class="form-input" />
+        </div>
+      </div>
+
+      <!-- Subcategoría: solo visible cuando categoría = cervezas -->
+      <div id="pf-subcat-wrap" class="hidden">
+        <label class="form-label">Subcategoría de cerveza *</label>
+        <select id="pf-subcategoria" class="form-input">
+          <option value="">Selecciona tipo</option>
+          <option value="latones">🟡 Latones 473ml (unidad)</option>
+          <option value="pack-latas">📦 Packs de Latas 350ml</option>
+          <option value="botellines">🔵 Packs Botellines 330ml</option>
+          <option value="botellas">🍾 Botellas Grandes 500–620ml</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Descripción corta</label>
+        <input id="pf-descripcion" type="text" placeholder="Ej: Lager importada, 5° Alc." class="form-input" />
+      </div>
+      <div>
+        <label class="form-label">URL de imagen (Unsplash u otro)</label>
+        <input id="pf-imagen" type="url" placeholder="https://images.unsplash.com/..." class="form-input" />
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">Etiqueta (opcional)</label>
+          <input id="pf-etiqueta" type="text" placeholder="Ej: Más vendido, Promo, Nuevo" class="form-input" />
+        </div>
+        <div>
+          <label class="form-label">Color etiqueta</label>
+          <select id="pf-etiquetacolor" class="form-input">
+            <option value="">Sin color</option>
+            <option value="red">🔴 Rojo (Destacado)</option>
+            <option value="green">✅ Verde (Promo)</option>
+            <option value="blue">💙 Azul</option>
+            <option value="amber">⭐ Dorado</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="flex items-center gap-3 cursor-pointer group">
+          <input id="pf-disponible" type="checkbox" checked class="w-4 h-4 rounded accent-red-500" />
+          <span class="text-sm font-semibold text-white">Producto disponible / activo en catálogo</span>
+        </label>
+      </div>
+      <div id="pf-error" class="hidden text-red-400 text-sm bg-red-900/30 border border-red-500/30 rounded-xl px-4 py-3 flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i><span id="pf-error-msg"></span>
+      </div>
+
+      <!-- Aviso de que los cambios no se pierden accidentalmente -->
+      <div class="flex items-start gap-2 bg-slate-900/50 border border-white/5 rounded-xl px-4 py-3">
+        <i class="fa-solid fa-circle-info text-red-400/60 text-xs mt-0.5 flex-shrink-0"></i>
+        <p class="text-slate-500 text-xs">Para cerrar sin guardar, usa el botón <strong class="text-slate-400">Cancelar</strong> o la <strong class="text-slate-400">X</strong>. Se te pedirá confirmación si hay cambios.</p>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button onclick="closePFConfirm()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition-all">
+          <i class="fa-solid fa-ban mr-1.5 text-slate-400"></i>Cancelar
+        </button>
+        <button onclick="saveProduct()" class="flex-[2] bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl transition-all hover:scale-105 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar Producto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL CONFIRMACIÓN ELIMINAR -->
+<div id="delete-overlay" class="fixed inset-0 z-[90] bg-black/70 hidden items-center justify-center p-4">
+  <div class="bg-slate-800 border border-red-500/20 rounded-2xl max-w-sm w-full p-7 text-center shadow-2xl">
+    <div class="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+      <i class="fa-solid fa-trash-can text-red-400 text-2xl"></i>
+    </div>
+    <h3 class="font-display text-xl font-black text-white mb-2">¿Eliminar producto?</h3>
+    <p id="delete-product-name" class="text-slate-400 text-sm mb-6">Esta acción no se puede deshacer.</p>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2.5 rounded-xl transition-all">Cancelar</button>
+      <button onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl transition-all hover:scale-105">
+        <i class="fa-solid fa-trash-can mr-1.5"></i>Eliminar
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════ -->
+<section id="hero" class="relative min-h-[88vh] flex items-center justify-center overflow-hidden">
+  <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80"
+       alt="Botellas de licores premium" class="absolute inset-0 w-full h-full object-cover object-center opacity-30 scale-105" loading="eager" />
+  <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900"></div>
+  <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+    <div class="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-6">
+      <span class="blink-dot w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
+      Delivery Express · Toda la comuna
+    </div>
+    <h1 class="font-display text-5xl sm:text-6xl md:text-7xl font-black leading-tight mb-5">
+      Tu Sed Termina<br/><span class="text-red-400">Aquí.</span>
+    </h1>
     <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto mb-8 leading-relaxed">
       Cervezas heladas, destilados premium, vinos selectos e hielo.<br/>
       <strong class="text-white">Entrega rápida directo a tu puerta.</strong>
     </p>
-
-    <!-- CTAs -->
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="#catalogo"
-         class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold
-                text-base px-8 py-4 rounded-2xl transition-all duration-200
-                hover:scale-105 active:scale-95 shadow-lg shadow-amber-500/25">
+      <a href="#catalogo" class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-red-900/40">
         <i class="fa-solid fa-cart-shopping mr-2"></i>Ver Catálogo
       </a>
-      <a href="https://wa.me/56900000000?text=¡Hola!%20Me%20gustaría%20hacer%20un%20pedido."
-         target="_blank" rel="noopener"
-         class="w-full sm:w-auto bg-slate-800/80 border border-white/10 hover:border-amber-500/40
-                text-white font-semibold text-base px-8 py-4 rounded-2xl
-                transition-all duration-200 hover:scale-105 backdrop-blur-sm">
-        <i class="fa-solid fa-comment-dots mr-2"></i>Consultar Delivery
-      </a>
+      <button onclick="toggleCart()" class="w-full sm:w-auto bg-slate-800/80 border border-white/10 hover:border-red-500/40 text-white font-semibold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 backdrop-blur-sm">
+        <i class="fa-solid fa-cart-plus mr-2"></i>Ver mi carrito
+      </button>
     </div>
-
-    <!-- Stats rápidos -->
     <div class="mt-14 grid grid-cols-3 gap-4 max-w-sm mx-auto">
       <div class="text-center">
-        <div class="font-display text-3xl font-black text-amber-400">+50</div>
+        <div class="font-display text-3xl font-black text-red-400" id="hero-stat-products">+20</div>
         <div class="text-slate-400 text-xs mt-1">Productos</div>
       </div>
       <div class="text-center border-x border-white/10">
-        <div class="font-display text-3xl font-black text-amber-400">30'</div>
+        <div class="font-display text-3xl font-black text-red-400">30'</div>
         <div class="text-slate-400 text-xs mt-1">Delivery</div>
       </div>
       <div class="text-center">
-        <div class="font-display text-3xl font-black text-amber-400"><i class="fa-solid fa-star text-2xl"></i> 5.0</div>
+        <div class="font-display text-3xl font-black text-red-400"><i class="fa-solid fa-star text-xl"></i> 5.0</div>
         <div class="text-slate-400 text-xs mt-1">Valoración</div>
       </div>
     </div>
   </div>
-
-  <!-- Scroll indicator -->
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1
-              text-slate-500 text-xs animate-bounce">
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-500 text-xs animate-bounce">
     <span>Desliza</span>
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-    </svg>
+    <i class="fa-solid fa-chevron-down text-xs"></i>
   </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     🗂️  SECCIÓN CATÁLOGO (filtros + grid)
-════════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════
+     CATÁLOGO
+════════════════════════════════════════════════════════ -->
 <section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-20">
-
-  <!-- Encabezado de sección -->
   <div class="text-center mb-10">
-    <h2 class="font-display text-4xl font-black text-white mb-2">
-      Nuestro <span class="text-amber-400">Catálogo</span>
-    </h2>
-    <p class="text-slate-400 text-sm">Haz clic en "Pedir por WhatsApp" y escríbenos directo — ¡es así de fácil!</p>
+    <h2 class="font-display text-4xl font-black text-white mb-2">Nuestro <span class="text-red-400">Catálogo</span></h2>
+    <p class="text-slate-400 text-sm">Agrega productos al carrito y envía tu pedido completo por WhatsApp con un solo click</p>
   </div>
-
-  <!-- ── Filtros de categoría ── -->
-  <div class="flex flex-wrap justify-center gap-2 mb-10" id="filtros">
+  <div class="flex flex-wrap justify-center gap-2 mb-4" id="filtros">
     <button class="cat-btn active" data-cat="todos"><i class="fa-solid fa-border-all mr-1.5"></i>Todos</button>
     <button class="cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty mr-1.5"></i>Cervezas</button>
     <button class="cat-btn" data-cat="destilados"><i class="fa-solid fa-fire mr-1.5"></i>Destilados</button>
@@ -263,184 +587,140 @@
     <button class="cat-btn" data-cat="hielo"><i class="fa-solid fa-snowflake mr-1.5"></i>Hielo & Snacks</button>
   </div>
 
-  <!-- ── Grid de productos ── -->
-  <div id="products-grid"
-       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-    <!-- Las tarjetas son renderizadas por JS -->
+  <!-- Sub-filtros Cervezas (oculto por defecto) -->
+  <div id="sub-filtros" class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-2 py-3 bg-slate-800/50 border border-white/5 rounded-2xl">
+    <span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1 w-full text-center sm:w-auto"><i class="fa-solid fa-filter mr-1"></i>Tipo:</span>
+    <button class="sub-cat-btn active" data-sub="todos">Todos los tipos</button>
+    <button class="sub-cat-btn" data-sub="latones"><i class="fa-solid fa-fill-drip mr-1.5"></i>Latones 473ml</button>
+    <button class="sub-cat-btn" data-sub="pack-latas"><i class="fa-solid fa-boxes-stacked mr-1.5"></i>Packs de Latas</button>
+    <button class="sub-cat-btn" data-sub="botellines"><i class="fa-solid fa-box mr-1.5"></i>Packs Botellines</button>
+    <button class="sub-cat-btn" data-sub="botellas"><i class="fa-solid fa-wine-bottle mr-1.5"></i>Botellas Grandes</button>
   </div>
 
-  <!-- Mensaje sin resultados -->
+  <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"></div>
   <div id="no-results" class="hidden text-center py-20 text-slate-500">
     <div class="mb-4"><i class="fa-solid fa-magnifying-glass text-5xl"></i></div>
-    <p class="text-lg font-semibold">No hay productos en esta categoría aún.</p>
+    <p class="text-lg font-semibold">No hay productos en esta categoría.</p>
   </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     💡  SECCIÓN "¿POR QUÉ ELEGIRNOS?"
-════════════════════════════════════════════════════════════════ -->
-<section id="nosotros"
-         class="bg-slate-800/50 border-t border-white/5 py-20 px-4 sm:px-6">
+<!-- ═══════════════════════════════════════════════════════
+     ¿POR QUÉ ELEGIRNOS?
+════════════════════════════════════════════════════════ -->
+<section id="nosotros" class="bg-slate-800/50 border-t border-white/5 py-20 px-4 sm:px-6">
   <div class="max-w-6xl mx-auto">
-
     <div class="text-center mb-12">
-      <h2 class="font-display text-4xl font-black text-white mb-2">
-        ¿Por qué <span class="text-amber-400">Lector Jean</span>?
-      </h2>
+      <h2 class="font-display text-4xl font-black text-white mb-2">¿Por qué <span class="text-red-400">Lector Jean</span>?</h2>
     </div>
-
     <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-      <!-- Feature cards -->
-      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center
-                  hover:border-amber-500/30 transition-all duration-300 hover:-translate-y-1">
-        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-xl"></i></div></div>
+      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center hover:border-red-500/30 transition-all duration-300 hover:-translate-y-1">
+        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center"><i class="fa-solid fa-bolt text-red-400 text-xl"></i></div></div>
         <h3 class="font-bold text-white mb-1">Delivery Rápido</h3>
         <p class="text-slate-400 text-sm">En promedio 20–30 minutos hasta tu dirección.</p>
       </div>
-      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center
-                  hover:border-amber-500/30 transition-all duration-300 hover:-translate-y-1">
-        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"><i class="fa-solid fa-award text-amber-400 text-xl"></i></div></div>
+      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center hover:border-red-500/30 transition-all duration-300 hover:-translate-y-1">
+        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center"><i class="fa-solid fa-award text-red-400 text-xl"></i></div></div>
         <h3 class="font-bold text-white mb-1">Calidad Premium</h3>
         <p class="text-slate-400 text-sm">Productos seleccionados, siempre fríos y en buen estado.</p>
       </div>
-      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center
-                  hover:border-amber-500/30 transition-all duration-300 hover:-translate-y-1">
+      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center hover:border-red-500/30 transition-all duration-300 hover:-translate-y-1">
         <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center"><i class="fa-brands fa-whatsapp text-green-400 text-xl"></i></div></div>
-        <h3 class="font-bold text-white mb-1">Fácil por WhatsApp</h3>
-        <p class="text-slate-400 text-sm">Sin apps, sin registros. Solo escríbenos y listo.</p>
+        <h3 class="font-bold text-white mb-1">Carrito + WhatsApp</h3>
+        <p class="text-slate-400 text-sm">Arma tu carrito y envía el pedido completo en un click.</p>
       </div>
-      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center
-                  hover:border-amber-500/30 transition-all duration-300 hover:-translate-y-1">
-        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"><i class="fa-solid fa-credit-card text-amber-400 text-xl"></i></div></div>
-        <h3 class="font-bold text-white mb-1">Múltiples Pagos</h3>
-        <p class="text-slate-400 text-sm">Efectivo, transferencia o tarjeta al recibir.</p>
+      <div class="bg-slate-800 border border-white/5 rounded-2xl p-6 text-center hover:border-red-500/30 transition-all duration-300 hover:-translate-y-1">
+        <div class="mb-4 flex justify-center"><div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center"><i class="fa-solid fa-arrow-right-arrow-left text-red-400 text-xl"></i></div></div>
+        <h3 class="font-bold text-white mb-1">Pago Transferencia</h3>
+        <p class="text-slate-400 text-sm">Datos bancarios incluidos en el pedido. Rápido y seguro.</p>
       </div>
+    </div>
+
+    <div class="mt-10 bg-gradient-to-r from-red-500/10 to-red-600/5 border border-red-500/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-motorcycle text-red-400 text-2xl"></i>
+        </div>
+        <div>
+          <p class="font-bold text-white text-lg">Delivery a domicilio disponible</p>
+          <p class="text-slate-400 text-sm">Costo de envío: <strong class="text-red-400">$1.500</strong> · Pedido mínimo: <strong class="text-red-400">$5.000</strong></p>
+        </div>
+      </div>
+      <a href="#catalogo" class="flex-shrink-0 bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 whitespace-nowrap">
+        <i class="fa-solid fa-cart-shopping mr-2"></i>Pedir ahora
+      </a>
     </div>
   </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     🦶  FOOTER
-════════════════════════════════════════════════════════════════ -->
-<footer id="footer"
-        class="bg-slate-950 border-t border-white/5 pt-16 pb-10 px-4 sm:px-6">
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════ -->
+<footer id="footer" class="bg-slate-950 border-t border-white/5 pt-16 pb-10 px-4 sm:px-6">
   <div class="max-w-6xl mx-auto">
-
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
-
-      <!-- Columna 1: Logo + descripción -->
       <div>
         <div class="flex items-center gap-2 mb-4">
-          <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-            <i class="fa-solid fa-champagne-glasses text-amber-400"></i>
+          <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center">
+            <i class="fa-solid fa-champagne-glasses text-red-400"></i>
           </div>
           <div>
-            <p class="font-display text-xl font-black text-amber-400">Lector Jean</p>
+            <p class="font-display text-xl font-black text-red-400">Lector Jean</p>
             <p class="text-slate-500 text-xs uppercase tracking-widest">Botillería Premium</p>
           </div>
         </div>
-        <p class="text-slate-400 text-sm leading-relaxed">
-          Tu botillería de confianza. Variedad, frescura y
-          el mejor servicio de delivery de la zona.
-        </p>
-        <!-- Redes sociales -->
+        <p class="text-slate-400 text-sm leading-relaxed">Tu botillería de confianza. Variedad, frescura y el mejor servicio de delivery de la zona.</p>
         <div class="flex gap-3 mt-5">
-          <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/40
-                             flex items-center justify-center text-slate-400 hover:text-amber-400
-                             transition-all duration-200">
-            <i class="fa-brands fa-instagram text-base"></i></a>
-          <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/40
-                             flex items-center justify-center text-slate-400 hover:text-amber-400
-                             transition-all duration-200">
-            <i class="fa-brands fa-facebook-f text-base"></i></a>
-          <a href="https://wa.me/56900000000" target="_blank" rel="noopener"
-             class="w-9 h-9 rounded-lg bg-green-900/40 hover:bg-green-700/40 border border-green-500/30
-                    flex items-center justify-center text-green-400 hover:text-green-300
-                    transition-all duration-200">
-            <i class="fa-brands fa-whatsapp text-base"></i></a>
+          <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 flex items-center justify-center text-slate-400 hover:text-red-400 transition-all duration-200"><i class="fa-brands fa-instagram text-base"></i></a>
+          <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 flex items-center justify-center text-slate-400 hover:text-red-400 transition-all duration-200"><i class="fa-brands fa-facebook-f text-base"></i></a>
+          <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 flex items-center justify-center text-slate-400 hover:text-red-400 transition-all duration-200"><i class="fa-brands fa-tiktok text-base"></i></a>
+          <a href="#" target="_blank" rel="noopener" class="w-9 h-9 rounded-lg bg-green-900/40 hover:bg-green-700/40 border border-green-500/30 flex items-center justify-center text-green-400 hover:text-green-300 transition-all duration-200"><i class="fa-brands fa-whatsapp text-base"></i></a>
         </div>
       </div>
-
-      <!-- Columna 2: Horarios -->
       <div>
-        <h4 class="font-bold text-white mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-clock text-amber-400"></i> Horarios de Atención
-        </h4>
+        <h4 class="font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-clock text-red-400"></i> Horarios de Atención</h4>
         <ul class="space-y-2.5 text-sm">
-          <li class="flex justify-between">
-            <span class="text-slate-400">Lunes a Jueves</span>
-            <span class="text-white font-semibold">12:00 – 01:00</span>
-          </li>
-          <li class="flex justify-between">
-            <span class="text-slate-400">Viernes y Sábado</span>
-            <span class="text-amber-400 font-semibold">12:00 – 03:00</span>
-          </li>
-          <li class="flex justify-between">
-            <span class="text-slate-400">Domingo</span>
-            <span class="text-white font-semibold">13:00 – 00:00</span>
-          </li>
+          <li class="flex justify-between"><span class="text-slate-400">Lunes a Jueves</span><span class="text-white font-semibold">12:00 – 01:00</span></li>
+          <li class="flex justify-between"><span class="text-slate-400">Viernes y Sábado</span><span class="text-red-400 font-semibold">12:00 – 03:00</span></li>
+          <li class="flex justify-between"><span class="text-slate-400">Domingo</span><span class="text-white font-semibold">13:00 – 00:00</span></li>
         </ul>
-        <!-- Status dinámico en footer -->
         <div id="footer-status" class="mt-4 text-xs font-semibold"></div>
       </div>
-
-      <!-- Columna 3: Métodos de pago -->
       <div>
-        <h4 class="font-bold text-white mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-credit-card text-amber-400"></i> Métodos de Pago
-        </h4>
+        <h4 class="font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-credit-card text-red-400"></i> Métodos de Pago</h4>
         <div class="flex flex-wrap gap-2">
-          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-solid fa-money-bill-wave mr-1 text-amber-400/70"></i>Efectivo</span>
-          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-solid fa-arrow-right-arrow-left mr-1 text-amber-400/70"></i>Transferencia</span>
-          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-solid fa-credit-card mr-1 text-amber-400/70"></i>Débito al recibir</span>
-          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-solid fa-credit-card mr-1 text-amber-400/70"></i>Crédito al recibir</span>
-          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-regular fa-circle-check mr-1 text-amber-400/70"></i>Mercado Pago</span>
+          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-solid fa-arrow-right-arrow-left mr-1 text-red-400/70"></i>Transferencia</span>
+          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-solid fa-money-bill-wave mr-1 text-red-400/70"></i>Efectivo</span>
+          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-solid fa-credit-card mr-1 text-red-400/70"></i>Débito/Crédito</span>
+          <span class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i class="fa-regular fa-circle-check mr-1 text-red-400/70"></i>Mercado Pago</span>
         </div>
-
-        <!-- Contacto directo -->
         <div class="mt-6">
-          <h4 class="font-bold text-white mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-location-dot text-amber-400"></i> Contacto
-          </h4>
-          <p class="text-slate-400 text-sm"><i class="fa-solid fa-phone mr-1.5 text-amber-400/60"></i>+56 9 00 000 000</p>
-          <p class="text-slate-400 text-sm mt-1"><i class="fa-solid fa-location-dot mr-1.5 text-amber-400/60"></i>Tu dirección, Ciudad, Chile</p>
+          <h4 class="font-bold text-white mb-3 flex items-center gap-2"><i class="fa-solid fa-location-dot text-red-400"></i> Contacto Directo</h4>
+          <p class="text-slate-400 text-sm"><i class="fa-solid fa-phone mr-1.5 text-red-400/60"></i>+56 9 00 000 000</p>
+          <p class="text-slate-400 text-sm mt-1"><i class="fa-solid fa-location-dot mr-1.5 text-red-400/60"></i>Tu dirección, Ciudad, Chile</p>
         </div>
       </div>
     </div>
-
-    <!-- Divider -->
-    <div class="border-t border-white/5 pt-6 flex flex-col sm:flex-row
-                justify-between items-center gap-3 text-xs text-slate-600">
-      <p>© 2026 Botillería Lector Jean. Todos los derechos reservados.</p>
+    <div class="border-t border-white/5 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-600">
+      <!-- Triple-click secreto = abrir panel admin -->
+      <p id="footer-copy" class="cursor-default select-none">© 2026 Botillería Lector Jean. Todos los derechos reservados.</p>
       <p><i class="fa-solid fa-shield-halved mr-1"></i>Solo para mayores de 18 años. Bebe con responsabilidad.</p>
     </div>
   </div>
 </footer>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     💚  BOTÓN FLOTANTE DE WHATSAPP
-════════════════════════════════════════════════════════════════ -->
-<a id="wa-float"
-   href="https://wa.me/56900000000?text=¡Hola!%20Vengo%20de%20la%20web.%20Quiero%20hacer%20un%20pedido"
-   target="_blank" rel="noopener"
-   title="Pedir por WhatsApp"
-   class="fixed bottom-6 right-5 z-40 flex items-center gap-2
-          bg-green-500 hover:bg-green-400 text-white font-bold
-          pl-4 pr-5 py-3 rounded-2xl shadow-xl shadow-green-900/40
-          transition-all duration-300 hover:scale-105 hover:shadow-green-500/30 group">
-  <!-- WhatsApp SVG -->
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-  </svg>
+<!-- Botón flotante WhatsApp -->
+<a id="wa-float" href="#" target="_blank" rel="noopener" title="Pedir por WhatsApp"
+   class="fixed bottom-6 right-5 z-40 flex items-center gap-2 bg-green-500 hover:bg-green-400 text-white font-bold pl-4 pr-5 py-3 rounded-2xl shadow-xl shadow-green-900/40 transition-all duration-300 hover:scale-105">
+  <i class="fa-brands fa-whatsapp text-xl"></i>
   <span class="text-sm">Pedir ahora</span>
 </a>
 
+<!-- Toast container -->
+<div id="toast-container" class="fixed bottom-24 right-5 z-[100] space-y-2 pointer-events-none"></div>
 
-<!-- Script principal externo -->
 <script src="script.js"></script>
-
 </body>
 </html>

@@ -1,403 +1,989 @@
-/* ══════════════════════════════════════════════════════════
-   BOTILLERÍA LECTOR JEAN — script.js
-   Lógica principal: edad, catálogo, WhatsApp, horarios
-══════════════════════════════════════════════════════════ */
-
-'use strict';
-
-/* ══════════════════════════════════════════════════════════
-   0. CONFIGURACIÓN CENTRAL
-   👉 Cambia SOLO esta variable con tu número real
-      Formato: código de país + número, sin + ni espacios
-      Ejemplo Chile: 56912345678
-══════════════════════════════════════════════════════════ */
-const WHATSAPP_NUMBER = '56900000000'; // ← REEMPLAZA con tu número real
-
-
-/* ══════════════════════════════════════════════════════════
-   1. VERIFICACIÓN DE EDAD
-══════════════════════════════════════════════════════════ */
-
 /**
- * Maneja la respuesta del modal de verificación de edad.
- * @param {boolean} isAdult - true si el usuario confirma ser mayor de edad
+ * Botillería Lector Jean – script.js
+ * Carrito · Checkout · WhatsApp · Admin CRUD · LocalStorage
  */
-function checkAge(isAdult) {
-  if (isAdult) {
-    sessionStorage.setItem('ageVerified', 'true');
-    const modal = document.getElementById('age-modal');
-    modal.classList.add('hide');
-    // Remover del DOM una vez finalizada la animación de salida
-    setTimeout(() => {
-      if (modal && modal.parentNode) modal.remove();
-    }, 400);
-  } else {
-    // Mostrar mensaje de rechazo y bloquear botones
-    document.getElementById('age-deny').classList.remove('hidden');
-    document.querySelectorAll('#age-box button').forEach(btn => {
-      btn.disabled = true;
-    });
-    document.getElementById('age-box').style.opacity = '0.5';
-  }
-}
 
+// ─── CONFIG ───────────────────────────────────────────────────────────
+const CONFIG = {
+  whatsappNumber: '56900000000',
+  adminPassword: 'admin2026',
+  deliveryFee: 1500,
+  minOrder: 5000,
+  storeName: 'Botillería Lector Jean',
+  transferencia: {
+    banco: 'Banco Estado',
+    tipo: 'Cuenta RUT',
+    numero: '12.345.678-9',
+    rut: '12.345.678-9',
+    titular: 'Jean Pérez López',
+    email: 'lectorjean@gmail.com',
+  },
+};
 
-/* ══════════════════════════════════════════════════════════
-   2. DATOS DEL CATÁLOGO DE PRODUCTOS
-   Para agregar un producto, añade un objeto al array
-   siguiendo el mismo esquema.
-══════════════════════════════════════════════════════════ */
-const productos = [
-  /* ── CERVEZAS ─────────────────────────────────────── */
-  {
-    id: 1,
-    categoria: 'cervezas',
-    nombre: 'Heineken Botella 330ml',
-    precio: '$1.490',
-    imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80',
-    etiqueta: 'Más vendido',
-    etiquetaColor: 'amber',
-    descripcion: 'Lager importada, 5° Alc.',
-  },
-  {
-    id: 2,
-    categoria: 'cervezas',
-    nombre: 'Pack Escudo x6 Lata 350ml',
-    precio: '$5.990',
-    imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80',
-    etiqueta: 'Promo',
-    etiquetaColor: 'green',
-    descripcion: 'Lager nacional. Pack ahorro.',
-  },
-  {
-    id: 3,
-    categoria: 'cervezas',
-    nombre: 'Kunstmann Torobayo 500ml',
-    precio: '$2.490',
-    imagen: 'https://images.unsplash.com/photo-1518176258769-f227c798150e?auto=format&fit=crop&w=400&q=80',
-    etiqueta: null,
-    etiquetaColor: null,
-    descripcion: 'Cerveza artesanal de Valdivia.',
-  },
+// ─── LABELS SUBCATEGORÍAS CERVEZAS ──────────────────────────────────
+const SUBCAT_LABELS = {
+  'latones':    'Latón 473ml',
+  'pack-latas': 'Pack Latas',
+  'botellines': 'Pack Botellines',
+  'botellas':   'Botella Grande',
+};
 
-  /* ── DESTILADOS ────────────────────────────────────── */
-  {
-    id: 4,
-    categoria: 'destilados',
-    nombre: 'Pisco Alto del Carmen 40° 1L',
-    precio: '$8.990',
-    imagen: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=400&q=80',
-    etiqueta: 'Más vendido',
-    etiquetaColor: 'amber',
-    descripcion: 'Pisco doble destilado, 40°.',
-  },
-  {
-    id: 5,
-    categoria: 'destilados',
-    nombre: 'Johnnie Walker Red Label 750ml',
-    precio: '$19.990',
-    imagen: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=400&q=80',
-    etiqueta: 'Premium',
-    etiquetaColor: 'amber',
-    descripcion: 'Blended Scotch Whisky, 40°.',
-  },
-  {
-    id: 6,
-    categoria: 'destilados',
-    nombre: 'Ron Bacardí Blanco 750ml',
-    precio: '$11.490',
-    imagen: 'https://images.unsplash.com/photo-1564419320461-6870880221ad?auto=format&fit=crop&w=400&q=80',
-    etiqueta: null,
-    etiquetaColor: null,
-    descripcion: 'Ron blanco de Cuba, 40°.',
-  },
-  {
-    id: 7,
-    categoria: 'destilados',
-    nombre: 'Vodka Absolut Original 750ml',
-    precio: '$13.990',
-    imagen: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=400&q=80',
-    etiqueta: 'Promo',
-    etiquetaColor: 'green',
-    descripcion: 'Vodka sueco premium, 40°.',
-  },
+// ─── PRODUCTOS BASE ────────────────────────────────────────────────────
+const PRODUCTOS_BASE = [
 
-  /* ── VINOS ─────────────────────────────────────────── */
-  {
-    id: 8,
-    categoria: 'vinos',
-    nombre: 'Casillero del Diablo Cab. Sauv. 750ml',
-    precio: '$5.490',
-    imagen: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80',
-    etiqueta: 'Más vendido',
-    etiquetaColor: 'amber',
-    descripcion: 'Tinto, Valle del Maipo.',
-  },
-  {
-    id: 9,
-    categoria: 'vinos',
-    nombre: 'Concha y Toro Rosé 750ml',
-    precio: '$4.990',
-    imagen: 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?auto=format&fit=crop&w=400&q=80',
-    etiqueta: null,
-    etiquetaColor: null,
-    descripcion: 'Rosé frutal y fresco.',
-  },
+  // ── CERVEZAS · LATONES 473ml (unidad) ─────────────────────────────
+  { id: 1,  nombre: 'Escudo Latón 473ml',           categoria: 'cervezas', subcategoria: 'latones',    precio: 990,  descripcion: 'Lager nacional clásica · 5°',            imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Más pedido', etiquetaColor: 'red',   disponible: true },
+  { id: 2,  nombre: 'Cristal Latón 473ml',           categoria: 'cervezas', subcategoria: 'latones',    precio: 890,  descripcion: 'La favorita de Chile · 4.9°',            imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta',     etiquetaColor: 'amber', disponible: true },
+  { id: 3,  nombre: 'Heineken Latón 473ml',          categoria: 'cervezas', subcategoria: 'latones',    precio: 1290, descripcion: 'Lager holandesa premium · 5°',           imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'green', disponible: true },
+  { id: 4,  nombre: 'Royal Guard Golden Latón 473ml',categoria: 'cervezas', subcategoria: 'latones',    precio: 990,  descripcion: 'Golden Lager suave · 4.5°',              imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 5,  nombre: 'Brahma Latón 473ml',            categoria: 'cervezas', subcategoria: 'latones',    precio: 890,  descripcion: 'Lager brasileña refrescante · 4.8°',     imagen: 'https://images.unsplash.com/photo-1574021635408-bc1e06fba23b?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
 
-  /* ── HIELO & SNACKS ────────────────────────────────── */
-  {
-    id: 10,
-    categoria: 'hielo',
-    nombre: 'Hielo Bolsa 3 Kg',
-    precio: '$1.990',
-    imagen: 'https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?auto=format&fit=crop&w=400&q=80',
-    etiqueta: 'Esencial',
-    etiquetaColor: 'blue',
-    descripcion: 'Cubos perfectos para tus bebestibles.',
-  },
-  {
-    id: 11,
-    categoria: 'hielo',
-    nombre: 'Mix Snacks Fiesta (6 pack)',
-    precio: '$3.490',
-    imagen: 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=400&q=80',
-    etiqueta: 'Promo',
-    etiquetaColor: 'green',
-    descripcion: 'Papas fritas, maní y más.',
-  },
-  {
-    id: 12,
-    categoria: 'hielo',
-    nombre: 'Coca-Cola 1.5L + Soda',
-    precio: '$2.490',
-    imagen: 'https://images.unsplash.com/photo-1567103472667-6898f3a79cf2?auto=format&fit=crop&w=400&q=80',
-    etiqueta: null,
-    etiquetaColor: null,
-    descripcion: 'Pack mezcladores para cócteles.',
-  },
+  // ── CERVEZAS · PACKS DE LATAS 350ml ───────────────────────────────
+  { id: 6,  nombre: 'Pack x6 Escudo Lata 350ml',    categoria: 'cervezas', subcategoria: 'pack-latas', precio: 4490, descripcion: '6 latas 350ml · Lager 5°',               imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6',     etiquetaColor: 'green', disponible: true },
+  { id: 7,  nombre: 'Pack x6 Cristal Lata 350ml',   categoria: 'cervezas', subcategoria: 'pack-latas', precio: 4290, descripcion: '6 latas 350ml · Lager 4.9°',             imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta',     etiquetaColor: 'amber', disponible: true },
+  { id: 8,  nombre: 'Pack x6 Heineken Lata 350ml',  categoria: 'cervezas', subcategoria: 'pack-latas', precio: 6490, descripcion: '6 latas 350ml · Lager 5°',               imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'green', disponible: true },
+  { id: 9,  nombre: 'Pack x24 Escudo Lata 350ml',   categoria: 'cervezas', subcategoria: 'pack-latas', precio: 15990, descripcion: '24 latas 350ml · Precio caja',           imagen: 'https://images.unsplash.com/photo-1574021635408-bc1e06fba23b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Caja x24',   etiquetaColor: 'red',   disponible: true },
+
+  // ── CERVEZAS · PACKS BOTELLINES 330ml ─────────────────────────────
+  { id: 10, nombre: 'Pack x6 Corona Botellín 330ml', categoria: 'cervezas', subcategoria: 'botellines', precio: 6990, descripcion: '6 botellines 330ml · Lager mexicana 4.5°', imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6',     etiquetaColor: 'amber', disponible: true },
+  { id: 11, nombre: 'Pack x6 Heineken Botellín 330ml',categoria: 'cervezas', subcategoria: 'botellines', precio: 6990, descripcion: '6 botellines 330ml · Lager holandesa 5°', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6',     etiquetaColor: 'green', disponible: true },
+  { id: 12, nombre: 'Pack x12 Escudo Botellín 330ml', categoria: 'cervezas', subcategoria: 'botellines', precio: 8490, descripcion: '12 botellines 330ml · Mejor precio',     imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 12',    etiquetaColor: 'red',   disponible: true },
+  { id: 13, nombre: 'Pack x12 Cristal Botellín 330ml',categoria: 'cervezas', subcategoria: 'botellines', precio: 7990, descripcion: '12 botellines 330ml · Lager 4.9°',       imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 12',    etiquetaColor: 'amber', disponible: true },
+
+  // ── CERVEZAS · BOTELLAS GRANDES 500-620ml (unidad) ────────────────
+  { id: 14, nombre: 'Kunstmann Torobayo 500ml',      categoria: 'cervezas', subcategoria: 'botellas',   precio: 2190, descripcion: 'Amber ale artesanal · 5.5°',             imagen: 'https://images.unsplash.com/photo-1518176258769-f227c798150e?auto=format&fit=crop&w=400&q=80', etiqueta: 'Artesanal',  etiquetaColor: 'blue',  disponible: true },
+  { id: 15, nombre: 'Escudo Botella 620ml',           categoria: 'cervezas', subcategoria: 'botellas',   precio: 1390, descripcion: 'Lager nacional · 620ml · 5°',            imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 16, nombre: 'Heineken Botella 620ml',         categoria: 'cervezas', subcategoria: 'botellas',   precio: 1890, descripcion: 'Lager holandesa · 620ml · 5°',           imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'green', disponible: true },
+  { id: 17, nombre: 'Royal Guard Golden 620ml',       categoria: 'cervezas', subcategoria: 'botellas',   precio: 1490, descripcion: 'Golden Lager · 620ml · 4.5°',            imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+
+  // DESTILADOS
+  { id: 118, nombre: 'Pisco Control 750ml',       categoria: 'destilados', precio: 7990, descripcion: '35° · El clásico chileno',                   imagen: 'https://images.unsplash.com/photo-1516535794938-6063878f08cc?auto=format&fit=crop&w=400&q=80', etiqueta: 'Más pedido', etiquetaColor: 'red',   disponible: true },
+  { id: 19, nombre: 'Pisco Mistral 750ml',       categoria: 'destilados', precio: 8990, descripcion: '35° · Suave y frutado',                      imagen: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 20, nombre: 'Vodka Absolut 750ml',       categoria: 'destilados', precio: 14990, descripcion: '40° · Sueco puro',                          imagen: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'green', disponible: true },
+  { id: 21, nombre: 'Ron Bacardí Blanco 750ml',  categoria: 'destilados', precio: 12990, descripcion: '37.5° · Para cócteles',                     imagen: 'https://images.unsplash.com/photo-1609350393940-c2e0d0e11c0d?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 22, nombre: 'Whisky Old Times 750ml',    categoria: 'destilados', precio: 9990, descripcion: 'Blended scotch suave · 40°',                 imagen: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta',     etiquetaColor: 'amber', disponible: true },
+  { id: 23, nombre: 'Gin Beefeater 750ml',       categoria: 'destilados', precio: 17990, descripcion: '40° · London dry gin clásico',              imagen: 'https://images.unsplash.com/photo-1624365169138-4c9e00a18e43?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 24, nombre: 'Tequila José Cuervo 750ml', categoria: 'destilados', precio: 13990, descripcion: '38° · Silver suave y neutro',               imagen: 'https://images.unsplash.com/photo-1565299512474-b3c1d3a3d09d?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+
+  // VINOS
+  { id: 25, nombre: 'Casillero del Diablo Cabernet 750ml', categoria: 'vinos', precio: 5990, descripcion: 'Concha y Toro · Tinto· D.O. Valle Central', imagen: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80', etiqueta: 'Popular',   etiquetaColor: 'red',   disponible: true },
+  { id: 26, nombre: 'Santa Helena Siglo de Oro 750ml',     categoria: 'vinos', precio: 3490, descripcion: 'Tinto suave · Fácil de beber',           imagen: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 27, nombre: 'Gato Negro Blanco 750ml',             categoria: 'vinos', precio: 3290, descripcion: 'Sauvignon Blanc refrescante',            imagen: 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 28, nombre: 'Frontera Rosé 1.5L',                 categoria: 'vinos', precio: 5990, descripcion: 'Rosado fresco y afrutado',               imagen: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80', etiqueta: 'Promo',      etiquetaColor: 'green', disponible: true },
+  { id: 29, nombre: 'Cono Sur 20 Barrels Merlot',         categoria: 'vinos', precio: 7490, descripcion: 'Tinto premium · Valle de Colchagua',     imagen: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'blue',  disponible: true },
+
+  // HIELO & SNACKS
+  { id: 30, nombre: 'Hielo Bolsa 3kg',           categoria: 'hielo',      precio: 1990, descripcion: 'Hielo fabricado · Ideal para cócteles',       imagen: 'https://images.unsplash.com/photo-1548504769-900b70ed122e?auto=format&fit=crop&w=400&q=80', etiqueta: 'Esencial',   etiquetaColor: 'blue',  disponible: true },
+  { id: 31, nombre: 'Hielo Bolsa 6kg',           categoria: 'hielo',      precio: 3490, descripcion: 'Formato grande para fiestas',                 imagen: 'https://images.unsplash.com/photo-1581393293369-ec7deaec8f3b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack',       etiquetaColor: 'green', disponible: true },
+  { id: 32, nombre: 'Snack Mix Salado 100g',     categoria: 'hielo',      precio: 990,  descripcion: 'Papas, churritos y maní · Mix perfecto',      imagen: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 33, nombre: 'Jugo DayFresh 1L',          categoria: 'hielo',      precio: 1290, descripcion: 'Naranja o piña · Mezcla tus trago',           imagen: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
 ];
 
-
-/* ══════════════════════════════════════════════════════════
-   3. FUNCIÓN DE PEDIDO POR WHATSAPP
-   Construye la URL de WhatsApp con el texto preformateado
-   y la abre en una pestaña nueva.
-══════════════════════════════════════════════════════════ */
-
-/**
- * Abre WhatsApp con un mensaje de pedido preformateado.
- * @param {string} nombreProducto - Nombre del producto
- * @param {string} precio - Precio del producto (ej. '$8.990')
- */
-function pedirPorWhatsApp(nombreProducto, precio) {
-  const texto =
-    '¡Hola! Vengo de la página web. Me interesa pedir *' +
-    nombreProducto +
-    '* (' + precio + '). ¿Tienen disponibilidad y cuánto demora el envío? 🚚';
-  const url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(texto);
-  window.open(url, '_blank', 'noopener,noreferrer');
-}
-
-
-/* ══════════════════════════════════════════════════════════
-   4. RENDERIZADO DE TARJETAS DE PRODUCTO
-══════════════════════════════════════════════════════════ */
-
-/** Mapa de clases CSS para etiquetas según color */
-const etiquetaClasses = {
-  amber: 'bg-amber-500 text-slate-900',
+// ─── BADGE COLORS ──────────────────────────────────────────────────────
+const BADGE_CLASSES = {
+  red:   'bg-red-500 text-white',
   green: 'bg-green-500 text-white',
   blue:  'bg-sky-500 text-white',
+  amber: 'bg-amber-400 text-slate-900',
 };
 
-/** Mapa de etiquetas legibles por categoría */
-const catLabels = {
-  cervezas:   '<i class="fa-solid fa-beer-mug-empty mr-1"></i>Cerveza',
-  destilados: '<i class="fa-solid fa-fire mr-1"></i>Destilado',
-  vinos:      '<i class="fa-solid fa-wine-glass mr-1"></i>Vino',
-  hielo:      '<i class="fa-solid fa-snowflake mr-1"></i>Hielo & Snack',
-};
+// ─── STORE ────────────────────────────────────────────────────────────
+const LS_PRODUCTS_KEY = 'blj_productos_v1';
+const LS_DELETE_KEY   = 'pf_delete_id';
+let cart = [];
 
-/**
- * Devuelve la etiqueta legible de una categoría.
- * @param {string} cat
- * @returns {string}
- */
-function getCatLabel(cat) {
-  return catLabels[cat] || cat;
+function getProductos() {
+  try {
+    const raw = localStorage.getItem(LS_PRODUCTS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(PRODUCTOS_BASE));
 }
 
-/**
- * Genera el HTML de una tarjeta de producto.
- * @param {Object} p - Objeto del producto
- * @param {number} i - Índice para la animación escalonada
- * @returns {string} HTML de la tarjeta
- */
-function buildCard(p, i) {
-  const badgeHtml = p.etiqueta
-    ? '<span class="absolute top-3 left-3 ' +
-        (etiquetaClasses[p.etiquetaColor] || 'bg-amber-500 text-slate-900') +
-        ' text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-full shadow">' +
-        p.etiqueta +
-      '</span>'
-    : '';
-
-  /* Nombre seguro para inline onclick (escapa comillas simples) */
-  const safeNombre = p.nombre.replace(/'/g, "\\'");
-
-  return (
-    '<article class="product-card bg-slate-800 border border-white/5 rounded-2xl overflow-hidden ' +
-      'flex flex-col" style="animation: slideUp 0.4s ' + (i * 60) + 'ms ease both;" ' +
-      'data-categoria="' + p.categoria + '">' +
-
-      /* Imagen */
-      '<div class="relative h-48 overflow-hidden bg-slate-700">' +
-        '<img src="' + p.imagen + '" alt="' + p.nombre + '" loading="lazy" ' +
-          'class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" ' +
-          'onerror="this.src=\'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80\'" />' +
-        '<div class="absolute inset-0 bg-gradient-to-t from-slate-800/60 to-transparent"></div>' +
-        badgeHtml +
-      '</div>' +
-
-      /* Contenido */
-      '<div class="flex flex-col flex-1 p-4 gap-3">' +
-        '<div class="flex-1">' +
-          '<p class="text-xs text-slate-500 uppercase tracking-wider mb-1 font-semibold">' + getCatLabel(p.categoria) + '</p>' +
-          '<h3 class="text-white font-bold text-sm leading-snug mb-1">' + p.nombre + '</h3>' +
-          '<p class="text-slate-400 text-xs">' + p.descripcion + '</p>' +
-        '</div>' +
-
-        /* Precio + Botón */
-        '<div class="flex items-center justify-between gap-2 pt-2 border-t border-white/5">' +
-          '<span class="font-display text-2xl font-black text-amber-400">' + p.precio + '</span>' +
-          '<button onclick="pedirPorWhatsApp(\'' + safeNombre + '\', \'' + p.precio + '\')" ' +
-            'class="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 active:scale-95 ' +
-            'text-white text-xs font-bold px-3 py-2 rounded-xl transition-all duration-200 ' +
-            'hover:shadow-lg hover:shadow-green-900/40 flex-shrink-0">' +
-            /* WhatsApp mini icon */
-            '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">' +
-              '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>' +
-            '</svg>' +
-            'Pedir' +
-          '</button>' +
-        '</div>' +
-      '</div>' +
-    '</article>'
-  );
+function saveProductos(arr) {
+  localStorage.setItem(LS_PRODUCTS_KEY, JSON.stringify(arr));
 }
 
-/**
- * Renderiza el grid de productos según el filtro de categoría.
- * @param {string} [filtro='todos'] - Categoría a mostrar
- */
-function renderProductos(filtro) {
-  filtro = filtro || 'todos';
-  const grid      = document.getElementById('products-grid');
-  const noResults = document.getElementById('no-results');
+// ─── UTILS ────────────────────────────────────────────────────────────
+function formatPeso(n) {
+  return '$' + Number(n).toLocaleString('es-CL');
+}
 
-  const filtered = filtro === 'todos'
-    ? productos
-    : productos.filter(function(p) { return p.categoria === filtro; });
+function parsePrecio(str) {
+  return parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 0;
+}
 
-  if (filtered.length === 0) {
-    grid.innerHTML = '';
-    noResults.classList.remove('hidden');
+function genId() {
+  const prods = getProductos();
+  if (!prods.length) return 1;
+  return Math.max(...prods.map(p => p.id)) + 1;
+}
+
+function getOrderNum() {
+  const n = (parseInt(localStorage.getItem('blj_order_counter') || '0') + 1);
+  localStorage.setItem('blj_order_counter', String(n));
+  return String(n).padStart(4, '0');
+}
+
+function fechaHora() {
+  return new Date().toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+// ─── AGE GATE ─────────────────────────────────────────────────────────
+function checkAge(ok) {
+  if (ok) {
+    sessionStorage.setItem('blj_age', '1');
+    const m = document.getElementById('age-modal');
+    if (!m) return;
+    m.style.transition = 'opacity 0.35s ease';
+    m.style.pointerEvents = 'none';
+    // Forzar reflow antes de iniciar la transición
+    void m.offsetHeight;
+    m.style.opacity = '0';
+    setTimeout(() => m.remove(), 380);
+  } else {
+    document.getElementById('age-deny').classList.remove('hidden');
+  }
+}
+
+// ─── OPEN STATUS ──────────────────────────────────────────────────────
+function checkOpenStatus() {
+  const now  = new Date();
+  const day  = now.getDay();   // 0=Sun,1=Mon…6=Sat
+  const hour = now.getHours();
+  const min  = now.getMinutes();
+  const t = hour * 60 + min;
+
+  let open = false;
+  if (day >= 1 && day <= 4) open = t >= 720 && t < 1500;       // Mon-Thu 12-01
+  else if (day === 5 || day === 6) open = t >= 720 && t < 1620; // Fri-Sat 12-03
+  else if (day === 0) open = t >= 780 && t < 1440;              // Sun 13-24
+
+  const s = document.getElementById('status-badge');
+  const c = document.getElementById('closed-badge');
+  const f = document.getElementById('footer-status');
+  if (open) {
+    s?.classList.remove('hidden'); s?.classList.add('flex');
+    c?.classList.remove('flex');   c?.classList.add('hidden');
+    if (f) f.innerHTML = '<span class="text-green-400"><i class="fa-solid fa-circle mr-1"></i>Estamos abiertos ahora</span>';
+  } else {
+    c?.classList.remove('hidden'); c?.classList.add('flex');
+    s?.classList.remove('flex');   s?.classList.add('hidden');
+    if (f) f.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-circle mr-1"></i>Actualmente cerrados</span>';
+  }
+}
+
+// ─── WHATSAPP LINKS ───────────────────────────────────────────────────
+function setWaLinks() {
+  const msg = `Hola! Quiero hacer un pedido en ${CONFIG.storeName}.`;
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  document.querySelectorAll('#wa-nav-btn, #wa-float').forEach(el => el.setAttribute('href', url));
+}
+
+// ─── CART ─────────────────────────────────────────────────────────────
+function addToCart(id) {
+  const prod = getProductos().find(p => p.id === Number(id));
+  if (!prod) return;
+  const existing = cart.find(i => i.id === prod.id);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, qty: 1 });
+  }
+  updateCartUI();
+  showToast(`<i class="fa-solid fa-cart-plus mr-1.5"></i> ${prod.nombre} agregado al carrito`, 'success');
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== Number(id));
+  updateCartUI();
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === Number(id));
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) removeFromCart(id);
+  else updateCartUI();
+}
+
+function clearCart() {
+  if (!cart.length) return;
+  if (!confirm('¿Vaciar el carrito?')) return;
+  cart = [];
+  updateCartUI();
+}
+
+function cartTotal() {
+  return cart.reduce((s, i) => s + i.precio * i.qty, 0);
+}
+
+function updateCartUI() {
+  const total = cartTotal();
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+
+  // Badges
+  const badge = document.getElementById('cart-badge');
+  const label = document.getElementById('cart-count-label');
+  if (badge) { badge.textContent = count; badge.classList.toggle('hidden', count === 0); badge.classList.toggle('flex', count > 0); }
+  if (label) label.textContent = count;
+
+  // Totals
+  const sub  = document.getElementById('cart-subtotal');
+  const tot  = document.getElementById('cart-total');
+  if (sub) sub.textContent = formatPeso(total);
+  if (tot) tot.textContent = formatPeso(total + CONFIG.deliveryFee);
+
+  // Hero stat
+  const heroStat = document.getElementById('hero-stat-products');
+  if (heroStat) heroStat.textContent = '+' + getProductos().filter(p => p.disponible).length;
+
+  // States
+  const emptyState = document.getElementById('cart-empty-state');
+  const itemsState = document.getElementById('cart-items-state');
+  if (emptyState && itemsState) {
+    if (cart.length === 0) {
+      emptyState.classList.remove('hidden'); emptyState.classList.add('flex');
+      itemsState.classList.remove('flex');   itemsState.classList.add('hidden');
+    } else {
+      emptyState.classList.remove('flex');   emptyState.classList.add('hidden');
+      itemsState.classList.remove('hidden'); itemsState.classList.add('flex');
+    }
+  }
+  renderCartItems();
+}
+
+function renderCartItems() {
+  const list = document.getElementById('cart-items-list');
+  if (!list) return;
+  list.innerHTML = cart.map(item => `
+    <div class="flex items-center gap-3 bg-slate-800/60 border border-white/5 rounded-2xl p-3">
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-white text-sm leading-tight truncate">${item.nombre}</p>
+        <p class="text-red-400 text-xs font-bold mt-0.5">${formatPeso(item.precio)} c/u</p>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button onclick="changeQty(${item.id},-1)" class="w-7 h-7 rounded-lg bg-slate-700 hover:bg-red-600/40 text-white text-sm font-bold flex items-center justify-center transition-all hover:scale-110 active:scale-90">−</button>
+        <span class="w-6 text-center font-bold text-white text-sm">${item.qty}</span>
+        <button onclick="changeQty(${item.id},1)"  class="w-7 h-7 rounded-lg bg-slate-700 hover:bg-red-600/40 text-white text-sm font-bold flex items-center justify-center transition-all hover:scale-110 active:scale-90">+</button>
+      </div>
+      <div class="text-right flex-shrink-0 min-w-[3.5rem]">
+        <p class="font-black text-white text-sm">${formatPeso(item.precio * item.qty)}</p>
+        <button onclick="removeFromCart(${item.id})" class="text-slate-600 hover:text-red-400 text-[10px] mt-0.5 transition-colors">eliminar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCart() {
+  const drawer  = document.getElementById('cart-drawer');
+  const overlay = document.getElementById('cart-overlay');
+  const open = !drawer.classList.contains('translate-x-full');
+  if (open) {
+    drawer.classList.add('translate-x-full');
+    overlay.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  } else {
+    drawer.classList.remove('translate-x-full');
+    overlay.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+}
+
+function closeCart() {
+  document.getElementById('cart-drawer')?.classList.add('translate-x-full');
+  document.getElementById('cart-overlay')?.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+}
+
+// ─── CHECKOUT ─────────────────────────────────────────────────────────
+function openCheckout() {
+  if (cart.length === 0) { showToast('El carrito está vacío', 'error'); return; }
+  const total = cartTotal();
+  if (total < CONFIG.minOrder) {
+    showToast(`Pedido mínimo: ${formatPeso(CONFIG.minOrder)}`, 'warning');
     return;
   }
-
-  noResults.classList.add('hidden');
-  grid.innerHTML = filtered.map(buildCard).join('');
+  closeCart();
+  buildCheckoutSummary();
+  buildTransferBox();
+  const overlay = document.getElementById('checkout-overlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+  document.body.classList.add('overflow-hidden');
 }
 
+function closeCheckout() {
+  const overlay = document.getElementById('checkout-overlay');
+  overlay.classList.add('hidden');
+  overlay.classList.remove('flex');
+  document.body.classList.remove('overflow-hidden');
+  document.getElementById('checkout-error')?.classList.add('hidden');
+}
 
-/* ══════════════════════════════════════════════════════════
-   5. LÓGICA DE FILTROS DE CATEGORÍA
-══════════════════════════════════════════════════════════ */
+function closeCheckoutOutside(e) {
+  if (e.target === document.getElementById('checkout-overlay')) closeCheckout();
+}
+
+function buildCheckoutSummary() {
+  const box = document.getElementById('checkout-summary');
+  if (!box) return;
+  box.innerHTML = cart.map(item => `
+    <div class="flex items-center justify-between px-4 py-3 text-sm">
+      <div class="flex items-center gap-2.5">
+        <span class="w-6 h-6 rounded-lg bg-slate-700 text-xs font-black text-white flex items-center justify-center flex-shrink-0">${item.qty}</span>
+        <span class="text-slate-200 font-medium">${item.nombre}</span>
+      </div>
+      <span class="font-bold text-white">${formatPeso(item.precio * item.qty)}</span>
+    </div>
+  `).join('') + `
+    <div class="flex justify-between px-4 py-3 border-t border-white/5 text-xs text-slate-500">
+      <span>Subtotal</span><span>${formatPeso(cartTotal())}</span>
+    </div>
+    <div class="flex justify-between px-4 py-3 text-xs text-slate-500">
+      <span>Delivery</span><span class="text-red-400">+ ${formatPeso(CONFIG.deliveryFee)}</span>
+    </div>
+  `;
+  const tot = document.getElementById('checkout-total-display');
+  if (tot) tot.textContent = formatPeso(cartTotal() + CONFIG.deliveryFee);
+}
+
+function buildTransferBox() {
+  const box = document.getElementById('transfer-info-box');
+  if (!box) return;
+  const t = CONFIG.transferencia;
+  box.innerHTML = `
+    <div class="grid grid-cols-2 gap-y-2">
+      <span class="text-slate-500">Banco</span>      <span class="text-white font-semibold">${t.banco}</span>
+      <span class="text-slate-500">Tipo</span>       <span class="text-white font-semibold">${t.tipo}</span>
+      <span class="text-slate-500">Número</span>     <span class="text-white font-semibold font-mono">${t.numero}</span>
+      <span class="text-slate-500">RUT</span>        <span class="text-white font-semibold font-mono">${t.rut}</span>
+      <span class="text-slate-500">Titular</span>    <span class="text-white font-semibold">${t.titular}</span>
+      <span class="text-slate-500">Email</span>      <span class="text-white font-semibold text-xs">${t.email}</span>
+    </div>
+    <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
+      <span class="text-slate-500 text-xs">Monto a transferir:</span>
+      <span class="text-red-400 font-black text-xl">${formatPeso(cartTotal() + CONFIG.deliveryFee)}</span>
+    </div>
+  `;
+}
+
+function toggleCheckbox(el) {
+  const box   = document.getElementById('f-comprobante-box');
+  const check = document.getElementById('f-comprobante-check');
+  if (el.checked) {
+    box.classList.add('bg-red-600', 'border-red-600');
+    box.classList.remove('bg-slate-800', 'border-slate-600');
+    check.classList.remove('hidden');
+  } else {
+    box.classList.remove('bg-red-600', 'border-red-600');
+    box.classList.add('bg-slate-800', 'border-slate-600');
+    check.classList.add('hidden');
+  }
+}
+
+function enviarPedidoWhatsApp() {
+  const nombre    = document.getElementById('f-nombre')?.value.trim();
+  const telefono  = document.getElementById('f-telefono')?.value.trim();
+  const direccion = document.getElementById('f-direccion')?.value.trim();
+  const depto     = document.getElementById('f-depto')?.value.trim();
+  const comuna    = document.getElementById('f-comuna')?.value.trim();
+  const referencia = document.getElementById('f-referencia')?.value.trim();
+  const notas     = document.getElementById('f-notas')?.value.trim();
+  const comp      = document.getElementById('f-comprobante')?.checked;
+  const errBox    = document.getElementById('checkout-error');
+  const errMsg    = document.getElementById('checkout-error-msg');
+
+  function showErr(msg) {
+    errMsg.textContent = msg;
+    errBox.classList.remove('hidden');
+    errBox.classList.add('flex');
+    errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  if (!nombre)    return showErr('Por favor ingresa tu nombre completo.');
+  if (!telefono)  return showErr('Por favor ingresa tu número de WhatsApp o teléfono.');
+  if (!direccion) return showErr('Por favor ingresa la dirección de entrega.');
+  if (!comuna)    return showErr('Por favor ingresa la comuna.');
+  errBox.classList.add('hidden');
+  errBox.classList.remove('flex');
+
+  const orderNum = getOrderNum();
+  const t = CONFIG.transferencia;
+  const total = cartTotal() + CONFIG.deliveryFee;
+
+  const lineasProductos = cart.map(item =>
+    `  • ${item.nombre} x${item.qty}  →  ${formatPeso(item.precio * item.qty)}`
+  ).join('\n');
+
+  const direccionCompleta = [direccion, depto, comuna].filter(Boolean).join(', ');
+
+  const msg = [
+    `🍺 *${CONFIG.storeName}*`,
+    `📋 *PEDIDO #${orderNum}*`,
+    `📅 ${fechaHora()}`,
+    `${'─'.repeat(30)}`,
+    ``,
+    `👤 *DATOS DEL CLIENTE*`,
+    `  Nombre: ${nombre}`,
+    `  Teléfono: ${telefono}`,
+    ``,
+    `📦 *PRODUCTOS SOLICITADOS*`,
+    lineasProductos,
+    ``,
+    `  Subtotal:          ${formatPeso(cartTotal())}`,
+    `  Delivery:          + ${formatPeso(CONFIG.deliveryFee)}`,
+    `  ─────────────────────`,
+    `  *TOTAL A PAGAR:    ${formatPeso(total)}*`,
+    ``,
+    `🏠 *DIRECCIÓN DE ENTREGA*`,
+    `  ${direccionCompleta}`,
+    referencia ? `  Referencia: ${referencia}` : null,
+    ``,
+    `💳 *PAGO – TRANSFERENCIA BANCARIA*`,
+    `  Banco:    ${t.banco}`,
+    `  Tipo:     ${t.tipo}`,
+    `  N° Cta:   ${t.numero}`,
+    `  RUT:      ${t.rut}`,
+    `  Titular:  ${t.titular}`,
+    `  Email:    ${t.email}`,
+    `  *Monto:   ${formatPeso(total)}*`,
+    ``,
+    comp ? `📸 *El cliente SOLICITA comprobante de transferencia*` : `ℹ️ Sin solicitud de comprobante`,
+    notas ? `\n📝 *Notas del cliente:*\n  ${notas}` : null,
+    ``,
+    `${'─'.repeat(30)}`,
+    `✅ Por favor confirmar recepción del pedido.`,
+    `_Enviado desde botillerialectorjean.cl_`,
+  ].filter(l => l !== null).join('\n');
+
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank', 'noopener');
+
+  closeCheckout();
+  cart = [];
+  updateCartUI();
+  showToast('<i class="fa-brands fa-whatsapp mr-1.5"></i> Pedido enviado con éxito por WhatsApp', 'success');
+}
+
+// ─── CATALOG RENDER ────────────────────────────────────────────────────
+let activeSubcat = 'todos';
+
+function renderProductos(filtro = 'todos', subcat = null) {
+  if (subcat !== null) activeSubcat = subcat;
+  const grid  = document.getElementById('products-grid');
+  const noRes = document.getElementById('no-results');
+  if (!grid) return;
+  let prods = getProductos().filter(p => p.disponible && (filtro === 'todos' || p.categoria === filtro));
+  if (filtro === 'cervezas' && activeSubcat !== 'todos') {
+    prods = prods.filter(p => p.subcategoria === activeSubcat);
+  }
+  grid.innerHTML = prods.map(p => buildCard(p)).join('');
+  if (noRes) noRes.classList.toggle('hidden', prods.length > 0);
+}
+
+function buildCard(p) {
+  const inCart = cart.find(i => i.id === p.id);
+  const badgeCls = p.etiquetaColor && BADGE_CLASSES[p.etiquetaColor] ? BADGE_CLASSES[p.etiquetaColor] : '';
+  const fallback = 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80';
+  return `
+    <div class="product-card bg-slate-800 border border-slate-700/60 rounded-2xl overflow-hidden flex flex-col group transition-all duration-300 hover:-translate-y-1.5 hover:border-red-500/40 hover:shadow-2xl hover:shadow-red-950/40">
+
+      <!-- Imagen -->
+      <div class="product-img-wrap relative flex-shrink-0">
+        <img src="${p.imagen || fallback}"
+             alt="${p.nombre}" loading="lazy"
+             class="product-img"
+             onerror="this.src='${fallback}'" />
+        <!-- Badge etiqueta -->
+        ${p.etiqueta && badgeCls
+          ? `<span class="absolute top-3 left-3 ${badgeCls} text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide shadow-lg">${p.etiqueta}</span>`
+          : ''}
+        <!-- Subcategoría / categoría badge top-right -->
+        ${(p.categoria === 'cervezas' && p.subcategoria)
+          ? `<span class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-sky-300 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider border border-sky-500/20">${SUBCAT_LABELS[p.subcategoria] || p.subcategoria}</span>`
+          : `<span class="absolute top-3 right-3 bg-slate-900/70 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider border border-white/10">${p.categoria}</span>`
+        }
+      </div>
+
+      <!-- Info -->
+      <div class="p-4 flex flex-col flex-1 gap-3">
+        <div class="flex-1">
+          <h3 class="font-bold text-white text-sm leading-snug line-clamp-2 mb-1">${p.nombre}</h3>
+          ${p.descripcion ? `<p class="text-slate-500 text-xs line-clamp-1">${p.descripcion}</p>` : ''}
+        </div>
+
+        <div class="flex items-end justify-between gap-2 pt-2 border-t border-white/5">
+          <div>
+            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold leading-none mb-0.5">Precio</p>
+            <span class="font-display text-2xl font-black text-red-400 leading-none">${formatPeso(p.precio)}</span>
+          </div>
+          ${inCart
+            ? `<div class="flex items-center gap-1.5 bg-slate-700/60 rounded-xl px-1 py-1">
+                 <button onclick="changeQty(${p.id},-1)" class="w-7 h-7 rounded-lg bg-slate-600 hover:bg-red-600 text-white text-base font-black flex items-center justify-center transition-all active:scale-90 leading-none">−</button>
+                 <span class="w-7 text-center font-black text-white text-sm">${inCart.qty}</span>
+                 <button onclick="changeQty(${p.id},1)"  class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-500 text-white text-base font-black flex items-center justify-center transition-all active:scale-90 leading-none">+</button>
+               </div>`
+            : ''}
+        </div>
+
+        ${!inCart
+          ? `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 active:scale-95 text-white text-sm font-black py-2.5 rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-red-900/30">
+               <i class="fa-solid fa-cart-plus"></i>Agregar al carrito
+             </button>`
+          : `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-red-600/30 text-slate-300 hover:text-white text-xs font-semibold py-2 rounded-xl transition-all border border-white/5">
+               <i class="fa-solid fa-plus text-[10px]"></i>Agregar otro
+             </button>`
+        }
+      </div>
+    </div>
+  `;
+}
+
 function initFiltros() {
-  var filtrosEl = document.getElementById('filtros');
-  if (!filtrosEl) return;
+  const btns     = document.querySelectorAll('#filtros .cat-btn');
+  const subWrap  = document.getElementById('sub-filtros');
+  const subBtns  = document.querySelectorAll('#sub-filtros .sub-cat-btn');
 
-  filtrosEl.addEventListener('click', function(e) {
-    var btn = e.target.closest('.cat-btn');
-    if (!btn) return;
-
-    /* Actualizar botón activo */
-    document.querySelectorAll('.cat-btn').forEach(function(b) {
-      b.classList.remove('active');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.cat;
+      // Mostrar u ocultar sub-filtros de cervezas
+      if (cat === 'cervezas') {
+        subWrap?.classList.remove('hidden');
+        subWrap?.classList.add('flex');
+      } else {
+        subWrap?.classList.add('hidden');
+        subWrap?.classList.remove('flex');
+        activeSubcat = 'todos';
+        subBtns.forEach(b => b.classList.toggle('active', b.dataset.sub === 'todos'));
+      }
+      renderProductos(cat);
     });
-    btn.classList.add('active');
+  });
 
-    /* Filtrar y renderizar */
-    renderProductos(btn.dataset.cat);
+  subBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      subBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProductos('cervezas', btn.dataset.sub);
+    });
   });
 }
 
+// ─── ADMIN ACCESS ──────────────────────────────────────────────────────
+let _clickCount = 0;
+let _clickTimer = null;
 
-/* ══════════════════════════════════════════════════════════
-   6. ESTADO ABIERTO / CERRADO (dinámico por hora local)
-   Horarios configurados:
-     Lun – Jue : 12:00 – 01:00 (madrugada)
-     Vie – Sáb : 12:00 – 03:00 (madrugada)
-     Dom       : 13:00 – 00:00
-══════════════════════════════════════════════════════════ */
-function checkOpenStatus() {
-  var now  = new Date();
-  var day  = now.getDay();          /* 0=Dom … 6=Sáb */
-  var time = now.getHours() * 60 + now.getMinutes(); /* minutos desde 00:00 */
+function initAdminAccess() {
+  document.getElementById('footer-copy')?.addEventListener('click', () => {
+    _clickCount++;
+    clearTimeout(_clickTimer);
+    _clickTimer = setTimeout(() => { _clickCount = 0; }, 600);
+    if (_clickCount >= 3) { _clickCount = 0; openAdmin(); }
+  });
+  if (window.location.hash === '#admin') openAdmin();
+}
 
-  var isOpen = false;
-
-  if (day === 0) {
-    /* Domingo: 13:00 (780) – 24:00 (1440) */
-    isOpen = time >= 780;
-  } else if (day >= 1 && day <= 4) {
-    /* Lun – Jue: abre a las 12:00 (720) y cierra a la 01:00 AM del día siguiente */
-    isOpen = time >= 720 || time < 60;
+function openAdmin() {
+  const overlay = document.getElementById('admin-overlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+  document.body.classList.add('overflow-hidden');
+  const session = sessionStorage.getItem('blj_admin_session');
+  if (session === 'true') {
+    showAdminPanel();
   } else {
-    /* Vie – Sáb: abre a las 12:00 (720) y cierra a las 03:00 AM del día siguiente */
-    isOpen = time >= 720 || time < 180;
-  }
-
-  var openBadge    = document.getElementById('status-badge');
-  var closedBadge  = document.getElementById('closed-badge');
-  var footerStatus = document.getElementById('footer-status');
-
-  if (isOpen) {
-    if (openBadge)   { openBadge.classList.remove('hidden');  openBadge.classList.add('flex');   }
-    if (closedBadge) { closedBadge.classList.remove('flex');  closedBadge.classList.add('hidden'); }
-    if (footerStatus) {
-      footerStatus.innerHTML = '<span style="color:#4ade80">● Abierto ahora · Pedidos disponibles</span>';
-    }
-  } else {
-    if (closedBadge) { closedBadge.classList.remove('hidden'); closedBadge.classList.add('flex');  }
-    if (openBadge)   { openBadge.classList.remove('flex');     openBadge.classList.add('hidden');  }
-    if (footerStatus) {
-      footerStatus.innerHTML = '<span style="color:#f87171">● Cerrado ahora · Reabrimos pronto</span>';
-    }
+    document.getElementById('admin-login').classList.remove('hidden');
+    document.getElementById('admin-panel').classList.add('hidden');
+    setTimeout(() => document.getElementById('admin-pwd-input')?.focus(), 200);
   }
 }
 
+function closeAdmin() {
+  document.getElementById('admin-overlay')?.classList.add('hidden');
+  document.getElementById('admin-overlay')?.classList.remove('flex');
+  document.body.classList.remove('overflow-hidden');
+}
 
-/* ══════════════════════════════════════════════════════════
-   7. INICIALIZACIÓN
-══════════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', function() {
+function loginAdmin() {
+  const pwd = document.getElementById('admin-pwd-input')?.value;
+  const errEl = document.getElementById('admin-login-error');
+  if (pwd === CONFIG.adminPassword) {
+    sessionStorage.setItem('blj_admin_session', 'true');
+    errEl.classList.add('hidden');
+    showAdminPanel();
+  } else {
+    errEl.classList.remove('hidden');
+    errEl.classList.add('flex');
+    document.getElementById('admin-pwd-input').value = '';
+    document.getElementById('admin-pwd-input')?.focus();
+  }
+}
 
-  /* Verificar si la sesión ya validó la edad */
-  if (sessionStorage.getItem('ageVerified') === 'true') {
-    var modal = document.getElementById('age-modal');
-    if (modal) modal.remove();
+function showAdminPanel() {
+  document.getElementById('admin-login').classList.add('hidden');
+  document.getElementById('admin-panel').classList.remove('hidden');
+  updateAdminStats();
+  renderAdminProducts('todos');
+  initAdminFiltros();
+}
+
+function updateAdminStats() {
+  const prods = getProductos();
+  const sTotal = document.getElementById('stat-total');
+  const sCerv  = document.getElementById('stat-cervezas');
+  const sDest  = document.getElementById('stat-destilados');
+  const sVinos = document.getElementById('stat-vinos');
+  if (sTotal) sTotal.textContent = prods.length;
+  if (sCerv)  sCerv.textContent  = prods.filter(p => p.categoria === 'cervezas').length;
+  if (sDest)  sDest.textContent  = prods.filter(p => p.categoria === 'destilados').length;
+  if (sVinos) sVinos.textContent = prods.filter(p => p.categoria === 'vinos').length;
+}
+
+let activeAdminSubcat = 'todos';
+
+function renderAdminProducts(filtro = 'todos', subcat = null) {
+  if (subcat !== null) activeAdminSubcat = subcat;
+  const grid = document.getElementById('admin-products-grid');
+  if (!grid) return;
+  let prods = getProductos().filter(p => filtro === 'todos' || p.categoria === filtro);
+  if (filtro === 'cervezas' && activeAdminSubcat !== 'todos') {
+    prods = prods.filter(p => p.subcategoria === activeAdminSubcat);
+  }
+  if (!prods.length) {
+    grid.innerHTML = '<p class="col-span-full text-slate-500 text-center py-10">No hay productos en esta categoría.</p>';
+    return;
+  }
+  grid.innerHTML = prods.map(p => {
+    const subcatLabel = (p.categoria === 'cervezas' && p.subcategoria)
+      ? (SUBCAT_LABELS[p.subcategoria] || p.subcategoria)
+      : p.categoria;
+    const subcatColor = p.categoria === 'cervezas'
+      ? 'bg-sky-900/50 text-sky-300 border-sky-500/20'
+      : 'bg-slate-700 text-slate-400 border-transparent';
+    return `
+    <div class="bg-slate-800 border border-white/5 rounded-2xl overflow-hidden flex flex-col ${!p.disponible ? 'opacity-50' : ''} hover:border-red-500/20 transition-colors">
+      <div class="relative h-32 bg-gradient-to-b from-slate-700 to-slate-800 flex items-center justify-center p-3">
+        <img src="${p.imagen || ''}" alt="${p.nombre}" loading="lazy"
+             class="max-h-full max-w-full object-contain drop-shadow-lg"
+             onerror="this.style.display='none'" />
+        ${!p.disponible ? `<div class="absolute inset-0 bg-slate-900/70 flex items-center justify-center"><span class="bg-red-900/80 text-red-300 text-xs px-3 py-1 rounded-full font-bold">No disponible</span></div>` : ''}
+      </div>
+      <div class="p-4 flex-1 flex flex-col gap-2">
+        <p class="font-bold text-white text-sm line-clamp-2 leading-tight">${p.nombre}</p>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-red-400 font-black text-base">${formatPeso(p.precio)}</span>
+          <span class="border text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${subcatColor}">${subcatLabel}</span>
+        </div>
+        <div class="flex gap-2 mt-auto pt-2">
+          <button onclick="openProductForm(${p.id})" class="flex-1 bg-sky-600/20 hover:bg-sky-600/40 text-sky-400 border border-sky-500/20 text-xs font-bold py-2 rounded-lg transition-all">
+            <i class="fa-solid fa-pen mr-1"></i>Editar
+          </button>
+          <button onclick="openDeleteModal(${p.id})" class="flex-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/20 text-xs font-bold py-2 rounded-lg transition-all">
+            <i class="fa-solid fa-trash-can mr-1"></i>Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+function initAdminFiltros() {
+  const btns    = document.querySelectorAll('#admin-filtros .admin-cat-btn');
+  const subWrap = document.getElementById('admin-sub-filtros');
+  const subBtns = document.querySelectorAll('#admin-sub-filtros .admin-sub-btn');
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.cat;
+      if (cat === 'cervezas') {
+        subWrap?.classList.remove('hidden');
+        subWrap?.classList.add('flex');
+      } else {
+        subWrap?.classList.add('hidden');
+        subWrap?.classList.remove('flex');
+        activeAdminSubcat = 'todos';
+        subBtns.forEach(b => b.classList.toggle('active', b.dataset.sub === 'todos'));
+      }
+      renderAdminProducts(cat);
+    });
+  });
+
+  subBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      subBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAdminProducts('cervezas', btn.dataset.sub);
+    });
+  });
+}
+
+// ─── PRODUCT FORM ─────────────────────────────────────────────────────
+/*
+  La superposición (#pf-overlay) NO tiene onclick para cerrar.
+  Solo se puede cerrar con el botón X o Cancelar (ambos llaman a closePFConfirm).
+  Si hay cambios sin guardar se muestra una confirmación nativa.
+*/
+
+let _pfOriginal = null; // snapshot de valores al abrir el form
+
+/* Muestra u oculta el selector de subcategoría según la categoría elegida */
+function toggleSubcatField() {
+  const cat   = document.getElementById('pf-categoria')?.value;
+  const wrap  = document.getElementById('pf-subcat-wrap');
+  const sel   = document.getElementById('pf-subcategoria');
+  if (!wrap) return;
+  if (cat === 'cervezas') {
+    wrap.classList.remove('hidden');
+  } else {
+    wrap.classList.add('hidden');
+    if (sel) sel.value = '';
+  }
+}
+
+function openProductForm(id) {
+  const overlay = document.getElementById('pf-overlay');
+  const title   = document.getElementById('pf-title');
+  const errBox  = document.getElementById('pf-error');
+  errBox?.classList.add('hidden');
+
+  if (id) {
+    const p = getProductos().find(x => x.id === Number(id));
+    if (!p) return;
+    title.textContent = 'Editar Producto';
+    document.getElementById('pf-id').value           = p.id;
+    document.getElementById('pf-nombre').value        = p.nombre;
+    document.getElementById('pf-categoria').value     = p.categoria;
+    document.getElementById('pf-precio').value        = formatPeso(p.precio);
+    document.getElementById('pf-descripcion').value   = p.descripcion || '';
+    document.getElementById('pf-imagen').value        = p.imagen || '';
+    document.getElementById('pf-etiqueta').value      = p.etiqueta || '';
+    document.getElementById('pf-etiquetacolor').value = p.etiquetaColor || '';
+    document.getElementById('pf-disponible').checked  = p.disponible !== false;
+    document.getElementById('pf-subcategoria').value  = p.subcategoria || '';
+  } else {
+    title.textContent = 'Agregar Producto';
+    document.getElementById('pf-id').value           = '';
+    document.getElementById('pf-nombre').value        = '';
+    document.getElementById('pf-categoria').value     = '';
+    document.getElementById('pf-precio').value        = '';
+    document.getElementById('pf-descripcion').value   = '';
+    document.getElementById('pf-imagen').value        = '';
+    document.getElementById('pf-etiqueta').value      = '';
+    document.getElementById('pf-etiquetacolor').value = '';
+    document.getElementById('pf-disponible').checked  = true;
+    document.getElementById('pf-subcategoria').value  = '';
   }
 
-  /* Renderizar catálogo completo */
+  // Mostrar u ocultar subcategoría según la categoría cargada
+  toggleSubcatField();
+
+  // Guardar snapshot de valores originales para detectar cambios
+  _pfOriginal = getPFValues();
+
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+  document.getElementById('pf-nombre')?.focus();
+}
+
+function getPFValues() {
+  return {
+    nombre:        document.getElementById('pf-nombre')?.value,
+    categoria:     document.getElementById('pf-categoria')?.value,
+    subcategoria:  document.getElementById('pf-subcategoria')?.value,
+    precio:        document.getElementById('pf-precio')?.value,
+    descripcion:   document.getElementById('pf-descripcion')?.value,
+    imagen:        document.getElementById('pf-imagen')?.value,
+    etiqueta:      document.getElementById('pf-etiqueta')?.value,
+    etiquetaColor: document.getElementById('pf-etiquetacolor')?.value,
+    disponible:    document.getElementById('pf-disponible')?.checked,
+  };
+}
+
+function pfHasChanges() {
+  if (!_pfOriginal) return false;
+  const current = getPFValues();
+  return JSON.stringify(current) !== JSON.stringify(_pfOriginal);
+}
+
+function closePFConfirm() {
+  if (pfHasChanges()) {
+    if (!confirm('¿Descartar los cambios?\n\nTienes cambios sin guardar. Si cierras ahora se perderán.')) {
+      return; // El usuario eligió continuar editando
+    }
+  }
+  closePF();
+}
+
+function closePF() {
+  const overlay = document.getElementById('pf-overlay');
+  overlay.classList.add('hidden');
+  overlay.classList.remove('flex');
+  _pfOriginal = null;
+}
+
+function saveProduct() {
+  const id           = document.getElementById('pf-id')?.value;
+  const nombre       = document.getElementById('pf-nombre')?.value.trim();
+  const categoria    = document.getElementById('pf-categoria')?.value;
+  const subcategoria = document.getElementById('pf-subcategoria')?.value || '';
+  const precioRaw    = document.getElementById('pf-precio')?.value;
+  const precio       = parsePrecio(precioRaw);
+  const descripcion  = document.getElementById('pf-descripcion')?.value.trim();
+  const imagen       = document.getElementById('pf-imagen')?.value.trim();
+  const etiqueta     = document.getElementById('pf-etiqueta')?.value.trim();
+  const etiquetaColor= document.getElementById('pf-etiquetacolor')?.value;
+  const disponible   = document.getElementById('pf-disponible')?.checked;
+
+  const errBox = document.getElementById('pf-error');
+  const errMsg = document.getElementById('pf-error-msg');
+
+  function showE(msg) {
+    errMsg.textContent = msg;
+    errBox.classList.remove('hidden');
+    errBox.classList.add('flex');
+    errBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  if (!nombre)    return showE('El nombre del producto es obligatorio.');
+  if (!categoria) return showE('Selecciona una categoría.');
+  if (categoria === 'cervezas' && !subcategoria) return showE('Selecciona el tipo de cerveza (subcategoría).');
+  if (!precio || precio < 1) return showE('Ingresa un precio válido (ej: $1.490).');
+  errBox.classList.add('hidden');
+  errBox.classList.remove('flex');
+
+  const prods = getProductos();
+  if (id) {
+    const idx = prods.findIndex(p => p.id === Number(id));
+    if (idx !== -1) prods[idx] = { ...prods[idx], nombre, categoria, subcategoria, precio, descripcion, imagen, etiqueta, etiquetaColor, disponible };
+  } else {
+    prods.push({ id: genId(), nombre, categoria, subcategoria, precio, descripcion, imagen, etiqueta, etiquetaColor, disponible });
+  }
+  saveProductos(prods);
+  closePF();
+  updateAdminStats();
+  renderAdminProducts(document.querySelector('#admin-filtros .admin-cat-btn.active')?.dataset.cat || 'todos');
+  renderProductos(document.querySelector('#filtros .cat-btn.active')?.dataset.cat || 'todos');
+  updateCartUI();
+  showToast(`<i class="fa-solid fa-floppy-disk mr-1.5"></i> Producto ${id ? 'actualizado' : 'creado'} correctamente`, 'success');
+}
+
+// ─── DELETE ────────────────────────────────────────────────────────────
+let _pendingDeleteId = null;
+
+function openDeleteModal(id) {
+  const prod = getProductos().find(p => p.id === Number(id));
+  if (!prod) return;
+  _pendingDeleteId = id;
+  document.getElementById('delete-product-name').textContent = `"${prod.nombre}" — esta acción no se puede deshacer.`;
+  const overlay = document.getElementById('delete-overlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+}
+
+function closeDeleteModal() {
+  _pendingDeleteId = null;
+  const overlay = document.getElementById('delete-overlay');
+  overlay.classList.add('hidden');
+  overlay.classList.remove('flex');
+}
+
+function confirmDelete() {
+  if (!_pendingDeleteId) return;
+  const prods = getProductos().filter(p => p.id !== Number(_pendingDeleteId));
+  saveProductos(prods);
+  closeDeleteModal();
+  updateAdminStats();
+  renderAdminProducts(document.querySelector('#admin-filtros .admin-cat-btn.active')?.dataset.cat || 'todos');
+  renderProductos(document.querySelector('#filtros .cat-btn.active')?.dataset.cat || 'todos');
+  updateCartUI();
+  showToast('<i class="fa-solid fa-trash-can mr-1.5"></i> Producto eliminado', 'warning');
+}
+
+function resetProducts() {
+  if (!confirm('¿Restaurar todos los productos originales?\n\nEsto borrará cualquier cambio o producto personalizado.')) return;
+  localStorage.removeItem(LS_PRODUCTS_KEY);
+  updateAdminStats();
+  renderAdminProducts('todos');
   renderProductos('todos');
+  updateCartUI();
+  showToast('<i class="fa-solid fa-rotate-left mr-1.5"></i> Productos restaurados a los valores originales', 'success');
+}
 
-  /* Activar filtros */
-  initFiltros();
+// ─── TOAST ────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const colors = {
+    success: 'bg-green-900/90 border-green-500/40 text-green-300',
+    error:   'bg-red-900/90 border-red-500/40 text-red-300',
+    warning: 'bg-amber-900/90 border-amber-500/40 text-amber-300',
+    info:    'bg-sky-900/90 border-sky-500/40 text-sky-300',
+  };
+  const toast = document.createElement('div');
+  toast.className = `pointer-events-auto ${colors[type] || colors.info} border backdrop-blur-md shadow-xl rounded-xl px-4 py-3 max-w-xs text-sm font-semibold flex items-center gap-2 translate-y-2 opacity-0 transition-all duration-300`;
+  toast.innerHTML = msg;
+  container.appendChild(toast);
+  requestAnimationFrame(() => { toast.classList.remove('translate-y-2', 'opacity-0'); });
+  setTimeout(() => {
+    toast.classList.add('opacity-0', 'translate-y-2');
+    setTimeout(() => toast.remove(), 400);
+  }, 3000);
+}
 
-  /* Verificar estado de apertura */
+// ─── ESC KEY ──────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  // Checkout and cart close on ESC; pf-modal requires explicit action
+  if (!document.getElementById('checkout-overlay')?.classList.contains('hidden')) return closeCheckout();
+  if (!document.getElementById('cart-drawer')?.classList.contains('translate-x-full')) return closeCart();
+  if (!document.getElementById('delete-overlay')?.classList.contains('hidden')) return closeDeleteModal();
+  // For pf-overlay, ESC triggers the confirm-before-close flow
+  if (!document.getElementById('pf-overlay')?.classList.contains('hidden')) return closePFConfirm();
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Age gate
+  if (sessionStorage.getItem('blj_age') === '1') {
+    const m = document.getElementById('age-modal');
+    if (m) m.remove();
+  }
+
+  // Navbar scroll glass
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    if (!nav) return;
+    const current = window.scrollY;
+    if (current > 80) {
+      nav.classList.add('backdrop-blur-xl', 'shadow-lg', 'shadow-black/20');
+    } else {
+      nav.classList.remove('backdrop-blur-xl', 'shadow-lg', 'shadow-black/20');
+    }
+    lastScroll = current;
+  });
+
   checkOpenStatus();
+  setWaLinks();
+  updateCartUI();
+  renderProductos();
+  initFiltros();
+  initAdminAccess();
 
-  /* Actualizar estado de apertura cada minuto */
-  setInterval(checkOpenStatus, 60000);
+  // Logo link smooth scroll
+  document.getElementById('logo-link')?.addEventListener('click', e => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Hero stat
+  const heroStat = document.getElementById('hero-stat-products');
+  if (heroStat) heroStat.textContent = '+' + getProductos().filter(p => p.disponible).length;
 });
