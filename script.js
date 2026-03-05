@@ -1,6 +1,6 @@
 /**
  * Botillería Lector Jean – script.js
- * Carrito · Checkout · WhatsApp · Admin CRUD · LocalStorage
+ * Carrito · Checkout · WhatsApp · Admin CRUD · Supabase + LocalStorage fallback
  */
 
 // ─── CONFIG ───────────────────────────────────────────────────────────
@@ -20,88 +20,236 @@ const CONFIG = {
   },
 };
 
+// ─── SUPABASE CONFIG ──────────────────────────────────────────────────
+// ⚠️ Reemplaza estos valores con los de tu proyecto en supabase.com
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+let _sbClient = null;
+
+function initSupabase() {
+  if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || !window.supabase) return false;
+  _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return true;
+}
+
+function isSupabaseReady() { return !!_sbClient; }
+
 // ─── LABELS SUBCATEGORÍAS CERVEZAS ──────────────────────────────────
 const SUBCAT_LABELS = {
-  'latones':    'Latón 473ml',
+  'latones': 'Latón 473ml',
   'pack-latas': 'Pack Latas',
   'botellines': 'Pack Botellines',
-  'botellas':   'Botella Grande',
+  'botellas': 'Botella Grande',
 };
 
 // ─── PRODUCTOS BASE ────────────────────────────────────────────────────
 const PRODUCTOS_BASE = [
 
   // ── CERVEZAS · LATONES 473ml (unidad) ─────────────────────────────
-  { id: 1,  nombre: 'Escudo Latón 473ml',           categoria: 'cervezas', subcategoria: 'latones',    precio: 990,  descripcion: 'Lager nacional clásica · 5°',            imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Más pedido', etiquetaColor: 'red',   disponible: true },
-  { id: 2,  nombre: 'Cristal Latón 473ml',           categoria: 'cervezas', subcategoria: 'latones',    precio: 890,  descripcion: 'La favorita de Chile · 4.9°',            imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta',     etiquetaColor: 'amber', disponible: true },
-  { id: 3,  nombre: 'Heineken Latón 473ml',          categoria: 'cervezas', subcategoria: 'latones',    precio: 1290, descripcion: 'Lager holandesa premium · 5°',           imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'green', disponible: true },
-  { id: 4,  nombre: 'Royal Guard Golden Latón 473ml',categoria: 'cervezas', subcategoria: 'latones',    precio: 990,  descripcion: 'Golden Lager suave · 4.5°',              imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
-  { id: 5,  nombre: 'Brahma Latón 473ml',            categoria: 'cervezas', subcategoria: 'latones',    precio: 890,  descripcion: 'Lager brasileña refrescante · 4.8°',     imagen: 'https://images.unsplash.com/photo-1574021635408-bc1e06fba23b?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 1, nombre: 'Escudo Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 990, descripcion: 'Lager nacional clásica · 5°', imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Más pedido', etiquetaColor: 'red', disponible: true },
+  { id: 2, nombre: 'Cristal Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 890, descripcion: 'La favorita de Chile · 4.9°', imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta', etiquetaColor: 'amber', disponible: true },
+  { id: 3, nombre: 'Heineken Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 1290, descripcion: 'Lager holandesa premium · 5°', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'green', disponible: true },
+  { id: 4, nombre: 'Royal Guard Golden Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 990, descripcion: 'Golden Lager suave · 4.5°', imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 5, nombre: 'Brahma Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 890, descripcion: 'Lager brasileña refrescante · 4.8°', imagen: 'https://images.unsplash.com/photo-1574021635408-bc1e06fba23b?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
 
   // ── CERVEZAS · PACKS DE LATAS 350ml ───────────────────────────────
-  { id: 6,  nombre: 'Pack x6 Escudo Lata 350ml',    categoria: 'cervezas', subcategoria: 'pack-latas', precio: 4490, descripcion: '6 latas 350ml · Lager 5°',               imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6',     etiquetaColor: 'green', disponible: true },
-  { id: 7,  nombre: 'Pack x6 Cristal Lata 350ml',   categoria: 'cervezas', subcategoria: 'pack-latas', precio: 4290, descripcion: '6 latas 350ml · Lager 4.9°',             imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta',     etiquetaColor: 'amber', disponible: true },
-  { id: 8,  nombre: 'Pack x6 Heineken Lata 350ml',  categoria: 'cervezas', subcategoria: 'pack-latas', precio: 6490, descripcion: '6 latas 350ml · Lager 5°',               imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'green', disponible: true },
-  { id: 9,  nombre: 'Pack x24 Escudo Lata 350ml',   categoria: 'cervezas', subcategoria: 'pack-latas', precio: 15990, descripcion: '24 latas 350ml · Precio caja',           imagen: 'https://images.unsplash.com/photo-1574021635408-bc1e06fba23b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Caja x24',   etiquetaColor: 'red',   disponible: true },
+  { id: 6, nombre: 'Pack x6 Escudo Lata 350ml', categoria: 'cervezas', subcategoria: 'pack-latas', precio: 4490, descripcion: '6 latas 350ml · Lager 5°', imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6', etiquetaColor: 'green', disponible: true },
+  { id: 7, nombre: 'Pack x6 Cristal Lata 350ml', categoria: 'cervezas', subcategoria: 'pack-latas', precio: 4290, descripcion: '6 latas 350ml · Lager 4.9°', imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta', etiquetaColor: 'amber', disponible: true },
+  { id: 8, nombre: 'Pack x6 Heineken Lata 350ml', categoria: 'cervezas', subcategoria: 'pack-latas', precio: 6490, descripcion: '6 latas 350ml · Lager 5°', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'green', disponible: true },
+  { id: 9, nombre: 'Pack x24 Escudo Lata 350ml', categoria: 'cervezas', subcategoria: 'pack-latas', precio: 15990, descripcion: '24 latas 350ml · Precio caja', imagen: 'https://images.unsplash.com/photo-1574021635408-bc1e06fba23b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Caja x24', etiquetaColor: 'red', disponible: true },
 
   // ── CERVEZAS · PACKS BOTELLINES 330ml ─────────────────────────────
-  { id: 10, nombre: 'Pack x6 Corona Botellín 330ml', categoria: 'cervezas', subcategoria: 'botellines', precio: 6990, descripcion: '6 botellines 330ml · Lager mexicana 4.5°', imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6',     etiquetaColor: 'amber', disponible: true },
-  { id: 11, nombre: 'Pack x6 Heineken Botellín 330ml',categoria: 'cervezas', subcategoria: 'botellines', precio: 6990, descripcion: '6 botellines 330ml · Lager holandesa 5°', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6',     etiquetaColor: 'green', disponible: true },
-  { id: 12, nombre: 'Pack x12 Escudo Botellín 330ml', categoria: 'cervezas', subcategoria: 'botellines', precio: 8490, descripcion: '12 botellines 330ml · Mejor precio',     imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 12',    etiquetaColor: 'red',   disponible: true },
-  { id: 13, nombre: 'Pack x12 Cristal Botellín 330ml',categoria: 'cervezas', subcategoria: 'botellines', precio: 7990, descripcion: '12 botellines 330ml · Lager 4.9°',       imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 12',    etiquetaColor: 'amber', disponible: true },
+  { id: 10, nombre: 'Pack x6 Corona Botellín 330ml', categoria: 'cervezas', subcategoria: 'botellines', precio: 6990, descripcion: '6 botellines 330ml · Lager mexicana 4.5°', imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6', etiquetaColor: 'amber', disponible: true },
+  { id: 11, nombre: 'Pack x6 Heineken Botellín 330ml', categoria: 'cervezas', subcategoria: 'botellines', precio: 6990, descripcion: '6 botellines 330ml · Lager holandesa 5°', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6', etiquetaColor: 'green', disponible: true },
+  { id: 12, nombre: 'Pack x12 Escudo Botellín 330ml', categoria: 'cervezas', subcategoria: 'botellines', precio: 8490, descripcion: '12 botellines 330ml · Mejor precio', imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 12', etiquetaColor: 'red', disponible: true },
+  { id: 13, nombre: 'Pack x12 Cristal Botellín 330ml', categoria: 'cervezas', subcategoria: 'botellines', precio: 7990, descripcion: '12 botellines 330ml · Lager 4.9°', imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 12', etiquetaColor: 'amber', disponible: true },
 
   // ── CERVEZAS · BOTELLAS GRANDES 500-620ml (unidad) ────────────────
-  { id: 14, nombre: 'Kunstmann Torobayo 500ml',      categoria: 'cervezas', subcategoria: 'botellas',   precio: 2190, descripcion: 'Amber ale artesanal · 5.5°',             imagen: 'https://images.unsplash.com/photo-1518176258769-f227c798150e?auto=format&fit=crop&w=400&q=80', etiqueta: 'Artesanal',  etiquetaColor: 'blue',  disponible: true },
-  { id: 15, nombre: 'Escudo Botella 620ml',           categoria: 'cervezas', subcategoria: 'botellas',   precio: 1390, descripcion: 'Lager nacional · 620ml · 5°',            imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
-  { id: 16, nombre: 'Heineken Botella 620ml',         categoria: 'cervezas', subcategoria: 'botellas',   precio: 1890, descripcion: 'Lager holandesa · 620ml · 5°',           imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'green', disponible: true },
-  { id: 17, nombre: 'Royal Guard Golden 620ml',       categoria: 'cervezas', subcategoria: 'botellas',   precio: 1490, descripcion: 'Golden Lager · 620ml · 4.5°',            imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 14, nombre: 'Kunstmann Torobayo 500ml', categoria: 'cervezas', subcategoria: 'botellas', precio: 2190, descripcion: 'Amber ale artesanal · 5.5°', imagen: 'https://images.unsplash.com/photo-1518176258769-f227c798150e?auto=format&fit=crop&w=400&q=80', etiqueta: 'Artesanal', etiquetaColor: 'blue', disponible: true },
+  { id: 15, nombre: 'Escudo Botella 620ml', categoria: 'cervezas', subcategoria: 'botellas', precio: 1390, descripcion: 'Lager nacional · 620ml · 5°', imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 16, nombre: 'Heineken Botella 620ml', categoria: 'cervezas', subcategoria: 'botellas', precio: 1890, descripcion: 'Lager holandesa · 620ml · 5°', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'green', disponible: true },
+  { id: 17, nombre: 'Royal Guard Golden 620ml', categoria: 'cervezas', subcategoria: 'botellas', precio: 1490, descripcion: 'Golden Lager · 620ml · 4.5°', imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
 
   // DESTILADOS
-  { id: 118, nombre: 'Pisco Control 750ml',       categoria: 'destilados', precio: 7990, descripcion: '35° · El clásico chileno',                   imagen: 'https://images.unsplash.com/photo-1516535794938-6063878f08cc?auto=format&fit=crop&w=400&q=80', etiqueta: 'Más pedido', etiquetaColor: 'red',   disponible: true },
-  { id: 19, nombre: 'Pisco Mistral 750ml',       categoria: 'destilados', precio: 8990, descripcion: '35° · Suave y frutado',                      imagen: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
-  { id: 20, nombre: 'Vodka Absolut 750ml',       categoria: 'destilados', precio: 14990, descripcion: '40° · Sueco puro',                          imagen: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'green', disponible: true },
-  { id: 21, nombre: 'Ron Bacardí Blanco 750ml',  categoria: 'destilados', precio: 12990, descripcion: '37.5° · Para cócteles',                     imagen: 'https://images.unsplash.com/photo-1609350393940-c2e0d0e11c0d?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
-  { id: 22, nombre: 'Whisky Old Times 750ml',    categoria: 'destilados', precio: 9990, descripcion: 'Blended scotch suave · 40°',                 imagen: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta',     etiquetaColor: 'amber', disponible: true },
-  { id: 23, nombre: 'Gin Beefeater 750ml',       categoria: 'destilados', precio: 17990, descripcion: '40° · London dry gin clásico',              imagen: 'https://images.unsplash.com/photo-1624365169138-4c9e00a18e43?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
-  { id: 24, nombre: 'Tequila José Cuervo 750ml', categoria: 'destilados', precio: 13990, descripcion: '38° · Silver suave y neutro',               imagen: 'https://images.unsplash.com/photo-1565299512474-b3c1d3a3d09d?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 118, nombre: 'Pisco Control 750ml', categoria: 'destilados', precio: 7990, descripcion: '35° · El clásico chileno', imagen: 'https://images.unsplash.com/photo-1516535794938-6063878f08cc?auto=format&fit=crop&w=400&q=80', etiqueta: 'Más pedido', etiquetaColor: 'red', disponible: true },
+  { id: 19, nombre: 'Pisco Mistral 750ml', categoria: 'destilados', precio: 8990, descripcion: '35° · Suave y frutado', imagen: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 20, nombre: 'Vodka Absolut 750ml', categoria: 'destilados', precio: 14990, descripcion: '40° · Sueco puro', imagen: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'green', disponible: true },
+  { id: 21, nombre: 'Ron Bacardí Blanco 750ml', categoria: 'destilados', precio: 12990, descripcion: '37.5° · Para cócteles', imagen: 'https://images.unsplash.com/photo-1609350393940-c2e0d0e11c0d?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 22, nombre: 'Whisky Old Times 750ml', categoria: 'destilados', precio: 9990, descripcion: 'Blended scotch suave · 40°', imagen: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta', etiquetaColor: 'amber', disponible: true },
+  { id: 23, nombre: 'Gin Beefeater 750ml', categoria: 'destilados', precio: 17990, descripcion: '40° · London dry gin clásico', imagen: 'https://images.unsplash.com/photo-1624365169138-4c9e00a18e43?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 24, nombre: 'Tequila José Cuervo 750ml', categoria: 'destilados', precio: 13990, descripcion: '38° · Silver suave y neutro', imagen: 'https://images.unsplash.com/photo-1565299512474-b3c1d3a3d09d?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
 
   // VINOS
-  { id: 25, nombre: 'Casillero del Diablo Cabernet 750ml', categoria: 'vinos', precio: 5990, descripcion: 'Concha y Toro · Tinto· D.O. Valle Central', imagen: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80', etiqueta: 'Popular',   etiquetaColor: 'red',   disponible: true },
-  { id: 26, nombre: 'Santa Helena Siglo de Oro 750ml',     categoria: 'vinos', precio: 3490, descripcion: 'Tinto suave · Fácil de beber',           imagen: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
-  { id: 27, nombre: 'Gato Negro Blanco 750ml',             categoria: 'vinos', precio: 3290, descripcion: 'Sauvignon Blanc refrescante',            imagen: 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
-  { id: 28, nombre: 'Frontera Rosé 1.5L',                 categoria: 'vinos', precio: 5990, descripcion: 'Rosado fresco y afrutado',               imagen: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80', etiqueta: 'Promo',      etiquetaColor: 'green', disponible: true },
-  { id: 29, nombre: 'Cono Sur 20 Barrels Merlot',         categoria: 'vinos', precio: 7490, descripcion: 'Tinto premium · Valle de Colchagua',     imagen: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium',    etiquetaColor: 'blue',  disponible: true },
+  { id: 25, nombre: 'Casillero del Diablo Cabernet 750ml', categoria: 'vinos', precio: 5990, descripcion: 'Concha y Toro · Tinto· D.O. Valle Central', imagen: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80', etiqueta: 'Popular', etiquetaColor: 'red', disponible: true },
+  { id: 26, nombre: 'Santa Helena Siglo de Oro 750ml', categoria: 'vinos', precio: 3490, descripcion: 'Tinto suave · Fácil de beber', imagen: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 27, nombre: 'Gato Negro Blanco 750ml', categoria: 'vinos', precio: 3290, descripcion: 'Sauvignon Blanc refrescante', imagen: 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 28, nombre: 'Frontera Rosé 1.5L', categoria: 'vinos', precio: 5990, descripcion: 'Rosado fresco y afrutado', imagen: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80', etiqueta: 'Promo', etiquetaColor: 'green', disponible: true },
+  { id: 29, nombre: 'Cono Sur 20 Barrels Merlot', categoria: 'vinos', precio: 7490, descripcion: 'Tinto premium · Valle de Colchagua', imagen: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'blue', disponible: true },
 
   // HIELO & SNACKS
-  { id: 30, nombre: 'Hielo Bolsa 3kg',           categoria: 'hielo',      precio: 1990, descripcion: 'Hielo fabricado · Ideal para cócteles',       imagen: 'https://images.unsplash.com/photo-1548504769-900b70ed122e?auto=format&fit=crop&w=400&q=80', etiqueta: 'Esencial',   etiquetaColor: 'blue',  disponible: true },
-  { id: 31, nombre: 'Hielo Bolsa 6kg',           categoria: 'hielo',      precio: 3490, descripcion: 'Formato grande para fiestas',                 imagen: 'https://images.unsplash.com/photo-1581393293369-ec7deaec8f3b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack',       etiquetaColor: 'green', disponible: true },
-  { id: 32, nombre: 'Snack Mix Salado 100g',     categoria: 'hielo',      precio: 990,  descripcion: 'Papas, churritos y maní · Mix perfecto',      imagen: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
-  { id: 33, nombre: 'Jugo DayFresh 1L',          categoria: 'hielo',      precio: 1290, descripcion: 'Naranja o piña · Mezcla tus trago',           imagen: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=400&q=80', etiqueta: '',           etiquetaColor: '',      disponible: true },
+  { id: 30, nombre: 'Hielo Bolsa 3kg', categoria: 'hielo', precio: 1990, descripcion: 'Hielo fabricado · Ideal para cócteles', imagen: 'https://images.unsplash.com/photo-1548504769-900b70ed122e?auto=format&fit=crop&w=400&q=80', etiqueta: 'Esencial', etiquetaColor: 'blue', disponible: true },
+  { id: 31, nombre: 'Hielo Bolsa 6kg', categoria: 'hielo', precio: 3490, descripcion: 'Formato grande para fiestas', imagen: 'https://images.unsplash.com/photo-1581393293369-ec7deaec8f3b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack', etiquetaColor: 'green', disponible: true },
+  { id: 32, nombre: 'Snack Mix Salado 100g', categoria: 'hielo', precio: 990, descripcion: 'Papas, churritos y maní · Mix perfecto', imagen: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 33, nombre: 'Jugo DayFresh 1L', categoria: 'hielo', precio: 1290, descripcion: 'Naranja o piña · Mezcla tus trago', imagen: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
 ];
 
 // ─── BADGE COLORS ──────────────────────────────────────────────────────
 const BADGE_CLASSES = {
-  red:   'bg-red-500 text-white',
+  red: 'bg-red-500 text-white',
   green: 'bg-green-500 text-white',
-  blue:  'bg-sky-500 text-white',
+  blue: 'bg-sky-500 text-white',
   amber: 'bg-amber-400 text-slate-900',
 };
 
 // ─── STORE ────────────────────────────────────────────────────────────
 const LS_PRODUCTS_KEY = 'blj_productos_v1';
-const LS_DELETE_KEY   = 'pf_delete_id';
+const LS_DELETE_KEY = 'pf_delete_id';
 let cart = [];
 
+// Cache global de productos (se llena en init)
+let _productosCache = null;
+
 function getProductos() {
+  if (_productosCache) return _productosCache;
   try {
     const raw = localStorage.getItem(LS_PRODUCTS_KEY);
     if (raw) return JSON.parse(raw);
-  } catch(e) {}
+  } catch (e) { }
   return JSON.parse(JSON.stringify(PRODUCTOS_BASE));
 }
 
 function saveProductos(arr) {
+  _productosCache = arr;
   localStorage.setItem(LS_PRODUCTS_KEY, JSON.stringify(arr));
+}
+
+// ─── DB: CARGA INICIAL ────────────────────────────────────────────────
+async function loadProductosFromDB() {
+  if (!isSupabaseReady()) {
+    // Fallback: localStorage o base hardcodeada
+    try {
+      const raw = localStorage.getItem(LS_PRODUCTS_KEY);
+      _productosCache = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(PRODUCTOS_BASE));
+    } catch (e) {
+      _productosCache = JSON.parse(JSON.stringify(PRODUCTOS_BASE));
+    }
+    return;
+  }
+  const { data, error } = await _sbClient.from('productos').select('*').order('id');
+  if (error || !data) {
+    console.warn('Supabase error, usando fallback:', error?.message);
+    try {
+      const raw = localStorage.getItem(LS_PRODUCTS_KEY);
+      _productosCache = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(PRODUCTOS_BASE));
+    } catch (e) { _productosCache = JSON.parse(JSON.stringify(PRODUCTOS_BASE)); }
+    return;
+  }
+  if (data.length === 0) {
+    // Primera vez: subir PRODUCTOS_BASE a Supabase automáticamente
+    await seedSupabase();
+    return;
+  }
+  _productosCache = data.map(row => ({
+    id: row.id,
+    nombre: row.nombre,
+    categoria: row.categoria,
+    subcategoria: row.subcategoria || '',
+    precio: row.precio,
+    descripcion: row.descripcion || '',
+    imagen: row.imagen || '',
+    etiqueta: row.etiqueta || '',
+    etiquetaColor: row.etiqueta_color || '',
+    disponible: row.disponible !== false,
+  }));
+}
+
+// ─── DB: SEED PRIMERA VEZ ─────────────────────────────────────────────
+async function seedSupabase() {
+  if (!isSupabaseReady()) return;
+  const rows = PRODUCTOS_BASE.map(p => ({
+    id: p.id, nombre: p.nombre, categoria: p.categoria,
+    subcategoria: p.subcategoria || null, precio: p.precio,
+    descripcion: p.descripcion || null, imagen: p.imagen || null,
+    etiqueta: p.etiqueta || null, etiqueta_color: p.etiquetaColor || null,
+    disponible: p.disponible !== false,
+  }));
+  await _sbClient.from('productos').insert(rows);
+  _productosCache = JSON.parse(JSON.stringify(PRODUCTOS_BASE));
+}
+
+// ─── DB: GUARDAR / ACTUALIZAR ─────────────────────────────────────────
+async function saveProductToDB(prod, isNew) {
+  if (!isSupabaseReady()) {
+    const prods = getProductos();
+    if (isNew) {
+      prod.id = genId();
+      prods.push(prod);
+    } else {
+      const idx = prods.findIndex(p => p.id === prod.id);
+      if (idx !== -1) prods[idx] = prod;
+    }
+    saveProductos(prods);
+    return true;
+  }
+  const row = {
+    nombre: prod.nombre, categoria: prod.categoria,
+    subcategoria: prod.subcategoria || null, precio: prod.precio,
+    descripcion: prod.descripcion || null, imagen: prod.imagen || null,
+    etiqueta: prod.etiqueta || null, etiqueta_color: prod.etiquetaColor || null,
+    disponible: prod.disponible !== false,
+  };
+  if (isNew) {
+    const { data, error } = await _sbClient.from('productos').insert(row).select().single();
+    if (error) { console.error(error); return false; }
+    prod.id = data.id;
+    _productosCache = [...(_productosCache || []), prod];
+  } else {
+    const { error } = await _sbClient.from('productos').update(row).eq('id', prod.id);
+    if (error) { console.error(error); return false; }
+    _productosCache = (_productosCache || []).map(p => p.id === prod.id ? prod : p);
+  }
+  return true;
+}
+
+// ─── DB: ELIMINAR ─────────────────────────────────────────────────────
+async function deleteProductFromDB(id) {
+  if (!isSupabaseReady()) {
+    const prods = getProductos().filter(p => p.id !== id);
+    saveProductos(prods);
+    return true;
+  }
+  const { error } = await _sbClient.from('productos').delete().eq('id', id);
+  if (error) { console.error(error); return false; }
+  _productosCache = (_productosCache || []).filter(p => p.id !== id);
+  return true;
+}
+
+// ─── DB: MIGRAR LOCALSTORAGE → SUPABASE ──────────────────────────────
+async function migrateToSupabase() {
+  if (!isSupabaseReady()) {
+    showToast('<i class="fa-solid fa-circle-exclamation mr-1.5"></i> Supabase no está configurado aún', 'error');
+    return;
+  }
+  const local = localStorage.getItem(LS_PRODUCTS_KEY);
+  if (!local) { showToast('No hay datos locales que migrar', 'info'); return; }
+  const prods = JSON.parse(local);
+  if (!confirm(`¿Migrar ${prods.length} productos del navegador a Supabase? Esto reemplazará los datos actuales en la base de datos.`)) return;
+  showToast('<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Migrando...', 'info');
+  await _sbClient.from('productos').delete().neq('id', -1);
+  const rows = prods.map(p => ({
+    id: p.id, nombre: p.nombre, categoria: p.categoria,
+    subcategoria: p.subcategoria || null, precio: p.precio,
+    descripcion: p.descripcion || null, imagen: p.imagen || null,
+    etiqueta: p.etiqueta || null, etiqueta_color: p.etiquetaColor || null,
+    disponible: p.disponible !== false,
+  }));
+  const { error } = await _sbClient.from('productos').insert(rows);
+  if (error) { showToast('Error al migrar: ' + error.message, 'error'); return; }
+  _productosCache = prods;
+  localStorage.removeItem(LS_PRODUCTS_KEY);
+  showToast(`<i class="fa-solid fa-check mr-1.5"></i> ${prods.length} productos migrados a Supabase`, 'success');
+  updateAdminStats(); renderAdminProducts('todos');
 }
 
 // ─── UTILS ────────────────────────────────────────────────────────────
@@ -148,10 +296,10 @@ function checkAge(ok) {
 
 // ─── OPEN STATUS ──────────────────────────────────────────────────────
 function checkOpenStatus() {
-  const now  = new Date();
-  const day  = now.getDay();   // 0=Sun,1=Mon…6=Sat
+  const now = new Date();
+  const day = now.getDay();   // 0=Sun,1=Mon…6=Sat
   const hour = now.getHours();
-  const min  = now.getMinutes();
+  const min = now.getMinutes();
   const t = hour * 60 + min;
 
   let open = false;
@@ -164,11 +312,11 @@ function checkOpenStatus() {
   const f = document.getElementById('footer-status');
   if (open) {
     s?.classList.remove('hidden'); s?.classList.add('flex');
-    c?.classList.remove('flex');   c?.classList.add('hidden');
+    c?.classList.remove('flex'); c?.classList.add('hidden');
     if (f) f.innerHTML = '<span class="text-green-400"><i class="fa-solid fa-circle mr-1"></i>Estamos abiertos ahora</span>';
   } else {
     c?.classList.remove('hidden'); c?.classList.add('flex');
-    s?.classList.remove('flex');   s?.classList.add('hidden');
+    s?.classList.remove('flex'); s?.classList.add('hidden');
     if (f) f.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-circle mr-1"></i>Actualmente cerrados</span>';
   }
 }
@@ -229,8 +377,8 @@ function updateCartUI() {
   if (label) label.textContent = count;
 
   // Totals
-  const sub  = document.getElementById('cart-subtotal');
-  const tot  = document.getElementById('cart-total');
+  const sub = document.getElementById('cart-subtotal');
+  const tot = document.getElementById('cart-total');
   if (sub) sub.textContent = formatPeso(total);
   if (tot) tot.textContent = formatPeso(total + CONFIG.deliveryFee);
 
@@ -244,9 +392,9 @@ function updateCartUI() {
   if (emptyState && itemsState) {
     if (cart.length === 0) {
       emptyState.classList.remove('hidden'); emptyState.classList.add('flex');
-      itemsState.classList.remove('flex');   itemsState.classList.add('hidden');
+      itemsState.classList.remove('flex'); itemsState.classList.add('hidden');
     } else {
-      emptyState.classList.remove('flex');   emptyState.classList.add('hidden');
+      emptyState.classList.remove('flex'); emptyState.classList.add('hidden');
       itemsState.classList.remove('hidden'); itemsState.classList.add('flex');
     }
   }
@@ -276,7 +424,7 @@ function renderCartItems() {
 }
 
 function toggleCart() {
-  const drawer  = document.getElementById('cart-drawer');
+  const drawer = document.getElementById('cart-drawer');
   const overlay = document.getElementById('cart-overlay');
   const open = !drawer.classList.contains('translate-x-full');
   if (open) {
@@ -369,7 +517,7 @@ function buildTransferBox() {
 }
 
 function toggleCheckbox(el) {
-  const box   = document.getElementById('f-comprobante-box');
+  const box = document.getElementById('f-comprobante-box');
   const check = document.getElementById('f-comprobante-check');
   if (el.checked) {
     box.classList.add('bg-red-600', 'border-red-600');
@@ -383,16 +531,16 @@ function toggleCheckbox(el) {
 }
 
 function enviarPedidoWhatsApp() {
-  const nombre    = document.getElementById('f-nombre')?.value.trim();
-  const telefono  = document.getElementById('f-telefono')?.value.trim();
+  const nombre = document.getElementById('f-nombre')?.value.trim();
+  const telefono = document.getElementById('f-telefono')?.value.trim();
   const direccion = document.getElementById('f-direccion')?.value.trim();
-  const depto     = document.getElementById('f-depto')?.value.trim();
-  const comuna    = document.getElementById('f-comuna')?.value.trim();
+  const depto = document.getElementById('f-depto')?.value.trim();
+  const comuna = document.getElementById('f-comuna')?.value.trim();
   const referencia = document.getElementById('f-referencia')?.value.trim();
-  const notas     = document.getElementById('f-notas')?.value.trim();
-  const comp      = document.getElementById('f-comprobante')?.checked;
-  const errBox    = document.getElementById('checkout-error');
-  const errMsg    = document.getElementById('checkout-error-msg');
+  const notas = document.getElementById('f-notas')?.value.trim();
+  const comp = document.getElementById('f-comprobante')?.checked;
+  const errBox = document.getElementById('checkout-error');
+  const errMsg = document.getElementById('checkout-error-msg');
 
   function showErr(msg) {
     errMsg.textContent = msg;
@@ -401,10 +549,10 @@ function enviarPedidoWhatsApp() {
     errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  if (!nombre)    return showErr('Por favor ingresa tu nombre completo.');
-  if (!telefono)  return showErr('Por favor ingresa tu número de WhatsApp o teléfono.');
+  if (!nombre) return showErr('Por favor ingresa tu nombre completo.');
+  if (!telefono) return showErr('Por favor ingresa tu número de WhatsApp o teléfono.');
   if (!direccion) return showErr('Por favor ingresa la dirección de entrega.');
-  if (!comuna)    return showErr('Por favor ingresa la comuna.');
+  if (!comuna) return showErr('Por favor ingresa la comuna.');
   errBox.classList.add('hidden');
   errBox.classList.remove('flex');
 
@@ -471,7 +619,7 @@ let activeSubcat = 'todos';
 
 function renderProductos(filtro = 'todos', subcat = null) {
   if (subcat !== null) activeSubcat = subcat;
-  const grid  = document.getElementById('products-grid');
+  const grid = document.getElementById('products-grid');
   const noRes = document.getElementById('no-results');
   if (!grid) return;
   let prods = getProductos().filter(p => p.disponible && (filtro === 'todos' || p.categoria === filtro));
@@ -497,13 +645,13 @@ function buildCard(p) {
              onerror="this.src='${fallback}'" />
         <!-- Badge etiqueta -->
         ${p.etiqueta && badgeCls
-          ? `<span class="absolute top-3 left-3 ${badgeCls} text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide shadow-lg">${p.etiqueta}</span>`
-          : ''}
+      ? `<span class="absolute top-3 left-3 ${badgeCls} text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide shadow-lg">${p.etiqueta}</span>`
+      : ''}
         <!-- Subcategoría / categoría badge top-right -->
         ${(p.categoria === 'cervezas' && p.subcategoria)
-          ? `<span class="absolute top-3 right-3 bg-sky-950/80 backdrop-blur-sm text-sky-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-sky-500/25">${SUBCAT_LABELS[p.subcategoria] || p.subcategoria}</span>`
-          : `<span class="absolute top-3 right-3 bg-slate-900/75 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${p.categoria}</span>`
-        }
+      ? `<span class="absolute top-3 right-3 bg-sky-950/80 backdrop-blur-sm text-sky-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-sky-500/25">${SUBCAT_LABELS[p.subcategoria] || p.subcategoria}</span>`
+      : `<span class="absolute top-3 right-3 bg-slate-900/75 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${p.categoria}</span>`
+    }
         <!-- Gradient overlay bottom para fusión suave -->
         <div class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#0d1a2e]/80 to-transparent pointer-events-none"></div>
       </div>
@@ -521,31 +669,31 @@ function buildCard(p) {
             <span class="font-display text-2xl font-black leading-none gradient-text">${formatPeso(p.precio)}</span>
           </div>
           ${inCart
-            ? `<div class="flex items-center gap-1.5 bg-slate-900/60 rounded-xl px-1 py-1 border border-white/5">
+      ? `<div class="flex items-center gap-1.5 bg-slate-900/60 rounded-xl px-1 py-1 border border-white/5">
                  <button onclick="changeQty(${p.id},-1)" class="w-7 h-7 rounded-lg bg-slate-700 hover:bg-red-600 text-white text-base font-black flex items-center justify-center transition-all active:scale-90 leading-none">−</button>
                  <span class="w-7 text-center font-black text-white text-sm">${inCart.qty}</span>
                  <button onclick="changeQty(${p.id},1)"  class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-500 text-white text-base font-black flex items-center justify-center transition-all active:scale-90 leading-none">+</button>
                </div>`
-            : ''}
+      : ''}
         </div>
 
         ${!inCart
-          ? `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 active:scale-95 text-white text-sm font-black py-2.5 rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-red-900/40">
+      ? `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 active:scale-95 text-white text-sm font-black py-2.5 rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-red-900/40">
                <i class="fa-solid fa-cart-plus"></i>Agregar al carrito
              </button>`
-          : `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-red-600/20 text-slate-400 hover:text-white text-xs font-semibold py-2 rounded-xl transition-all border border-white/6 hover:border-red-500/30">
+      : `<button onclick="addToCart(${p.id})" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-red-600/20 text-slate-400 hover:text-white text-xs font-semibold py-2 rounded-xl transition-all border border-white/6 hover:border-red-500/30">
                <i class="fa-solid fa-plus text-[10px]"></i>Agregar otro
              </button>`
-        }
+    }
       </div>
     </div>
   `;
 }
 
 function initFiltros() {
-  const btns     = document.querySelectorAll('#filtros .cat-btn');
-  const subWrap  = document.getElementById('sub-filtros');
-  const subBtns  = document.querySelectorAll('#sub-filtros .sub-cat-btn');
+  const btns = document.querySelectorAll('#filtros .cat-btn');
+  const subWrap = document.getElementById('sub-filtros');
+  const subBtns = document.querySelectorAll('#sub-filtros .sub-cat-btn');
 
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -628,6 +776,18 @@ function loginAdmin() {
 function showAdminPanel() {
   document.getElementById('admin-login').classList.add('hidden');
   document.getElementById('admin-panel').classList.remove('hidden');
+  // Indicador estado Supabase
+  const sbEl = document.getElementById('sb-status');
+  if (sbEl) {
+    if (isSupabaseReady()) {
+      sbEl.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border bg-green-900/40 border-green-500/30 text-green-400';
+      sbEl.innerHTML = '<i class="fa-solid fa-database"></i> Supabase conectado';
+    } else {
+      sbEl.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border bg-amber-900/40 border-amber-500/30 text-amber-400';
+      sbEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Modo local (sin Supabase)';
+    }
+    sbEl.classList.remove('hidden');
+  }
   updateAdminStats();
   renderAdminProducts('todos');
   initAdminFiltros();
@@ -636,12 +796,12 @@ function showAdminPanel() {
 function updateAdminStats() {
   const prods = getProductos();
   const sTotal = document.getElementById('stat-total');
-  const sCerv  = document.getElementById('stat-cervezas');
-  const sDest  = document.getElementById('stat-destilados');
+  const sCerv = document.getElementById('stat-cervezas');
+  const sDest = document.getElementById('stat-destilados');
   const sVinos = document.getElementById('stat-vinos');
   if (sTotal) sTotal.textContent = prods.length;
-  if (sCerv)  sCerv.textContent  = prods.filter(p => p.categoria === 'cervezas').length;
-  if (sDest)  sDest.textContent  = prods.filter(p => p.categoria === 'destilados').length;
+  if (sCerv) sCerv.textContent = prods.filter(p => p.categoria === 'cervezas').length;
+  if (sDest) sDest.textContent = prods.filter(p => p.categoria === 'destilados').length;
   if (sVinos) sVinos.textContent = prods.filter(p => p.categoria === 'vinos').length;
 }
 
@@ -695,7 +855,7 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
 }
 
 function initAdminFiltros() {
-  const btns    = document.querySelectorAll('#admin-filtros .admin-cat-btn');
+  const btns = document.querySelectorAll('#admin-filtros .admin-cat-btn');
   const subWrap = document.getElementById('admin-sub-filtros');
   const subBtns = document.querySelectorAll('#admin-sub-filtros .admin-sub-btn');
 
@@ -737,9 +897,9 @@ let _pfOriginal = null; // snapshot de valores al abrir el form
 
 /* Muestra u oculta el selector de subcategoría según la categoría elegida */
 function toggleSubcatField() {
-  const cat   = document.getElementById('pf-categoria')?.value;
-  const wrap  = document.getElementById('pf-subcat-wrap');
-  const sel   = document.getElementById('pf-subcategoria');
+  const cat = document.getElementById('pf-categoria')?.value;
+  const wrap = document.getElementById('pf-subcat-wrap');
+  const sel = document.getElementById('pf-subcategoria');
   if (!wrap) return;
   if (cat === 'cervezas') {
     wrap.classList.remove('hidden');
@@ -751,36 +911,36 @@ function toggleSubcatField() {
 
 function openProductForm(id) {
   const overlay = document.getElementById('pf-overlay');
-  const title   = document.getElementById('pf-title');
-  const errBox  = document.getElementById('pf-error');
+  const title = document.getElementById('pf-title');
+  const errBox = document.getElementById('pf-error');
   errBox?.classList.add('hidden');
 
   if (id) {
     const p = getProductos().find(x => x.id === Number(id));
     if (!p) return;
     title.textContent = 'Editar Producto';
-    document.getElementById('pf-id').value           = p.id;
-    document.getElementById('pf-nombre').value        = p.nombre;
-    document.getElementById('pf-categoria').value     = p.categoria;
-    document.getElementById('pf-precio').value        = formatPeso(p.precio);
-    document.getElementById('pf-descripcion').value   = p.descripcion || '';
-    document.getElementById('pf-imagen').value        = p.imagen || '';
-    document.getElementById('pf-etiqueta').value      = p.etiqueta || '';
+    document.getElementById('pf-id').value = p.id;
+    document.getElementById('pf-nombre').value = p.nombre;
+    document.getElementById('pf-categoria').value = p.categoria;
+    document.getElementById('pf-precio').value = formatPeso(p.precio);
+    document.getElementById('pf-descripcion').value = p.descripcion || '';
+    document.getElementById('pf-imagen').value = p.imagen || '';
+    document.getElementById('pf-etiqueta').value = p.etiqueta || '';
     document.getElementById('pf-etiquetacolor').value = p.etiquetaColor || '';
-    document.getElementById('pf-disponible').checked  = p.disponible !== false;
-    document.getElementById('pf-subcategoria').value  = p.subcategoria || '';
+    document.getElementById('pf-disponible').checked = p.disponible !== false;
+    document.getElementById('pf-subcategoria').value = p.subcategoria || '';
   } else {
     title.textContent = 'Agregar Producto';
-    document.getElementById('pf-id').value           = '';
-    document.getElementById('pf-nombre').value        = '';
-    document.getElementById('pf-categoria').value     = '';
-    document.getElementById('pf-precio').value        = '';
-    document.getElementById('pf-descripcion').value   = '';
-    document.getElementById('pf-imagen').value        = '';
-    document.getElementById('pf-etiqueta').value      = '';
+    document.getElementById('pf-id').value = '';
+    document.getElementById('pf-nombre').value = '';
+    document.getElementById('pf-categoria').value = '';
+    document.getElementById('pf-precio').value = '';
+    document.getElementById('pf-descripcion').value = '';
+    document.getElementById('pf-imagen').value = '';
+    document.getElementById('pf-etiqueta').value = '';
     document.getElementById('pf-etiquetacolor').value = '';
-    document.getElementById('pf-disponible').checked  = true;
-    document.getElementById('pf-subcategoria').value  = '';
+    document.getElementById('pf-disponible').checked = true;
+    document.getElementById('pf-subcategoria').value = '';
   }
 
   // Mostrar u ocultar subcategoría según la categoría cargada
@@ -796,15 +956,15 @@ function openProductForm(id) {
 
 function getPFValues() {
   return {
-    nombre:        document.getElementById('pf-nombre')?.value,
-    categoria:     document.getElementById('pf-categoria')?.value,
-    subcategoria:  document.getElementById('pf-subcategoria')?.value,
-    precio:        document.getElementById('pf-precio')?.value,
-    descripcion:   document.getElementById('pf-descripcion')?.value,
-    imagen:        document.getElementById('pf-imagen')?.value,
-    etiqueta:      document.getElementById('pf-etiqueta')?.value,
+    nombre: document.getElementById('pf-nombre')?.value,
+    categoria: document.getElementById('pf-categoria')?.value,
+    subcategoria: document.getElementById('pf-subcategoria')?.value,
+    precio: document.getElementById('pf-precio')?.value,
+    descripcion: document.getElementById('pf-descripcion')?.value,
+    imagen: document.getElementById('pf-imagen')?.value,
+    etiqueta: document.getElementById('pf-etiqueta')?.value,
     etiquetaColor: document.getElementById('pf-etiquetacolor')?.value,
-    disponible:    document.getElementById('pf-disponible')?.checked,
+    disponible: document.getElementById('pf-disponible')?.checked,
   };
 }
 
@@ -830,18 +990,18 @@ function closePF() {
   _pfOriginal = null;
 }
 
-function saveProduct() {
-  const id           = document.getElementById('pf-id')?.value;
-  const nombre       = document.getElementById('pf-nombre')?.value.trim();
-  const categoria    = document.getElementById('pf-categoria')?.value;
+async function saveProduct() {
+  const id = document.getElementById('pf-id')?.value;
+  const nombre = document.getElementById('pf-nombre')?.value.trim();
+  const categoria = document.getElementById('pf-categoria')?.value;
   const subcategoria = document.getElementById('pf-subcategoria')?.value || '';
-  const precioRaw    = document.getElementById('pf-precio')?.value;
-  const precio       = parsePrecio(precioRaw);
-  const descripcion  = document.getElementById('pf-descripcion')?.value.trim();
-  const imagen       = document.getElementById('pf-imagen')?.value.trim();
-  const etiqueta     = document.getElementById('pf-etiqueta')?.value.trim();
-  const etiquetaColor= document.getElementById('pf-etiquetacolor')?.value;
-  const disponible   = document.getElementById('pf-disponible')?.checked;
+  const precioRaw = document.getElementById('pf-precio')?.value;
+  const precio = parsePrecio(precioRaw);
+  const descripcion = document.getElementById('pf-descripcion')?.value.trim();
+  const imagen = document.getElementById('pf-imagen')?.value.trim();
+  const etiqueta = document.getElementById('pf-etiqueta')?.value.trim();
+  const etiquetaColor = document.getElementById('pf-etiquetacolor')?.value;
+  const disponible = document.getElementById('pf-disponible')?.checked;
 
   const errBox = document.getElementById('pf-error');
   const errMsg = document.getElementById('pf-error-msg');
@@ -853,27 +1013,33 @@ function saveProduct() {
     errBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  if (!nombre)    return showE('El nombre del producto es obligatorio.');
+  if (!nombre) return showE('El nombre del producto es obligatorio.');
   if (!categoria) return showE('Selecciona una categoría.');
   if (categoria === 'cervezas' && !subcategoria) return showE('Selecciona el tipo de cerveza (subcategoría).');
   if (!precio || precio < 1) return showE('Ingresa un precio válido (ej: $1.490).');
   errBox.classList.add('hidden');
   errBox.classList.remove('flex');
 
-  const prods = getProductos();
-  if (id) {
-    const idx = prods.findIndex(p => p.id === Number(id));
-    if (idx !== -1) prods[idx] = { ...prods[idx], nombre, categoria, subcategoria, precio, descripcion, imagen, etiqueta, etiquetaColor, disponible };
-  } else {
-    prods.push({ id: genId(), nombre, categoria, subcategoria, precio, descripcion, imagen, etiqueta, etiquetaColor, disponible });
-  }
-  saveProductos(prods);
+  // Deshabilitar botón mientras guarda
+  const saveBtn = document.querySelector('#pf-modal button[onclick="saveProduct()"]');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Guardando...'; }
+
+  const isNew = !id;
+  const prod = {
+    id: id ? Number(id) : null,
+    nombre, categoria, subcategoria, precio, descripcion, imagen, etiqueta, etiquetaColor, disponible,
+  };
+
+  const ok = await saveProductToDB(prod, isNew);
+  if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Producto'; }
+
+  if (!ok) { showE('Error al guardar. Revisa la consola.'); return; }
   closePF();
   updateAdminStats();
   renderAdminProducts(document.querySelector('#admin-filtros .admin-cat-btn.active')?.dataset.cat || 'todos');
   renderProductos(document.querySelector('#filtros .cat-btn.active')?.dataset.cat || 'todos');
   updateCartUI();
-  showToast(`<i class="fa-solid fa-floppy-disk mr-1.5"></i> Producto ${id ? 'actualizado' : 'creado'} correctamente`, 'success');
+  showToast(`<i class="fa-solid fa-floppy-disk mr-1.5"></i> Producto ${isNew ? 'creado' : 'actualizado'} correctamente`, 'success');
 }
 
 // ─── DELETE ────────────────────────────────────────────────────────────
@@ -896,10 +1062,14 @@ function closeDeleteModal() {
   overlay.classList.remove('flex');
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (!_pendingDeleteId) return;
-  const prods = getProductos().filter(p => p.id !== Number(_pendingDeleteId));
-  saveProductos(prods);
+  const id = Number(_pendingDeleteId);
+  const btn = document.querySelector('#delete-overlay button[onclick="confirmDelete()"]');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Eliminando...'; }
+  const ok = await deleteProductFromDB(id);
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-trash-can mr-1.5"></i>Eliminar'; }
+  if (!ok) { showToast('Error al eliminar. Revisa la consola.', 'error'); return; }
   closeDeleteModal();
   updateAdminStats();
   renderAdminProducts(document.querySelector('#admin-filtros .admin-cat-btn.active')?.dataset.cat || 'todos');
@@ -908,9 +1078,24 @@ function confirmDelete() {
   showToast('<i class="fa-solid fa-trash-can mr-1.5"></i> Producto eliminado', 'warning');
 }
 
-function resetProducts() {
+async function resetProducts() {
   if (!confirm('¿Restaurar todos los productos originales?\n\nEsto borrará cualquier cambio o producto personalizado.')) return;
-  localStorage.removeItem(LS_PRODUCTS_KEY);
+  if (isSupabaseReady()) {
+    showToast('<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Restaurando en Supabase...', 'info');
+    await _sbClient.from('productos').delete().neq('id', -1);
+    const rows = PRODUCTOS_BASE.map(p => ({
+      id: p.id, nombre: p.nombre, categoria: p.categoria,
+      subcategoria: p.subcategoria || null, precio: p.precio,
+      descripcion: p.descripcion || null, imagen: p.imagen || null,
+      etiqueta: p.etiqueta || null, etiqueta_color: p.etiquetaColor || null,
+      disponible: p.disponible !== false,
+    }));
+    const { error } = await _sbClient.from('productos').insert(rows);
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  } else {
+    localStorage.removeItem(LS_PRODUCTS_KEY);
+  }
+  _productosCache = JSON.parse(JSON.stringify(PRODUCTOS_BASE));
   updateAdminStats();
   renderAdminProducts('todos');
   renderProductos('todos');
@@ -924,9 +1109,9 @@ function showToast(msg, type = 'success') {
   if (!container) return;
   const colors = {
     success: 'bg-green-900/90 border-green-500/40 text-green-300',
-    error:   'bg-red-900/90 border-red-500/40 text-red-300',
+    error: 'bg-red-900/90 border-red-500/40 text-red-300',
     warning: 'bg-amber-900/90 border-amber-500/40 text-amber-300',
-    info:    'bg-sky-900/90 border-sky-500/40 text-sky-300',
+    info: 'bg-sky-900/90 border-sky-500/40 text-sky-300',
   };
   const toast = document.createElement('div');
   toast.className = `pointer-events-auto ${colors[type] || colors.info} border backdrop-blur-md shadow-xl rounded-xl px-4 py-3 max-w-xs text-sm font-semibold flex items-center gap-2 translate-y-2 opacity-0 transition-all duration-300`;
@@ -950,8 +1135,8 @@ document.addEventListener('keydown', e => {
   if (!document.getElementById('pf-overlay')?.classList.contains('hidden')) return closePFConfirm();
 });
 
-// ─── INIT ─────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+// ─── INIT ────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
   // Age gate
   if (sessionStorage.getItem('blj_age') === '1') {
     const m = document.getElementById('age-modal');
@@ -971,6 +1156,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     lastScroll = current;
   });
+
+  // Inicializar Supabase y cargar productos
+  initSupabase();
+  await loadProductosFromDB();
 
   checkOpenStatus();
   setWaLinks();
