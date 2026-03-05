@@ -22,8 +22,8 @@ const CONFIG = {
 
 // ─── SUPABASE CONFIG ──────────────────────────────────────────────────
 // ⚠️ Reemplaza estos valores con los de tu proyecto en supabase.com
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://nketwcenopdhlragsuti.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_X8KRlpZuXEliWE8YTEFfhg__JbOn2it';
 
 let _sbClient = null;
 
