@@ -37,7 +37,8 @@ function isSupabaseReady() { return !!_sbClient; }
 
 // ─── LABELS SUBCATEGORÍAS CERVEZAS ──────────────────────────────────
 const SUBCAT_LABELS = {
-  'latones': 'Latón 710cc',
+  'latones': 'Latón',
+  'latas-sueltas': 'Lata Suelta',
   'pack-latas': 'Pack Latas',
   'botellines': 'Pack Botellines',
   'botellas': 'Botella Grande',
