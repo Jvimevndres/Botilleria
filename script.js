@@ -37,7 +37,7 @@ function isSupabaseReady() { return !!_sbClient; }
 
 // ─── LABELS SUBCATEGORÍAS CERVEZAS ──────────────────────────────────
 const SUBCAT_LABELS = {
-  'latones': 'Latón 473ml',
+  'latones': 'Latón 710cc',
   'pack-latas': 'Pack Latas',
   'botellines': 'Pack Botellines',
   'botellas': 'Botella Grande',
@@ -46,12 +46,12 @@ const SUBCAT_LABELS = {
 // ─── PRODUCTOS BASE ────────────────────────────────────────────────────
 const PRODUCTOS_BASE = [
 
-  // ── CERVEZAS · LATONES 473ml (unidad) ─────────────────────────────
-  { id: 1, nombre: 'Escudo Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 990, descripcion: 'Lager nacional clásica · 5°', imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Más pedido', etiquetaColor: 'red', disponible: true },
-  { id: 2, nombre: 'Cristal Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 890, descripcion: 'La favorita de Chile · 4.9°', imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta', etiquetaColor: 'amber', disponible: true },
-  { id: 3, nombre: 'Heineken Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 1290, descripcion: 'Lager holandesa premium · 5°', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'green', disponible: true },
-  { id: 4, nombre: 'Royal Guard Golden Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 990, descripcion: 'Golden Lager suave · 4.5°', imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
-  { id: 5, nombre: 'Brahma Latón 473ml', categoria: 'cervezas', subcategoria: 'latones', precio: 890, descripcion: 'Lager brasileña refrescante · 4.8°', imagen: 'https://images.unsplash.com/photo-1574021635408-bc1e06fba23b?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  // ── CERVEZAS · LATONES 710cc (unidad) ─────────────────────────────
+  { id: 1, nombre: 'Escudo Latón 710cc', categoria: 'cervezas', subcategoria: 'latones', precio: 990, descripcion: 'Lager nacional clásica · 5°', imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Más pedido', etiquetaColor: 'red', disponible: true },
+  { id: 2, nombre: 'Cristal Latón 710cc', categoria: 'cervezas', subcategoria: 'latones', precio: 890, descripcion: 'La favorita de Chile · 4.9°', imagen: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta', etiquetaColor: 'amber', disponible: true },
+  { id: 3, nombre: 'Heineken Latón 710cc', categoria: 'cervezas', subcategoria: 'latones', precio: 1290, descripcion: 'Lager holandesa premium · 5°', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'green', disponible: true },
+  { id: 4, nombre: 'Royal Guard Golden Latón 710cc', categoria: 'cervezas', subcategoria: 'latones', precio: 990, descripcion: 'Golden Lager suave · 4.5°', imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 5, nombre: 'Brahma Latón 710cc', categoria: 'cervezas', subcategoria: 'latones', precio: 890, descripcion: 'Lager brasileña refrescante · 4.8°', imagen: 'https://images.unsplash.com/photo-1574021635408-bc1e06fba23b?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
 
   // ── CERVEZAS · PACKS DE LATAS 350ml ───────────────────────────────
   { id: 6, nombre: 'Pack x6 Escudo Lata 350ml', categoria: 'cervezas', subcategoria: 'pack-latas', precio: 4490, descripcion: '6 latas 350ml · Lager 5°', imagen: 'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack 6', etiquetaColor: 'green', disponible: true },
