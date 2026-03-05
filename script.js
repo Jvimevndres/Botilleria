@@ -200,7 +200,8 @@ async function saveProductToDB(prod, isNew) {
     disponible: prod.disponible !== false,
   };
   if (isNew) {
-    const { data, error } = await _sbClient.from('productos').insert(row).select().single();
+    prod.id = genId(); // generar ID en JS para evitar conflicto de secuencia
+    const { data, error } = await _sbClient.from('productos').insert({ id: prod.id, ...row }).select().single();
     if (error) { console.error(error); return false; }
     prod.id = data.id;
     _productosCache = [...(_productosCache || []), prod];
