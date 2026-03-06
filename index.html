@@ -14,7 +14,7 @@
   <meta property="og:description"
     content="Cervezas heladas, destilados premium, vinos y hielo. Delivery rápido directo a tu puerta. ¡Pide por WhatsApp!" />
   <meta property="og:image"
-    content="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80" />
+    content="assets/img/2.png" />
   <meta property="og:url" content="https://botillerialectorjean.cl" />
   <meta property="og:locale" content="es_CL" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -22,7 +22,7 @@
   <meta name="twitter:description"
     content="Cervezas heladas, destilados premium, vinos y hielo. Delivery rápido directo a tu puerta." />
   <meta name="twitter:image"
-    content="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80" />
+    content="assets/img/2.png" />
 
   <!-- Canonical & Theme -->
   <link rel="canonical" href="https://botillerialectorjean.cl" />
@@ -46,7 +46,7 @@
       },
     };
   </script>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -87,46 +87,40 @@
   </div>
 
 
-  <!-- ═══════════════════════════════════════════════════════
+  <!-- ════════════════════════════════════════════════════════
      NAVBAR
 ════════════════════════════════════════════════════════ -->
   <header id="navbar"
-    class="sticky top-0 z-40 w-full bg-slate-900/60 border-b border-white/5 transition-all duration-500">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    class="navbar-top fixed top-0 z-40 w-full transition-all duration-500 overflow-visible">
+    <div class="max-w-7xl mx-auto px-6 sm:px-10 py-3 flex items-center justify-between gap-8">
 
       <!-- Logo -->
-      <a href="#hero" id="logo-link" class="flex items-center gap-2 flex-shrink-0 cursor-pointer">
-        <div
-          class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center flex-shrink-0">
-          <i class="fa-solid fa-champagne-glasses text-red-400 text-sm"></i>
-        </div>
-        <div class="leading-tight">
-          <span class="font-display text-lg font-black text-red-400 tracking-tight block">Lector Jean</span>
-          <span class="text-[10px] text-slate-400 uppercase tracking-widest -mt-1 block">Botillería Premium</span>
-        </div>
+      <a href="#hero" id="logo-link" class="flex items-center flex-shrink-0 cursor-pointer">
+        <img src="assets/img/2.png" alt="Lector Jean – Botillería & Licores"
+          class="h-48 w-auto object-contain -my-12 relative z-10" loading="eager" />
       </a>
 
       <!-- Nav links -->
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
-        <a href="#catalogo" class="text-slate-300 hover:text-red-400 transition-colors">Catálogo</a>
-        <a href="#nosotros" class="text-slate-300 hover:text-red-400 transition-colors">Nosotros</a>
-        <a href="#footer" class="text-slate-300 hover:text-red-400 transition-colors">Contacto</a>
+      <nav class="hidden md:flex items-center gap-8 text-sm">
+        <a href="#catalogo" class="nav-link">Catálogo</a>
+        <a href="#nosotros" class="nav-link">Nosotros</a>
+        <a href="#footer" class="nav-link">Contacto</a>
       </nav>
 
-      <!-- Derecha: estado + carrito + wsp -->
+      <!-- Derecha -->
       <div class="flex items-center gap-2 sm:gap-3">
         <div id="status-badge"
-          class="hidden sm:flex items-center gap-1.5 bg-green-900/50 border border-green-500/30 text-green-400 text-xs font-semibold px-3 py-1.5 rounded-full">
-          <span class="blink-dot inline-block w-2 h-2 rounded-full bg-green-400"></span>Abierto
+          class="hidden sm:flex items-center gap-1.5 bg-green-50 border border-green-300 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+          <span class="blink-dot inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>Abierto
         </div>
         <div id="closed-badge"
-          class="hidden items-center gap-1.5 bg-red-900/40 border border-red-500/30 text-red-400 text-xs font-semibold px-3 py-1.5 rounded-full">
-          <span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>Cerrado
+          class="hidden items-center gap-1.5 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500"></span>Cerrado
         </div>
 
         <!-- Botón carrito -->
         <button id="cart-toggle-btn" onclick="toggleCart()"
-          class="relative flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95">
+          class="nav-cart-btn relative flex items-center gap-2 font-bold px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95">
           <i class="fa-solid fa-cart-shopping text-sm"></i>
           <span class="hidden sm:inline text-xs font-bold">Carrito</span>
           <span id="cart-badge"
@@ -135,13 +129,17 @@
 
         <!-- CTA WhatsApp -->
         <a id="wa-nav-btn" href="#" target="_blank" rel="noopener"
-          class="bg-green-500 hover:bg-green-400 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 flex items-center gap-1.5">
+          class="nav-wa-btn text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200 hover:scale-105 flex items-center gap-1.5">
           <i class="fa-brands fa-whatsapp text-base"></i>
           <span class="hidden sm:inline">Pedir ya</span>
         </a>
       </div>
     </div>
+    <!-- Línea de acento inferior (visible al hacer scroll) -->
+    <div class="navbar-accent-line"></div>
   </header>
+  <!-- Espaciador para el navbar fixed -->
+  <div class="h-[68px]"></div>
 
 
   <!-- ═══════════════════════════════════════════════════════
@@ -602,47 +600,49 @@
   <!-- ═══════════════════════════════════════════════════════
      HERO
 ════════════════════════════════════════════════════════ -->
-  <section id="hero" class="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
-    <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80"
-      alt="Botellas de licores premium"
-      class="absolute inset-0 w-full h-full object-cover object-center opacity-25 scale-110" loading="eager" />
-    <!-- Gradiente y glow -->
-    <div class="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-slate-900/40 to-slate-900"></div>
+  <section id="hero" class="relative min-h-[92vh] flex items-center overflow-hidden">
+    <!-- Orbs de fondo -->
     <div class="hero-orb w-[700px] h-[700px] bg-red-600/15 -top-60 -left-40"></div>
-    <div class="hero-orb w-[500px] h-[500px] bg-orange-600/10 top-1/4 right-[-10%]"></div>
+    <div class="hero-orb w-[500px] h-[500px] bg-orange-600/8 top-1/4 right-[-5%]"></div>
     <div class="hero-orb w-[300px] h-[300px] bg-red-500/10 bottom-20 left-1/3"></div>
+    <!-- Gradiente inferior -->
+    <div class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-900 to-transparent z-10"></div>
 
-    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
-      <!-- Pill de estado -->
-      <div
-        class="inline-flex items-center gap-2.5 bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-full mb-8 shadow-lg shadow-red-900/20">
-        <span class="blink-dot w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
-        Delivery Express &middot; Toda la comuna
-      </div>
+    <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 py-16">
+      <div class="grid lg:grid-cols-2 gap-4 items-center">
 
-      <!-- Headline -->
-      <h1 class="font-display text-5xl sm:text-7xl md:text-8xl font-black leading-[0.92] tracking-tight mb-6">
-        Tu Sed<br />Termina <span class="gradient-text">Aquí.</span>
-      </h1>
-      <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
-        Cervezas heladas, destilados premium, vinos selectos e hielo.<br />
-        <strong class="text-white">Entrega rápida directo a tu puerta.</strong>
-      </p>
+        <!-- Columna izquierda: texto -->
+        <div class="text-center lg:text-left">
+          <!-- Pill de estado -->
+          <div
+            class="inline-flex items-center gap-2.5 bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-full mb-8 shadow-lg shadow-red-900/20">
+            <span class="blink-dot w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
+            Delivery Express &middot; Toda la comuna
+          </div>
 
-      <!-- CTAs -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
-        <a href="#catalogo"
-          class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl shadow-red-900/40 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-cart-shopping"></i>Ver Catálogo
-        </a>
-        <button onclick="toggleCart()"
-          class="w-full sm:w-auto bg-white/5 border border-white/12 hover:border-red-500/40 hover:bg-white/8 text-white font-semibold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 backdrop-blur-sm flex items-center justify-center gap-2">
-          <i class="fa-solid fa-cart-plus mr-1"></i>Ver mi carrito
+          <!-- Headline -->
+          <h1 class="font-display text-5xl sm:text-7xl md:text-8xl font-black leading-[0.92] tracking-tight mb-6">
+            Tu Sed<br />Termina <span class="gradient-text">Aquí.</span>
+          </h1>
+          <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed">
+            Cervezas heladas, destilados premium, vinos selectos e hielo.<br />
+            <strong class="text-white">Entrega rápida directo a tu puerta.</strong>
+          </p>
+
+          <!-- CTAs -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-14">
+            <a href="#catalogo"
+              class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl shadow-red-900/40 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cart-shopping"></i>Ver Catálogo
+            </a>
+            <button onclick="toggleCart()"
+              class="w-full sm:w-auto bg-white/5 border border-white/12 hover:border-red-500/40 hover:bg-white/8 text-white font-semibold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 backdrop-blur-sm flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cart-plus mr-1"></i>Ver mi carrito
         </button>
       </div>
 
       <!-- Stats glass card -->
-      <div class="stats-glass inline-grid grid-cols-3 gap-0 max-w-xs w-full mx-auto">
+          <div class="stats-glass inline-grid grid-cols-3 gap-0 max-w-xs w-full mx-auto lg:mx-0">
         <div class="text-center px-4 py-1">
           <div class="font-display text-3xl font-black gradient-text" id="hero-stat-products">+20</div>
           <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Productos</div>
@@ -655,11 +655,28 @@
           <div class="font-display text-3xl font-black gradient-text"><i class="fa-solid fa-star text-xl"></i> 5.0</div>
           <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Valoración</div>
         </div>
+        </div>
+        </div>
+
+        <!-- Columna derecha: imagen producto -->
+        <div class="hidden lg:flex items-center justify-center relative">
+          <div class="absolute inset-0 bg-red-600/25 blur-[140px] rounded-full"></div>
+          <img src="assets/img/1.png" alt="Productos Lector Jean"
+            class="relative w-full max-w-2xl -mr-8 object-contain"
+            style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 20px 60px rgba(239,68,68,0.5))" loading="eager" />
+        </div>
+
+        <!-- Imagen mobile (centrada, debajo del texto) -->
+        <div class="flex lg:hidden justify-center mt-4">
+          <img src="assets/img/1.png" alt="Productos Lector Jean"
+            class="w-80 object-contain"
+            style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 10px 30px rgba(239,68,68,0.4))" loading="eager" />
+        </div>
       </div>
     </div>
 
     <div
-      class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-600 text-xs animate-bounce">
+      class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-slate-600 text-xs animate-bounce">
       <span>Desliza</span>
       <i class="fa-solid fa-chevron-down text-xs"></i>
     </div>
@@ -773,6 +790,28 @@
         </div>
       </div>
 
+      <!-- Sello de marca -->
+      <div class="mt-16 flex justify-center items-center gap-4 sm:gap-10">
+        <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-white/10"></div>
+        <div class="relative group flex-shrink-0">
+          <div class="absolute inset-0 rounded-full bg-red-600/30 blur-3xl scale-90 group-hover:scale-110 transition-all duration-700"></div>
+          <div class="relative bg-white rounded-full p-5 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
+            <img src="assets/img/2.png" alt="Lector Jean – Botillería & Licores"
+              class="w-44 h-44 sm:w-56 sm:h-56 object-contain" loading="lazy" />
+          </div>
+        </div>
+        <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-white/10 to-transparent"></div>
+        <div class="relative group flex-shrink-0">
+          <div class="absolute inset-0 rounded-lg bg-red-600/20 blur-2xl scale-90 group-hover:scale-110 transition-all duration-700"></div>
+          <div class="relative bg-white rounded-2xl p-4 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
+            <img src="assets/img/4.png" alt="Lector Jean – Licores Premium"
+              class="w-32 h-32 sm:w-44 sm:h-44 object-contain" loading="lazy" />
+          </div>
+        </div>
+        </div>
+        <div class="hidden sm:block flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-white/10"></div>
+      </div>
+
       <div
         class="mt-10 bg-gradient-to-r from-red-500/10 via-red-600/5 to-transparent border border-red-500/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-4">
@@ -797,86 +836,84 @@
   <!-- ═══════════════════════════════════════════════════════
      FOOTER
 ════════════════════════════════════════════════════════ -->
-  <footer id="footer"
-    class="bg-gradient-to-b from-slate-950 to-[#060d1c] border-t border-white/5 pt-16 pb-10 px-4 sm:px-6 relative">
-    <!-- Línea gradiente superior -->
-    <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent">
+  <footer id="footer" class="footer-dark">
+
+    <!-- ─── FRANJA CTA ─────────────────────────────────────── -->
+    <div class="footer-cta-strip relative overflow-hidden">
+      <div class="footer-cta-bg"></div>
+      <div class="relative z-10 max-w-4xl mx-auto px-6 py-14 text-center">
+        <p class="text-red-300/80 text-xs font-black uppercase tracking-[.2em] mb-3">Delivery Express · Toda la comuna</p>
+        <h2 class="font-display text-3xl sm:text-5xl font-black text-white leading-tight mb-6">
+          Tu próxima ronda<br class="hidden sm:block" /> está a un mensaje.
+        </h2>
+        <a id="footer-wa-cta" href="#" target="_blank" rel="noopener"
+          class="inline-flex items-center gap-3 bg-white text-slate-900 font-black text-base px-8 py-4 rounded-2xl shadow-xl shadow-black/30 transition-all duration-200 hover:scale-105">
+          <i class="fa-brands fa-whatsapp text-green-600 text-xl"></i>
+          Pedir por WhatsApp
+        </a>
+      </div>
     </div>
-    <div class="max-w-6xl mx-auto">
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
+
+    <!-- ─── GRID PRINCIPAL ──────────────────────────────────── -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-10">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-10">
+
+        <!-- Columna 1: Logo + redes -->
         <div>
-          <div class="flex items-center gap-2 mb-4">
-            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center">
-              <i class="fa-solid fa-champagne-glasses text-red-400"></i>
-            </div>
-            <div>
-              <p class="font-display text-xl font-black text-red-400">Lector Jean</p>
-              <p class="text-slate-500 text-xs uppercase tracking-widest">Botillería Premium</p>
-            </div>
+          <div class="bg-white inline-block rounded-2xl px-4 py-2.5 mb-5 shadow-lg shadow-black/40">
+            <img src="assets/img/3.png" alt="Lector Jean – Botillería & Licores"
+              class="h-10 w-auto object-contain" loading="lazy" />
           </div>
-          <p class="text-slate-400 text-sm leading-relaxed">Tu botillería de confianza. Variedad, frescura y el mejor
-            servicio de delivery de la zona.</p>
-          <div class="flex gap-3 mt-5">
-            <a href="#"
-              class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 flex items-center justify-center text-slate-400 hover:text-red-400 transition-all duration-200"><i
-                class="fa-brands fa-instagram text-base"></i></a>
-            <a href="#"
-              class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 flex items-center justify-center text-slate-400 hover:text-red-400 transition-all duration-200"><i
-                class="fa-brands fa-facebook-f text-base"></i></a>
-            <a href="#"
-              class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 flex items-center justify-center text-slate-400 hover:text-red-400 transition-all duration-200"><i
-                class="fa-brands fa-tiktok text-base"></i></a>
-            <a href="#" target="_blank" rel="noopener"
-              class="w-9 h-9 rounded-lg bg-green-900/40 hover:bg-green-700/40 border border-green-500/30 flex items-center justify-center text-green-400 hover:text-green-300 transition-all duration-200"><i
-                class="fa-brands fa-whatsapp text-base"></i></a>
+          <p class="text-slate-400 text-sm leading-relaxed mb-6">Tu botillería de confianza. Variedad, frescura y el mejor servicio de delivery de la zona.</p>
+          <div class="flex gap-2.5">
+            <a href="#" class="footer-social-btn"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="footer-social-btn"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="footer-social-btn"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="#" target="_blank" rel="noopener" class="footer-social-btn footer-social-wa"><i class="fa-brands fa-whatsapp"></i></a>
           </div>
         </div>
+
+        <!-- Columna 2: Horarios -->
         <div>
-          <h4 class="font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-clock text-red-400"></i>
-            Horarios de Atención</h4>
-          <ul class="space-y-2.5 text-sm">
-            <li class="flex justify-between"><span class="text-slate-400">Lunes a Jueves</span><span
-                class="text-white font-semibold">12:00 – 01:00</span></li>
-            <li class="flex justify-between"><span class="text-slate-400">Viernes y Sábado</span><span
-                class="text-red-400 font-semibold">12:00 – 03:00</span></li>
-            <li class="flex justify-between"><span class="text-slate-400">Domingo</span><span
-                class="text-white font-semibold">13:00 – 00:00</span></li>
+          <p class="footer-col-title"><i class="fa-solid fa-clock mr-2 text-red-500"></i>Horarios</p>
+          <ul class="space-y-3 text-sm">
+            <li class="flex justify-between items-center">
+              <span class="text-slate-400">Lun – Jue</span>
+              <span class="footer-time-badge">12:00 – 01:00</span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-slate-400">Vie – Sáb</span>
+              <span class="footer-time-badge footer-time-badge--hot">12:00 – 03:00</span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-slate-400">Domingo</span>
+              <span class="footer-time-badge">13:00 – 00:00</span>
+            </li>
           </ul>
-          <div id="footer-status" class="mt-4 text-xs font-semibold"></div>
+          <div id="footer-status" class="mt-5 text-xs font-semibold"></div>
         </div>
+
+        <!-- Columna 3: Pagos + Contacto -->
         <div>
-          <h4 class="font-bold text-white mb-4 flex items-center gap-2"><i
-              class="fa-solid fa-credit-card text-red-400"></i> Métodos de Pago</h4>
-          <div class="flex flex-wrap gap-2">
-            <span
-              class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i
-                class="fa-solid fa-arrow-right-arrow-left mr-1 text-red-400/70"></i>Transferencia</span>
-            <span
-              class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i
-                class="fa-solid fa-money-bill-wave mr-1 text-red-400/70"></i>Efectivo</span>
-            <span
-              class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i
-                class="fa-solid fa-credit-card mr-1 text-red-400/70"></i>Débito/Crédito</span>
-            <span
-              class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl"><i
-                class="fa-regular fa-circle-check mr-1 text-red-400/70"></i>Mercado Pago</span>
+          <p class="footer-col-title"><i class="fa-solid fa-credit-card mr-2 text-red-500"></i>Métodos de Pago</p>
+          <div class="flex flex-wrap gap-2 mb-7">
+            <span class="footer-pay-chip"><i class="fa-solid fa-arrow-right-arrow-left mr-1.5"></i>Transferencia</span>
+            <span class="footer-pay-chip"><i class="fa-solid fa-money-bill-wave mr-1.5"></i>Efectivo</span>
+            <span class="footer-pay-chip"><i class="fa-solid fa-credit-card mr-1.5"></i>Débito/Crédito</span>
+            <span class="footer-pay-chip"><i class="fa-regular fa-circle-check mr-1.5"></i>Mercado Pago</span>
           </div>
-          <div class="mt-6">
-            <h4 class="font-bold text-white mb-3 flex items-center gap-2"><i
-                class="fa-solid fa-location-dot text-red-400"></i> Contacto Directo</h4>
-            <p class="text-slate-400 text-sm"><i class="fa-solid fa-phone mr-1.5 text-red-400/60"></i>+56 9 00 000 000
-            </p>
-            <p class="text-slate-400 text-sm mt-1"><i class="fa-solid fa-location-dot mr-1.5 text-red-400/60"></i>Tu
-              dirección, Ciudad, Chile</p>
-          </div>
+          <p class="footer-col-title"><i class="fa-solid fa-location-dot mr-2 text-red-500"></i>Contacto</p>
+          <p class="text-slate-400 text-sm mb-1.5">+56 9 00 000 000</p>
+          <p class="text-slate-400 text-sm">Tu dirección, Ciudad, Chile</p>
         </div>
       </div>
-      <div
-        class="border-t border-white/5 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-600">
+
+      <!-- Barra inferior -->
+      <div class="footer-bottom-line"></div>
+      <div class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-400">
         <!-- Triple-click secreto = abrir panel admin -->
-        <p id="footer-copy" class="cursor-default select-none">© 2026 Botillería Lector Jean. Todos los derechos
-          reservados.</p>
-        <p><i class="fa-solid fa-shield-halved mr-1"></i>Solo para mayores de 18 años. Bebe con responsabilidad.</p>
+        <p id="footer-copy" class="cursor-default select-none">© 2026 Botillería Lector Jean · Todos los derechos reservados.</p>
+        <p><i class="fa-solid fa-shield-halved mr-1 text-red-500/50"></i>Solo para mayores de 18 años.</p>
       </div>
     </div>
   </footer>
@@ -892,7 +929,7 @@
   <!-- Toast container -->
   <div id="toast-container" class="fixed bottom-24 right-5 z-[100] space-y-2 pointer-events-none"></div>
 
-  <script src="script.js"></script>
+  <script src="assets/js/script.js"></script>
 </body>
 
 </html>
