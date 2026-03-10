@@ -436,29 +436,21 @@
 
         <div class="flex flex-wrap gap-2 mb-3" id="admin-filtros">
           <button class="admin-cat-btn active" data-cat="todos">Todos</button>
-          <button class="admin-cat-btn" data-cat="cervezas"><i
-              class="fa-solid fa-beer-mug-empty mr-1"></i>Cervezas</button>
-          <button class="admin-cat-btn" data-cat="destilados"><i class="fa-solid fa-fire mr-1"></i>Destilados</button>
-          <button class="admin-cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1"></i>Vinos</button>
-          <button class="admin-cat-btn" data-cat="hielo"><i class="fa-solid fa-snowflake mr-1"></i>Hielo &
-            Snacks</button>
+          <button class="admin-cat-btn" data-cat="cervezas">Cervezas</button>
+          <button class="admin-cat-btn" data-cat="destilados">Destilados</button>
+          <button class="admin-cat-btn" data-cat="vinos">Vinos</button>
+          <button class="admin-cat-btn" data-cat="espumantes">Espumantes</button>
+          <button class="admin-cat-btn" data-cat="cocteles-rtd">Cócteles RTD</button>
+          <button class="admin-cat-btn" data-cat="licores">Licores</button>
+          <button class="admin-cat-btn" data-cat="bebidas">Bebidas</button>
+          <button class="admin-cat-btn" data-cat="snacks">Snacks</button>
+          <button class="admin-cat-btn" data-cat="promos">Promos</button>
         </div>
 
-        <!-- Sub-filtros cervezas (admin) -->
+        <!-- Sub-filtros admin dinámicos (inyectados por JS) -->
         <div id="admin-sub-filtros"
-          class="hidden flex-wrap gap-2 mb-5 items-center px-3 py-2.5 bg-slate-800/60 border border-white/5 rounded-xl">
-          <span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1"><i
-              class="fa-solid fa-filter mr-1"></i>Tipo:</span>
-          <button class="admin-sub-btn active" data-sub="todos">Todos los tipos</button>
-          <button class="admin-sub-btn" data-sub="latones"><i class="fa-solid fa-fill-drip mr-1"></i>Latones</button>
-          <button class="admin-sub-btn" data-sub="latas-sueltas"><i class="fa-solid fa-can-food mr-1"></i>Latas
-            Sueltas</button>
-          <button class="admin-sub-btn" data-sub="pack-latas"><i class="fa-solid fa-boxes-stacked mr-1"></i>Packs de
-            Latas</button>
-          <button class="admin-sub-btn" data-sub="botellines"><i class="fa-solid fa-box mr-1"></i>Packs
-            Botellines</button>
-          <button class="admin-sub-btn" data-sub="botellas"><i class="fa-solid fa-wine-bottle mr-1"></i>Botellas
-            Grandes</button>
+          class="hidden flex-wrap gap-2 mb-5 items-center px-4 py-3 bg-slate-800/60 border border-white/6 rounded-2xl">
+          <!-- Contenido inyectado dinámicamente por initAdminFiltros() -->
         </div>
 
         <div id="admin-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
@@ -495,10 +487,15 @@
             <label class="form-label">Categoría *</label>
             <select id="pf-categoria" class="form-input" onchange="toggleSubcatField()">
               <option value="">Selecciona categoría</option>
-              <option value="cervezas">🍺 Cervezas</option>
-              <option value="destilados">🔥 Destilados</option>
-              <option value="vinos">🍷 Vinos</option>
-              <option value="hielo">❄️ Hielo & Snacks</option>
+              <option value="cervezas">Cervezas</option>
+              <option value="destilados">Destilados</option>
+              <option value="vinos">Vinos</option>
+              <option value="espumantes">Espumantes y Celebración</option>
+              <option value="cocteles-rtd">Cócteles Listos (RTD)</option>
+              <option value="licores">Licores y Bajativos</option>
+              <option value="bebidas">Bebidas y Mixers</option>
+              <option value="snacks">Snacks y Complementos</option>
+              <option value="promos">Promos y Combos</option>
             </select>
           </div>
           <div>
@@ -507,16 +504,11 @@
           </div>
         </div>
 
-        <!-- Subcategoría: solo visible cuando categoría = cervezas -->
+        <!-- Subcategoría: solo visible cuando la categoría tiene sub-tipos -->
         <div id="pf-subcat-wrap" class="hidden">
-          <label class="form-label">Subcategoría de cerveza *</label>
+          <label class="form-label">Tipo / Subcategoría *</label>
           <select id="pf-subcategoria" class="form-input">
-            <option value="">Selecciona tipo</option>
-            <option value="latones">🟡 Latones (unidad)</option>
-            <option value="latas-sueltas">🔴 Latas Sueltas (unidad)</option>
-            <option value="pack-latas">📦 Packs de Latas 350ml</option>
-            <option value="botellines">🔵 Packs Botellines 330ml</option>
-            <option value="botellas">🍾 Botellas Grandes 500–620ml</option>
+            <!-- Opciones inyectadas dinámicamente por toggleSubcatField() -->
           </select>
         </div>
         <div>
@@ -700,27 +692,22 @@
     <div
       class="flex flex-wrap justify-center gap-2 mb-3 px-3 py-3 bg-slate-800/30 border border-white/4 rounded-2xl backdrop-blur-sm"
       id="filtros">
-      <button class="cat-btn active" data-cat="todos"><i class="fa-solid fa-border-all mr-1.5"></i>Todos</button>
-      <button class="cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty mr-1.5"></i>Cervezas</button>
-      <button class="cat-btn" data-cat="destilados"><i class="fa-solid fa-fire mr-1.5"></i>Destilados</button>
-      <button class="cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1.5"></i>Vinos</button>
-      <button class="cat-btn" data-cat="hielo"><i class="fa-solid fa-snowflake mr-1.5"></i>Hielo & Snacks</button>
+      <button class="cat-btn active" data-cat="todos">Todos</button>
+      <button class="cat-btn" data-cat="cervezas">Cervezas</button>
+      <button class="cat-btn" data-cat="destilados">Destilados</button>
+      <button class="cat-btn" data-cat="vinos">Vinos</button>
+      <button class="cat-btn" data-cat="espumantes">Espumantes</button>
+      <button class="cat-btn" data-cat="cocteles-rtd">Cócteles RTD</button>
+      <button class="cat-btn" data-cat="licores">Licores</button>
+      <button class="cat-btn" data-cat="bebidas">Bebidas</button>
+      <button class="cat-btn" data-cat="snacks">Snacks</button>
+      <button class="cat-btn" data-cat="promos">Promos</button>
     </div>
 
-    <!-- Sub-filtros Cervezas (oculto por defecto) -->
+    <!-- Sub-filtros dinámicos (se poblan desde JS según la categoría activa) -->
     <div id="sub-filtros"
-      class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-3 py-3 bg-sky-950/30 border border-sky-500/10 rounded-2xl">
-      <span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1 w-full text-center sm:w-auto"><i
-          class="fa-solid fa-filter mr-1 text-sky-600/60"></i>Tipo de cerveza:</span>
-      <button class="sub-cat-btn active" data-sub="todos">Todos los tipos</button>
-      <button class="sub-cat-btn" data-sub="latones"><i class="fa-solid fa-fill-drip mr-1.5"></i>Latones</button>
-      <button class="sub-cat-btn" data-sub="latas-sueltas"><i class="fa-solid fa-can-food mr-1.5"></i>Latas
-        Sueltas</button>
-      <button class="sub-cat-btn" data-sub="pack-latas"><i class="fa-solid fa-boxes-stacked mr-1.5"></i>Packs de
-        Latas</button>
-      <button class="sub-cat-btn" data-sub="botellines"><i class="fa-solid fa-box mr-1.5"></i>Packs Botellines</button>
-      <button class="sub-cat-btn" data-sub="botellas"><i class="fa-solid fa-wine-bottle mr-1.5"></i>Botellas
-        Grandes</button>
+      class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-4 py-3 bg-slate-800/50 border border-white/6 rounded-2xl backdrop-blur-sm transition-all">
+      <!-- Contenido inyectado dinámicamente por buildSubBtns() en script.js -->
     </div>
 
     <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-7"></div>
