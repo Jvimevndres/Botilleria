@@ -433,25 +433,42 @@
 
         <div class="flex flex-wrap gap-2 mb-3" id="admin-filtros">
           <button class="admin-cat-btn active" data-cat="todos">Todos</button>
-          <button class="admin-cat-btn" data-cat="cervezas"><i
+          <<<<<<< HEAD <button class="admin-cat-btn" data-cat="cervezas"><i
               class="fa-solid fa-beer-mug-empty mr-1"></i>Cervezas</button>
-          <button class="admin-cat-btn" data-cat="destilados"><i
-              class="fa-solid fa-whiskey-glass mr-1"></i>Destilados</button>
-          <button class="admin-cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1"></i>Vinos</button>
-          <button class="admin-cat-btn" data-cat="espumantes"><i
-              class="fa-solid fa-champagne-glasses mr-1"></i>Espumantes</button>
-          <button class="admin-cat-btn" data-cat="cocteles"><i
-              class="fa-solid fa-martini-glass-citrus mr-1"></i>Cócteles</button>
-          <button class="admin-cat-btn" data-cat="licores"><i
-              class="fa-solid fa-bottle-droplet mr-1"></i>Licores</button>
-          <button class="admin-cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1"></i>Bebidas</button>
-          <button class="admin-cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1"></i>Snacks</button>
-          <button class="admin-cat-btn" data-cat="promos"><i class="fa-solid fa-tag mr-1"></i>Promos</button>
+            <button class="admin-cat-btn" data-cat="destilados"><i
+                class="fa-solid fa-whiskey-glass mr-1"></i>Destilados</button>
+            <button class="admin-cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1"></i>Vinos</button>
+            <button class="admin-cat-btn" data-cat="espumantes"><i
+                class="fa-solid fa-champagne-glasses mr-1"></i>Espumantes</button>
+            <button class="admin-cat-btn" data-cat="cocteles"><i
+                class="fa-solid fa-martini-glass-citrus mr-1"></i>Cócteles</button>
+            <button class="admin-cat-btn" data-cat="licores"><i
+                class="fa-solid fa-bottle-droplet mr-1"></i>Licores</button>
+            <button class="admin-cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1"></i>Bebidas</button>
+            <button class="admin-cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1"></i>Snacks</button>
+            <button class="admin-cat-btn" data-cat="promos"><i class="fa-solid fa-tag mr-1"></i>Promos</button>
         </div>
 
         <!-- Sub-filtros admin (dinámicos por JS) -->
         <div id="admin-sub-filtros"
           class="hidden flex-wrap gap-2 mb-5 items-center px-3 py-2.5 bg-slate-800/60 border border-white/5 rounded-xl">
+          =======
+          <button class="admin-cat-btn" data-cat="cervezas">Cervezas</button>
+          <button class="admin-cat-btn" data-cat="destilados">Destilados</button>
+          <button class="admin-cat-btn" data-cat="vinos">Vinos</button>
+          <button class="admin-cat-btn" data-cat="espumantes">Espumantes</button>
+          <button class="admin-cat-btn" data-cat="cocteles-rtd">Cócteles RTD</button>
+          <button class="admin-cat-btn" data-cat="licores">Licores</button>
+          <button class="admin-cat-btn" data-cat="bebidas">Bebidas</button>
+          <button class="admin-cat-btn" data-cat="snacks">Snacks</button>
+          <button class="admin-cat-btn" data-cat="promos">Promos</button>
+        </div>
+
+        <!-- Sub-filtros admin dinámicos (inyectados por JS) -->
+        <div id="admin-sub-filtros"
+          class="hidden flex-wrap gap-2 mb-5 items-center px-4 py-3 bg-slate-800/60 border border-white/6 rounded-2xl">
+          <!-- Contenido inyectado dinámicamente por initAdminFiltros() -->
+          >>>>>>> 47a52e0cfebadaebfc53e41e4b56a34f5473c2b5
         </div>
 
         <div id="admin-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
@@ -492,11 +509,14 @@
               <option value="destilados">Destilados</option>
               <option value="vinos">Vinos</option>
               <option value="espumantes">Espumantes y Celebración</option>
-              <option value="cocteles">Cócteles Listos (RTD)</option>
-              <option value="licores">Licores y Bajativos</option>
-              <option value="bebidas">Bebidas y Mixers</option>
-              <option value="snacks">Snacks y Complementos</option>
-              <option value="promos">Promos y Combos</option>
+              <<<<<<< HEAD <option value="cocteles">Cócteles Listos (RTD)</option>
+                =======
+                <option value="cocteles-rtd">Cócteles Listos (RTD)</option>
+                >>>>>>> 47a52e0cfebadaebfc53e41e4b56a34f5473c2b5
+                <option value="licores">Licores y Bajativos</option>
+                <option value="bebidas">Bebidas y Mixers</option>
+                <option value="snacks">Snacks y Complementos</option>
+                <option value="promos">Promos y Combos</option>
             </select>
           </div>
           <div>
@@ -505,341 +525,375 @@
           </div>
         </div>
 
-        <!-- Subcategoría: visible cuando la categoría tiene subs (generado por JS) -->
-        <div id="pf-subcat-wrap" class="hidden">
-          <label class="form-label">Subcategoría *</label>
-          <select id="pf-subcategoria" class="form-input">
-            <option value="">Selecciona tipo</option>
-          </select>
-        </div>
-        <div>
-          <label class="form-label">Descripción corta</label>
-          <input id="pf-descripcion" type="text" placeholder="Ej: Lager importada, 5° Alc." class="form-input" />
-        </div>
-        <div>
-          <label class="form-label">URL de imagen (Unsplash u otro)</label>
-          <input id="pf-imagen" type="url" placeholder="https://images.unsplash.com/..." class="form-input" />
-        </div>
-        <div class="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label class="form-label">Etiqueta (opcional)</label>
-            <input id="pf-etiqueta" type="text" placeholder="Ej: Más vendido, Promo, Nuevo" class="form-input" />
-          </div>
-          <div>
-            <label class="form-label">Color etiqueta</label>
-            <select id="pf-etiquetacolor" class="form-input">
-              <option value="">Sin color</option>
-              <option value="red">🔴 Rojo (Destacado)</option>
-              <option value="green">✅ Verde (Promo)</option>
-              <option value="blue">💙 Azul</option>
-              <option value="amber">⭐ Dorado</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input id="pf-disponible" type="checkbox" checked class="w-4 h-4 rounded accent-red-500" />
-            <span class="text-sm font-semibold text-white">Producto disponible / activo en catálogo</span>
-          </label>
-        </div>
-        <div id="pf-error"
-          class="hidden text-red-400 text-sm bg-red-900/30 border border-red-500/30 rounded-xl px-4 py-3 flex items-center gap-2">
-          <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i><span id="pf-error-msg"></span>
-        </div>
+        <<<<<<< HEAD <!-- Subcategoría: visible cuando la categoría tiene subs (generado por JS) -->
+          <div id="pf-subcat-wrap" class="hidden">
+            <label class="form-label">Subcategoría *</label>
+            <select id="pf-subcategoria" class="form-input">
+              <option value="">Selecciona tipo</option>
+              =======
+              <!-- Subcategoría: solo visible cuando la categoría tiene sub-tipos -->
+              <div id="pf-subcat-wrap" class="hidden">
+                <label class="form-label">Tipo / Subcategoría *</label>
+                <select id="pf-subcategoria" class="form-input">
+                  <!-- Opciones inyectadas dinámicamente por toggleSubcatField() -->
+                  >>>>>>> 47a52e0cfebadaebfc53e41e4b56a34f5473c2b5
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Descripción corta</label>
+                <input id="pf-descripcion" type="text" placeholder="Ej: Lager importada, 5° Alc." class="form-input" />
+              </div>
+              <div>
+                <label class="form-label">URL de imagen (Unsplash u otro)</label>
+                <input id="pf-imagen" type="url" placeholder="https://images.unsplash.com/..." class="form-input" />
+              </div>
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="form-label">Etiqueta (opcional)</label>
+                  <input id="pf-etiqueta" type="text" placeholder="Ej: Más vendido, Promo, Nuevo" class="form-input" />
+                </div>
+                <div>
+                  <label class="form-label">Color etiqueta</label>
+                  <select id="pf-etiquetacolor" class="form-input">
+                    <option value="">Sin color</option>
+                    <option value="red">🔴 Rojo (Destacado)</option>
+                    <option value="green">✅ Verde (Promo)</option>
+                    <option value="blue">💙 Azul</option>
+                    <option value="amber">⭐ Dorado</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input id="pf-disponible" type="checkbox" checked class="w-4 h-4 rounded accent-red-500" />
+                  <span class="text-sm font-semibold text-white">Producto disponible / activo en catálogo</span>
+                </label>
+              </div>
+              <div id="pf-error"
+                class="hidden text-red-400 text-sm bg-red-900/30 border border-red-500/30 rounded-xl px-4 py-3 flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i><span id="pf-error-msg"></span>
+              </div>
 
-        <!-- Aviso de que los cambios no se pierden accidentalmente -->
-        <div class="flex items-start gap-2 bg-slate-900/50 border border-white/5 rounded-xl px-4 py-3">
-          <i class="fa-solid fa-circle-info text-red-400/60 text-xs mt-0.5 flex-shrink-0"></i>
-          <p class="text-slate-500 text-xs">Para cerrar sin guardar, usa el botón <strong
-              class="text-slate-400">Cancelar</strong> o la <strong class="text-slate-400">X</strong>. Se te pedirá
-            confirmación si hay cambios.</p>
-        </div>
+              <!-- Aviso de que los cambios no se pierden accidentalmente -->
+              <div class="flex items-start gap-2 bg-slate-900/50 border border-white/5 rounded-xl px-4 py-3">
+                <i class="fa-solid fa-circle-info text-red-400/60 text-xs mt-0.5 flex-shrink-0"></i>
+                <p class="text-slate-500 text-xs">Para cerrar sin guardar, usa el botón <strong
+                    class="text-slate-400">Cancelar</strong> o la <strong class="text-slate-400">X</strong>. Se te
+                  pedirá
+                  confirmación si hay cambios.</p>
+              </div>
 
-        <div class="flex gap-3 pt-2">
-          <button onclick="closePFConfirm()"
-            class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition-all">
-            <i class="fa-solid fa-ban mr-1.5 text-slate-400"></i>Cancelar
-          </button>
-          <button onclick="saveProduct()"
-            class="flex-[2] bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl transition-all hover:scale-105 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i> Guardar Producto
+              <div class="flex gap-3 pt-2">
+                <button onclick="closePFConfirm()"
+                  class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition-all">
+                  <i class="fa-solid fa-ban mr-1.5 text-slate-400"></i>Cancelar
+                </button>
+                <button onclick="saveProduct()"
+                  class="flex-[2] bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl transition-all hover:scale-105 flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-floppy-disk"></i> Guardar Producto
+                </button>
+              </div>
+          </div>
+      </div>
+    </div>
+
+
+    <!-- MODAL CONFIRMACIÓN ELIMINAR -->
+    <div id="delete-overlay" class="fixed inset-0 z-[90] bg-black/70 hidden items-center justify-center p-4">
+      <div class="bg-slate-800 border border-red-500/20 rounded-2xl max-w-sm w-full p-7 text-center shadow-2xl">
+        <div class="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+          <i class="fa-solid fa-trash-can text-red-400 text-2xl"></i>
+        </div>
+        <h3 class="font-display text-xl font-black text-white mb-2">¿Eliminar producto?</h3>
+        <p id="delete-product-name" class="text-slate-400 text-sm mb-6">Esta acción no se puede deshacer.</p>
+        <div class="flex gap-3">
+          <button onclick="closeDeleteModal()"
+            class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2.5 rounded-xl transition-all">Cancelar</button>
+          <button onclick="confirmDelete()"
+            class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl transition-all hover:scale-105">
+            <i class="fa-solid fa-trash-can mr-1.5"></i>Eliminar
           </button>
         </div>
       </div>
     </div>
-  </div>
 
 
-  <!-- MODAL CONFIRMACIÓN ELIMINAR -->
-  <div id="delete-overlay" class="fixed inset-0 z-[90] bg-black/70 hidden items-center justify-center p-4">
-    <div class="bg-slate-800 border border-red-500/20 rounded-2xl max-w-sm w-full p-7 text-center shadow-2xl">
-      <div class="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-4">
-        <i class="fa-solid fa-trash-can text-red-400 text-2xl"></i>
-      </div>
-      <h3 class="font-display text-xl font-black text-white mb-2">¿Eliminar producto?</h3>
-      <p id="delete-product-name" class="text-slate-400 text-sm mb-6">Esta acción no se puede deshacer.</p>
-      <div class="flex gap-3">
-        <button onclick="closeDeleteModal()"
-          class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2.5 rounded-xl transition-all">Cancelar</button>
-        <button onclick="confirmDelete()"
-          class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl transition-all hover:scale-105">
-          <i class="fa-solid fa-trash-can mr-1.5"></i>Eliminar
-        </button>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ═══════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════
      HERO
 ════════════════════════════════════════════════════════ -->
-  <section id="hero" class="relative min-h-[92vh] flex items-center overflow-hidden">
-    <!-- Orbs de fondo -->
-    <div class="hero-orb w-[700px] h-[700px] bg-red-600/15 -top-60 -left-40"></div>
-    <div class="hero-orb w-[500px] h-[500px] bg-orange-600/8 top-1/4 right-[-5%]"></div>
-    <div class="hero-orb w-[300px] h-[300px] bg-red-500/10 bottom-20 left-1/3"></div>
-    <!-- Gradiente inferior -->
-    <div class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-900 to-transparent z-10"></div>
+    <section id="hero" class="relative min-h-[92vh] flex items-center overflow-hidden">
+      <!-- Orbs de fondo -->
+      <div class="hero-orb w-[700px] h-[700px] bg-red-600/15 -top-60 -left-40"></div>
+      <div class="hero-orb w-[500px] h-[500px] bg-orange-600/8 top-1/4 right-[-5%]"></div>
+      <div class="hero-orb w-[300px] h-[300px] bg-red-500/10 bottom-20 left-1/3"></div>
+      <!-- Gradiente inferior -->
+      <div class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-900 to-transparent z-10"></div>
 
-    <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 py-16">
-      <div class="grid lg:grid-cols-2 gap-4 items-center">
+      <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 py-16">
+        <div class="grid lg:grid-cols-2 gap-4 items-center">
 
-        <!-- Columna izquierda: texto -->
-        <div class="text-center lg:text-left">
-          <!-- Pill de estado -->
-          <div
-            class="inline-flex items-center gap-2.5 bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-full mb-8 shadow-lg shadow-red-900/20">
-            <span class="blink-dot w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
-            Delivery Express &middot; Toda la comuna
-          </div>
-
-          <!-- Headline -->
-          <h1 class="font-display text-5xl sm:text-7xl md:text-8xl font-black leading-[0.92] tracking-tight mb-6">
-            Tu Sed<br />Termina <span class="gradient-text">Aquí.</span>
-          </h1>
-          <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed">
-            Cervezas heladas, destilados premium, vinos selectos e hielo.<br />
-            <strong class="text-white">Entrega rápida directo a tu puerta.</strong>
-          </p>
-
-          <!-- CTAs -->
-          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-14">
-            <a href="#catalogo"
-              class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl shadow-red-900/40 flex items-center justify-center gap-2">
-              <i class="fa-solid fa-cart-shopping"></i>Ver Catálogo
-            </a>
-            <button onclick="toggleCart()"
-              class="w-full sm:w-auto bg-white/5 border border-white/12 hover:border-red-500/40 hover:bg-white/8 text-white font-semibold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 backdrop-blur-sm flex items-center justify-center gap-2">
-              <i class="fa-solid fa-cart-plus mr-1"></i>Ver mi carrito
-            </button>
-          </div>
-
-          <!-- Stats glass card -->
-          <div class="stats-glass inline-grid grid-cols-3 gap-0 max-w-xs w-full mx-auto lg:mx-0">
-            <div class="text-center px-4 py-1">
-              <div class="font-display text-3xl font-black gradient-text" id="hero-stat-products">+20</div>
-              <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Productos</div>
+          <!-- Columna izquierda: texto -->
+          <div class="text-center lg:text-left">
+            <!-- Pill de estado -->
+            <div
+              class="inline-flex items-center gap-2.5 bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-full mb-8 shadow-lg shadow-red-900/20">
+              <span class="blink-dot w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
+              Delivery Express &middot; Toda la comuna
             </div>
-            <div class="text-center px-4 py-1 border-x border-white/7">
-              <div class="font-display text-3xl font-black gradient-text">30'</div>
-              <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Delivery</div>
+
+            <!-- Headline -->
+            <h1 class="font-display text-5xl sm:text-7xl md:text-8xl font-black leading-[0.92] tracking-tight mb-6">
+              Tu Sed<br />Termina <span class="gradient-text">Aquí.</span>
+            </h1>
+            <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed">
+              Cervezas heladas, destilados premium, vinos selectos e hielo.<br />
+              <strong class="text-white">Entrega rápida directo a tu puerta.</strong>
+            </p>
+
+            <!-- CTAs -->
+            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-14">
+              <a href="#catalogo"
+                class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl shadow-red-900/40 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-cart-shopping"></i>Ver Catálogo
+              </a>
+              <button onclick="toggleCart()"
+                class="w-full sm:w-auto bg-white/5 border border-white/12 hover:border-red-500/40 hover:bg-white/8 text-white font-semibold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 backdrop-blur-sm flex items-center justify-center gap-2">
+                <i class="fa-solid fa-cart-plus mr-1"></i>Ver mi carrito
+              </button>
             </div>
-            <div class="text-center px-4 py-1">
-              <div class="font-display text-3xl font-black gradient-text"><i class="fa-solid fa-star text-xl"></i> 5.0
+
+            <!-- Stats glass card -->
+            <div class="stats-glass inline-grid grid-cols-3 gap-0 max-w-xs w-full mx-auto lg:mx-0">
+              <div class="text-center px-4 py-1">
+                <div class="font-display text-3xl font-black gradient-text" id="hero-stat-products">+20</div>
+                <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Productos</div>
               </div>
-              <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Valoración</div>
+              <div class="text-center px-4 py-1 border-x border-white/7">
+                <div class="font-display text-3xl font-black gradient-text">30'</div>
+                <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Delivery</div>
+              </div>
+              <div class="text-center px-4 py-1">
+                <div class="font-display text-3xl font-black gradient-text"><i class="fa-solid fa-star text-xl"></i> 5.0
+                </div>
+                <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Valoración</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Columna derecha: imagen producto -->
-        <div class="hidden lg:flex items-center justify-center relative">
-          <div class="absolute inset-0 bg-red-600/25 blur-[140px] rounded-full"></div>
-          <img src="assets/img/1.png" alt="Productos Lector Jean" class="relative w-full max-w-2xl -mr-8 object-contain"
-            style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 20px 60px rgba(239,68,68,0.5))"
-            loading="eager" />
-        </div>
+          <!-- Columna derecha: imagen producto -->
+          <div class="hidden lg:flex items-center justify-center relative">
+            <div class="absolute inset-0 bg-red-600/25 blur-[140px] rounded-full"></div>
+            <img src="assets/img/1.png" alt="Productos Lector Jean"
+              class="relative w-full max-w-2xl -mr-8 object-contain"
+              style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 20px 60px rgba(239,68,68,0.5))"
+              loading="eager" />
+          </div>
 
-        <!-- Imagen mobile (centrada, debajo del texto) -->
-        <div class="flex lg:hidden justify-center mt-4">
-          <img src="assets/img/1.png" alt="Productos Lector Jean" class="w-80 object-contain"
-            style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 10px 30px rgba(239,68,68,0.4))"
-            loading="eager" />
+          <!-- Imagen mobile (centrada, debajo del texto) -->
+          <div class="flex lg:hidden justify-center mt-4">
+            <img src="assets/img/1.png" alt="Productos Lector Jean" class="w-80 object-contain"
+              style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 10px 30px rgba(239,68,68,0.4))"
+              loading="eager" />
+          </div>
         </div>
       </div>
-    </div>
 
-    <div
-      class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-slate-600 text-xs animate-bounce">
-      <span>Desliza</span>
-      <i class="fa-solid fa-chevron-down text-xs"></i>
-    </div>
-  </section>
+      <div
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-slate-600 text-xs animate-bounce">
+        <span>Desliza</span>
+        <i class="fa-solid fa-chevron-down text-xs"></i>
+      </div>
+    </section>
 
 
-  <!-- ═══════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════
      CATÁLOGO
 ════════════════════════════════════════════════════════ -->
-  <section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-24">
-    <!-- Header sección -->
-    <div class="text-center mb-12">
-      <span class="section-label"><i class="fa-solid fa-bag-shopping"></i>Productos</span>
-      <h2 class="font-display text-4xl sm:text-5xl font-black text-white mt-3 mb-3">Nuestro <span
-          class="gradient-text">Catálogo</span></h2>
-      <p class="text-slate-400 text-sm max-w-md mx-auto">Agrega productos al carrito y envía tu pedido completo por
-        WhatsApp con un solo click</p>
-    </div>
-
-    <!-- Filtros de categoría -->
-    <div
-      class="flex flex-wrap justify-center gap-2 mb-3 px-3 py-3 bg-slate-800/30 border border-white/4 rounded-2xl backdrop-blur-sm"
-      id="filtros">
-      <button class="cat-btn active" data-cat="todos"><i class="fa-solid fa-border-all mr-1.5"></i>Todos</button>
-      <button class="cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty mr-1.5"></i>Cervezas</button>
-      <button class="cat-btn" data-cat="destilados"><i class="fa-solid fa-whiskey-glass mr-1.5"></i>Destilados</button>
-      <button class="cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1.5"></i>Vinos</button>
-      <button class="cat-btn" data-cat="espumantes"><i
-          class="fa-solid fa-champagne-glasses mr-1.5"></i>Espumantes</button>
-      <button class="cat-btn" data-cat="cocteles"><i class="fa-solid fa-martini-glass-citrus mr-1.5"></i>Cócteles
-        RTD</button>
-      <button class="cat-btn" data-cat="licores"><i class="fa-solid fa-bottle-droplet mr-1.5"></i>Licores</button>
-      <button class="cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1.5"></i>Bebidas</button>
-      <button class="cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1.5"></i>Snacks</button>
-      <button class="cat-btn" data-cat="promos"><i class="fa-solid fa-tag mr-1.5"></i>Promos</button>
-    </div>
-
-    <!-- Sub-filtros dinámicos (generados por JS al seleccionar categoría) -->
-    <div id="sub-filtros"
-      class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-4 py-3 bg-slate-800/40 border border-white/6 rounded-2xl backdrop-blur-sm">
-    </div>
-
-    <!-- Barra de búsqueda -->
-    <div class="search-bar-wrap mb-6">
-      <div class="relative">
-        <i class="fa-solid fa-magnifying-glass search-bar-icon"></i>
-        <input id="catalog-search" type="text" placeholder="Buscar producto..." autocomplete="off"
-          class="search-bar-input" oninput="onCatalogSearch(this.value)" />
-        <button id="search-clear-btn" class="search-clear-btn hidden" onclick="clearCatalogSearch()"
-          title="Limpiar búsqueda">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+    <section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-24">
+      <!-- Header sección -->
+      <div class="text-center mb-12">
+        <span class="section-label"><i class="fa-solid fa-bag-shopping"></i>Productos</span>
+        <h2 class="font-display text-4xl sm:text-5xl font-black text-white mt-3 mb-3">Nuestro <span
+            class="gradient-text">Catálogo</span></h2>
+        <p class="text-slate-400 text-sm max-w-md mx-auto">Agrega productos al carrito y envía tu pedido completo por
+          WhatsApp con un solo click</p>
       </div>
-    </div>
 
-    <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-7"></div>
+      <!-- Filtros de categoría -->
+      <div
+        class="flex flex-wrap justify-center gap-2 mb-3 px-3 py-3 bg-slate-800/30 border border-white/4 rounded-2xl backdrop-blur-sm"
+        id="filtros">
+        <<<<<<< HEAD <button class="cat-btn active" data-cat="todos"><i
+            class="fa-solid fa-border-all mr-1.5"></i>Todos</button>
+          <button class="cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty mr-1.5"></i>Cervezas</button>
+          <button class="cat-btn" data-cat="destilados"><i
+              class="fa-solid fa-whiskey-glass mr-1.5"></i>Destilados</button>
+          <button class="cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1.5"></i>Vinos</button>
+          <button class="cat-btn" data-cat="espumantes"><i
+              class="fa-solid fa-champagne-glasses mr-1.5"></i>Espumantes</button>
+          <button class="cat-btn" data-cat="cocteles"><i class="fa-solid fa-martini-glass-citrus mr-1.5"></i>Cócteles
+            RTD</button>
+          <button class="cat-btn" data-cat="licores"><i class="fa-solid fa-bottle-droplet mr-1.5"></i>Licores</button>
+          <button class="cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1.5"></i>Bebidas</button>
+          <button class="cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1.5"></i>Snacks</button>
+          <button class="cat-btn" data-cat="promos"><i class="fa-solid fa-tag mr-1.5"></i>Promos</button>
+      </div>
 
-    <div id="no-results" class="hidden text-center py-20 text-slate-500">
-      <div class="mb-4"><i class="fa-solid fa-magnifying-glass text-5xl"></i></div>
-      <p class="text-lg font-semibold">No hay productos en esta categoría.</p>
-    </div>
-  </section>
+      <!-- Sub-filtros dinámicos (generados por JS al seleccionar categoría) -->
+      <div id="sub-filtros"
+        class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-4 py-3 bg-slate-800/40 border border-white/6 rounded-2xl backdrop-blur-sm">
+      </div>
+
+      <!-- Barra de búsqueda -->
+      <div class="search-bar-wrap mb-6">
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass search-bar-icon"></i>
+          <input id="catalog-search" type="text" placeholder="Buscar producto..." autocomplete="off"
+            class="search-bar-input" oninput="onCatalogSearch(this.value)" />
+          <button id="search-clear-btn" class="search-clear-btn hidden" onclick="clearCatalogSearch()"
+            title="Limpiar búsqueda">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        =======
+        <button class="cat-btn active" data-cat="todos">Todos</button>
+        <button class="cat-btn" data-cat="cervezas">Cervezas</button>
+        <button class="cat-btn" data-cat="destilados">Destilados</button>
+        <button class="cat-btn" data-cat="vinos">Vinos</button>
+        <button class="cat-btn" data-cat="espumantes">Espumantes</button>
+        <button class="cat-btn" data-cat="cocteles-rtd">Cócteles RTD</button>
+        <button class="cat-btn" data-cat="licores">Licores</button>
+        <button class="cat-btn" data-cat="bebidas">Bebidas</button>
+        <button class="cat-btn" data-cat="snacks">Snacks</button>
+        <button class="cat-btn" data-cat="promos">Promos</button>
+      </div>
+
+      <!-- Sub-filtros dinámicos (se poblan desde JS según la categoría activa) -->
+      <div id="sub-filtros"
+        class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-4 py-3 bg-slate-800/50 border border-white/6 rounded-2xl backdrop-blur-sm transition-all">
+        <!-- Contenido inyectado dinámicamente por buildSubBtns() en script.js -->
+        >>>>>>> 47a52e0cfebadaebfc53e41e4b56a34f5473c2b5
+      </div>
+
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-7">
+      </div>
+
+      <div id="no-results" class="hidden text-center py-20 text-slate-500">
+        <div class="mb-4"><i class="fa-solid fa-magnifying-glass text-5xl"></i></div>
+        <p class="text-lg font-semibold">No hay productos en esta categoría.</p>
+      </div>
+    </section>
 
 
-  <!-- ═══════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════
      ¿POR QUÉ ELEGIRNOS?
 ════════════════════════════════════════════════════════ -->
-  <section id="nosotros" class="bg-slate-800/30 border-t border-white/5 py-24 px-4 sm:px-6">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-14">
-        <span class="section-label"><i class="fa-solid fa-shield-halved"></i>¿Por qué elegirnos?</span>
-        <h2 class="font-display text-4xl sm:text-5xl font-black text-white mt-3 mb-2">La experiencia <span
-            class="gradient-text">Lector Jean</span></h2>
-        <p class="text-slate-500 text-sm max-w-sm mx-auto">Velocidad, calidad y la comodidad de pedir sin salir de casa.
-        </p>
-      </div>
-      <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
-        <div
-          class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
-          <div class="mb-4 flex justify-center">
+    <section id="nosotros" class="bg-slate-800/30 border-t border-white/5 py-24 px-4 sm:px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-14">
+          <span class="section-label"><i class="fa-solid fa-shield-halved"></i>¿Por qué elegirnos?</span>
+          <h2 class="font-display text-4xl sm:text-5xl font-black text-white mt-3 mb-2">La experiencia <span
+              class="gradient-text">Lector Jean</span></h2>
+          <p class="text-slate-500 text-sm max-w-sm mx-auto">Velocidad, calidad y la comodidad de pedir sin salir de
+            casa.
+          </p>
+        </div>
+        <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
+          <div
+            class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
+            <div class="mb-4 flex justify-center">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner">
+                <i class="fa-solid fa-bolt text-red-400 text-xl"></i>
+              </div>
+            </div>
+            <h3 class="font-bold text-white mb-1.5">Delivery Rápido</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">En promedio 20–30 minutos hasta tu dirección.</p>
+          </div>
+          <div
+            class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
+            <div class="mb-4 flex justify-center">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner">
+                <i class="fa-solid fa-award text-red-400 text-xl"></i>
+              </div>
+            </div>
+            <h3 class="font-bold text-white mb-1.5">Calidad Premium</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Productos seleccionados, siempre fríos y en buen estado.
+            </p>
+          </div>
+          <div
+            class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-green-500/20 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-green-950/20">
+            <div class="mb-4 flex justify-center">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/5 border border-green-500/20 flex items-center justify-center shadow-inner">
+                <i class="fa-brands fa-whatsapp text-green-400 text-xl"></i>
+              </div>
+            </div>
+            <h3 class="font-bold text-white mb-1.5">Carrito + WhatsApp</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Arma tu carrito y envía el pedido completo en un click.
+            </p>
+          </div>
+          <div
+            class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
+            <div class="mb-4 flex justify-center">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner">
+                <i class="fa-solid fa-arrow-right-arrow-left text-red-400 text-xl"></i>
+              </div>
+            </div>
+            <h3 class="font-bold text-white mb-1.5">Pago Transferencia</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Datos bancarios incluidos en el pedido. Rápido y seguro.
+            </p>
+          </div>
+        </div>
+
+        <!-- Sello de marca -->
+        <div class="mt-16 flex justify-center items-center gap-4 sm:gap-10">
+          <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-white/10"></div>
+          <div class="relative group flex-shrink-0">
             <div
-              class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner">
-              <i class="fa-solid fa-bolt text-red-400 text-xl"></i>
+              class="absolute inset-0 rounded-full bg-red-600/30 blur-3xl scale-90 group-hover:scale-110 transition-all duration-700">
+            </div>
+            <div
+              class="relative bg-white rounded-full p-5 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
+              <img src="assets/img/2.png" alt="Lector Jean – Botillería & Licores"
+                class="w-44 h-44 sm:w-56 sm:h-56 object-contain" loading="lazy" />
             </div>
           </div>
-          <h3 class="font-bold text-white mb-1.5">Delivery Rápido</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">En promedio 20–30 minutos hasta tu dirección.</p>
-        </div>
-        <div
-          class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
-          <div class="mb-4 flex justify-center">
+          <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-white/10 to-transparent"></div>
+          <div class="relative group flex-shrink-0">
             <div
-              class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner">
-              <i class="fa-solid fa-award text-red-400 text-xl"></i>
+              class="absolute inset-0 rounded-lg bg-red-600/20 blur-2xl scale-90 group-hover:scale-110 transition-all duration-700">
+            </div>
+            <div
+              class="relative bg-white rounded-2xl p-4 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
+              <img src="assets/img/4.png" alt="Lector Jean – Licores Premium"
+                class="w-32 h-32 sm:w-44 sm:h-44 object-contain" loading="lazy" />
             </div>
           </div>
-          <h3 class="font-bold text-white mb-1.5">Calidad Premium</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Productos seleccionados, siempre fríos y en buen estado.</p>
         </div>
-        <div
-          class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-green-500/20 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-green-950/20">
-          <div class="mb-4 flex justify-center">
-            <div
-              class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/5 border border-green-500/20 flex items-center justify-center shadow-inner">
-              <i class="fa-brands fa-whatsapp text-green-400 text-xl"></i>
-            </div>
-          </div>
-          <h3 class="font-bold text-white mb-1.5">Carrito + WhatsApp</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Arma tu carrito y envía el pedido completo en un click.</p>
-        </div>
-        <div
-          class="feature-card bg-slate-800/70 border border-white/6 rounded-2xl p-6 text-center hover:border-red-500/25 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-950/30">
-          <div class="mb-4 flex justify-center">
-            <div
-              class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/5 border border-red-500/20 flex items-center justify-center shadow-inner">
-              <i class="fa-solid fa-arrow-right-arrow-left text-red-400 text-xl"></i>
-            </div>
-          </div>
-          <h3 class="font-bold text-white mb-1.5">Pago Transferencia</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Datos bancarios incluidos en el pedido. Rápido y seguro.</p>
-        </div>
+        <div class="hidden sm:block flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-white/10"></div>
       </div>
 
-      <!-- Sello de marca -->
-      <div class="mt-16 flex justify-center items-center gap-4 sm:gap-10">
-        <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-white/10"></div>
-        <div class="relative group flex-shrink-0">
-          <div
-            class="absolute inset-0 rounded-full bg-red-600/30 blur-3xl scale-90 group-hover:scale-110 transition-all duration-700">
+      <div
+        class="mt-10 bg-gradient-to-r from-red-500/10 via-red-600/5 to-transparent border border-red-500/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-motorcycle text-red-400 text-2xl"></i>
           </div>
-          <div
-            class="relative bg-white rounded-full p-5 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
-            <img src="assets/img/2.png" alt="Lector Jean – Botillería & Licores"
-              class="w-44 h-44 sm:w-56 sm:h-56 object-contain" loading="lazy" />
-          </div>
-        </div>
-        <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-white/10 to-transparent"></div>
-        <div class="relative group flex-shrink-0">
-          <div
-            class="absolute inset-0 rounded-lg bg-red-600/20 blur-2xl scale-90 group-hover:scale-110 transition-all duration-700">
-          </div>
-          <div
-            class="relative bg-white rounded-2xl p-4 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
-            <img src="assets/img/4.png" alt="Lector Jean – Licores Premium"
-              class="w-32 h-32 sm:w-44 sm:h-44 object-contain" loading="lazy" />
+          <div>
+            <p class="font-bold text-white text-lg">Delivery a domicilio disponible</p>
+            <p class="text-slate-400 text-sm">Costo de envío: <strong class="text-red-400">$1.500</strong> · Pedido
+              mínimo: <strong class="text-red-400">$5.000</strong></p>
           </div>
         </div>
+        <a href="#catalogo"
+          class="flex-shrink-0 bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 whitespace-nowrap">
+          <i class="fa-solid fa-cart-shopping mr-2"></i>Pedir ahora
+        </a>
       </div>
-      <div class="hidden sm:block flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-white/10"></div>
-    </div>
-
-    <div
-      class="mt-10 bg-gradient-to-r from-red-500/10 via-red-600/5 to-transparent border border-red-500/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
-          <i class="fa-solid fa-motorcycle text-red-400 text-2xl"></i>
-        </div>
-        <div>
-          <p class="font-bold text-white text-lg">Delivery a domicilio disponible</p>
-          <p class="text-slate-400 text-sm">Costo de envío: <strong class="text-red-400">$1.500</strong> · Pedido
-            mínimo: <strong class="text-red-400">$5.000</strong></p>
-        </div>
-      </div>
-      <a href="#catalogo"
-        class="flex-shrink-0 bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 whitespace-nowrap">
-        <i class="fa-solid fa-cart-shopping mr-2"></i>Pedir ahora
-      </a>
-    </div>
-    </div>
+  </div>
   </section>
 
 
