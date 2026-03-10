@@ -13,16 +13,14 @@
   <meta property="og:title" content="Botillería Lector Jean | Delivery Premium" />
   <meta property="og:description"
     content="Cervezas heladas, destilados premium, vinos y hielo. Delivery rápido directo a tu puerta. ¡Pide por WhatsApp!" />
-  <meta property="og:image"
-    content="assets/img/2.png" />
+  <meta property="og:image" content="assets/img/2.png" />
   <meta property="og:url" content="https://botillerialectorjean.cl" />
   <meta property="og:locale" content="es_CL" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Botillería Lector Jean | Delivery Premium" />
   <meta name="twitter:description"
     content="Cervezas heladas, destilados premium, vinos y hielo. Delivery rápido directo a tu puerta." />
-  <meta name="twitter:image"
-    content="assets/img/2.png" />
+  <meta name="twitter:image" content="assets/img/2.png" />
 
   <!-- Canonical & Theme -->
   <link rel="canonical" href="https://botillerialectorjean.cl" />
@@ -90,8 +88,7 @@
   <!-- ════════════════════════════════════════════════════════
      NAVBAR
 ════════════════════════════════════════════════════════ -->
-  <header id="navbar"
-    class="navbar-top fixed top-0 z-40 w-full transition-all duration-500 overflow-visible">
+  <header id="navbar" class="navbar-top fixed top-0 z-40 w-full transition-all duration-500 overflow-visible">
     <div class="max-w-7xl mx-auto px-6 sm:px-10 py-3 flex items-center justify-between gap-8">
 
       <!-- Logo -->
@@ -438,27 +435,23 @@
           <button class="admin-cat-btn active" data-cat="todos">Todos</button>
           <button class="admin-cat-btn" data-cat="cervezas"><i
               class="fa-solid fa-beer-mug-empty mr-1"></i>Cervezas</button>
-          <button class="admin-cat-btn" data-cat="destilados"><i class="fa-solid fa-fire mr-1"></i>Destilados</button>
+          <button class="admin-cat-btn" data-cat="destilados"><i
+              class="fa-solid fa-whiskey-glass mr-1"></i>Destilados</button>
           <button class="admin-cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1"></i>Vinos</button>
-          <button class="admin-cat-btn" data-cat="hielo"><i class="fa-solid fa-snowflake mr-1"></i>Hielo &
-            Snacks</button>
+          <button class="admin-cat-btn" data-cat="espumantes"><i
+              class="fa-solid fa-champagne-glasses mr-1"></i>Espumantes</button>
+          <button class="admin-cat-btn" data-cat="cocteles"><i
+              class="fa-solid fa-martini-glass-citrus mr-1"></i>Cócteles</button>
+          <button class="admin-cat-btn" data-cat="licores"><i
+              class="fa-solid fa-bottle-droplet mr-1"></i>Licores</button>
+          <button class="admin-cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1"></i>Bebidas</button>
+          <button class="admin-cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1"></i>Snacks</button>
+          <button class="admin-cat-btn" data-cat="promos"><i class="fa-solid fa-tag mr-1"></i>Promos</button>
         </div>
 
-        <!-- Sub-filtros cervezas (admin) -->
+        <!-- Sub-filtros admin (dinámicos por JS) -->
         <div id="admin-sub-filtros"
           class="hidden flex-wrap gap-2 mb-5 items-center px-3 py-2.5 bg-slate-800/60 border border-white/5 rounded-xl">
-          <span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1"><i
-              class="fa-solid fa-filter mr-1"></i>Tipo:</span>
-          <button class="admin-sub-btn active" data-sub="todos">Todos los tipos</button>
-          <button class="admin-sub-btn" data-sub="latones"><i class="fa-solid fa-fill-drip mr-1"></i>Latones</button>
-          <button class="admin-sub-btn" data-sub="latas-sueltas"><i class="fa-solid fa-can-food mr-1"></i>Latas
-            Sueltas</button>
-          <button class="admin-sub-btn" data-sub="pack-latas"><i class="fa-solid fa-boxes-stacked mr-1"></i>Packs de
-            Latas</button>
-          <button class="admin-sub-btn" data-sub="botellines"><i class="fa-solid fa-box mr-1"></i>Packs
-            Botellines</button>
-          <button class="admin-sub-btn" data-sub="botellas"><i class="fa-solid fa-wine-bottle mr-1"></i>Botellas
-            Grandes</button>
         </div>
 
         <div id="admin-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
@@ -495,10 +488,15 @@
             <label class="form-label">Categoría *</label>
             <select id="pf-categoria" class="form-input" onchange="toggleSubcatField()">
               <option value="">Selecciona categoría</option>
-              <option value="cervezas">🍺 Cervezas</option>
-              <option value="destilados">🔥 Destilados</option>
-              <option value="vinos">🍷 Vinos</option>
-              <option value="hielo">❄️ Hielo & Snacks</option>
+              <option value="cervezas">Cervezas</option>
+              <option value="destilados">Destilados</option>
+              <option value="vinos">Vinos</option>
+              <option value="espumantes">Espumantes y Celebración</option>
+              <option value="cocteles">Cócteles Listos (RTD)</option>
+              <option value="licores">Licores y Bajativos</option>
+              <option value="bebidas">Bebidas y Mixers</option>
+              <option value="snacks">Snacks y Complementos</option>
+              <option value="promos">Promos y Combos</option>
             </select>
           </div>
           <div>
@@ -507,16 +505,11 @@
           </div>
         </div>
 
-        <!-- Subcategoría: solo visible cuando categoría = cervezas -->
+        <!-- Subcategoría: visible cuando la categoría tiene subs (generado por JS) -->
         <div id="pf-subcat-wrap" class="hidden">
-          <label class="form-label">Subcategoría de cerveza *</label>
+          <label class="form-label">Subcategoría *</label>
           <select id="pf-subcategoria" class="form-input">
             <option value="">Selecciona tipo</option>
-            <option value="latones">🟡 Latones (unidad)</option>
-            <option value="latas-sueltas">🔴 Latas Sueltas (unidad)</option>
-            <option value="pack-latas">📦 Packs de Latas 350ml</option>
-            <option value="botellines">🔵 Packs Botellines 330ml</option>
-            <option value="botellas">🍾 Botellas Grandes 500–620ml</option>
           </select>
         </div>
         <div>
@@ -638,39 +631,40 @@
             <button onclick="toggleCart()"
               class="w-full sm:w-auto bg-white/5 border border-white/12 hover:border-red-500/40 hover:bg-white/8 text-white font-semibold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 backdrop-blur-sm flex items-center justify-center gap-2">
               <i class="fa-solid fa-cart-plus mr-1"></i>Ver mi carrito
-        </button>
-      </div>
+            </button>
+          </div>
 
-      <!-- Stats glass card -->
+          <!-- Stats glass card -->
           <div class="stats-glass inline-grid grid-cols-3 gap-0 max-w-xs w-full mx-auto lg:mx-0">
-        <div class="text-center px-4 py-1">
-          <div class="font-display text-3xl font-black gradient-text" id="hero-stat-products">+20</div>
-          <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Productos</div>
-        </div>
-        <div class="text-center px-4 py-1 border-x border-white/7">
-          <div class="font-display text-3xl font-black gradient-text">30'</div>
-          <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Delivery</div>
-        </div>
-        <div class="text-center px-4 py-1">
-          <div class="font-display text-3xl font-black gradient-text"><i class="fa-solid fa-star text-xl"></i> 5.0</div>
-          <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Valoración</div>
-        </div>
-        </div>
+            <div class="text-center px-4 py-1">
+              <div class="font-display text-3xl font-black gradient-text" id="hero-stat-products">+20</div>
+              <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Productos</div>
+            </div>
+            <div class="text-center px-4 py-1 border-x border-white/7">
+              <div class="font-display text-3xl font-black gradient-text">30'</div>
+              <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Delivery</div>
+            </div>
+            <div class="text-center px-4 py-1">
+              <div class="font-display text-3xl font-black gradient-text"><i class="fa-solid fa-star text-xl"></i> 5.0
+              </div>
+              <div class="text-slate-500 text-[11px] font-semibold uppercase tracking-widest mt-0.5">Valoración</div>
+            </div>
+          </div>
         </div>
 
         <!-- Columna derecha: imagen producto -->
         <div class="hidden lg:flex items-center justify-center relative">
           <div class="absolute inset-0 bg-red-600/25 blur-[140px] rounded-full"></div>
-          <img src="assets/img/1.png" alt="Productos Lector Jean"
-            class="relative w-full max-w-2xl -mr-8 object-contain"
-            style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 20px 60px rgba(239,68,68,0.5))" loading="eager" />
+          <img src="assets/img/1.png" alt="Productos Lector Jean" class="relative w-full max-w-2xl -mr-8 object-contain"
+            style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 20px 60px rgba(239,68,68,0.5))"
+            loading="eager" />
         </div>
 
         <!-- Imagen mobile (centrada, debajo del texto) -->
         <div class="flex lg:hidden justify-center mt-4">
-          <img src="assets/img/1.png" alt="Productos Lector Jean"
-            class="w-80 object-contain"
-            style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 10px 30px rgba(239,68,68,0.4))" loading="eager" />
+          <img src="assets/img/1.png" alt="Productos Lector Jean" class="w-80 object-contain"
+            style="filter: brightness(2) contrast(1.3) saturate(1.8) drop-shadow(0 10px 30px rgba(239,68,68,0.4))"
+            loading="eager" />
         </div>
       </div>
     </div>
@@ -702,28 +696,38 @@
       id="filtros">
       <button class="cat-btn active" data-cat="todos"><i class="fa-solid fa-border-all mr-1.5"></i>Todos</button>
       <button class="cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty mr-1.5"></i>Cervezas</button>
-      <button class="cat-btn" data-cat="destilados"><i class="fa-solid fa-fire mr-1.5"></i>Destilados</button>
+      <button class="cat-btn" data-cat="destilados"><i class="fa-solid fa-whiskey-glass mr-1.5"></i>Destilados</button>
       <button class="cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1.5"></i>Vinos</button>
-      <button class="cat-btn" data-cat="hielo"><i class="fa-solid fa-snowflake mr-1.5"></i>Hielo & Snacks</button>
+      <button class="cat-btn" data-cat="espumantes"><i
+          class="fa-solid fa-champagne-glasses mr-1.5"></i>Espumantes</button>
+      <button class="cat-btn" data-cat="cocteles"><i class="fa-solid fa-martini-glass-citrus mr-1.5"></i>Cócteles
+        RTD</button>
+      <button class="cat-btn" data-cat="licores"><i class="fa-solid fa-bottle-droplet mr-1.5"></i>Licores</button>
+      <button class="cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1.5"></i>Bebidas</button>
+      <button class="cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1.5"></i>Snacks</button>
+      <button class="cat-btn" data-cat="promos"><i class="fa-solid fa-tag mr-1.5"></i>Promos</button>
     </div>
 
-    <!-- Sub-filtros Cervezas (oculto por defecto) -->
+    <!-- Sub-filtros dinámicos (generados por JS al seleccionar categoría) -->
     <div id="sub-filtros"
-      class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-3 py-3 bg-sky-950/30 border border-sky-500/10 rounded-2xl">
-      <span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1 w-full text-center sm:w-auto"><i
-          class="fa-solid fa-filter mr-1 text-sky-600/60"></i>Tipo de cerveza:</span>
-      <button class="sub-cat-btn active" data-sub="todos">Todos los tipos</button>
-      <button class="sub-cat-btn" data-sub="latones"><i class="fa-solid fa-fill-drip mr-1.5"></i>Latones</button>
-      <button class="sub-cat-btn" data-sub="latas-sueltas"><i class="fa-solid fa-can-food mr-1.5"></i>Latas
-        Sueltas</button>
-      <button class="sub-cat-btn" data-sub="pack-latas"><i class="fa-solid fa-boxes-stacked mr-1.5"></i>Packs de
-        Latas</button>
-      <button class="sub-cat-btn" data-sub="botellines"><i class="fa-solid fa-box mr-1.5"></i>Packs Botellines</button>
-      <button class="sub-cat-btn" data-sub="botellas"><i class="fa-solid fa-wine-bottle mr-1.5"></i>Botellas
-        Grandes</button>
+      class="hidden items-center justify-center gap-2 flex-wrap mb-6 px-4 py-3 bg-slate-800/40 border border-white/6 rounded-2xl backdrop-blur-sm">
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-bar-wrap mb-6">
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass search-bar-icon"></i>
+        <input id="catalog-search" type="text" placeholder="Buscar producto..." autocomplete="off"
+          class="search-bar-input" oninput="onCatalogSearch(this.value)" />
+        <button id="search-clear-btn" class="search-clear-btn hidden" onclick="clearCatalogSearch()"
+          title="Limpiar búsqueda">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
     </div>
 
     <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-7"></div>
+
     <div id="no-results" class="hidden text-center py-20 text-slate-500">
       <div class="mb-4"><i class="fa-solid fa-magnifying-glass text-5xl"></i></div>
       <p class="text-lg font-semibold">No hay productos en esta categoría.</p>
@@ -794,41 +798,47 @@
       <div class="mt-16 flex justify-center items-center gap-4 sm:gap-10">
         <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-white/10"></div>
         <div class="relative group flex-shrink-0">
-          <div class="absolute inset-0 rounded-full bg-red-600/30 blur-3xl scale-90 group-hover:scale-110 transition-all duration-700"></div>
-          <div class="relative bg-white rounded-full p-5 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
+          <div
+            class="absolute inset-0 rounded-full bg-red-600/30 blur-3xl scale-90 group-hover:scale-110 transition-all duration-700">
+          </div>
+          <div
+            class="relative bg-white rounded-full p-5 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
             <img src="assets/img/2.png" alt="Lector Jean – Botillería & Licores"
               class="w-44 h-44 sm:w-56 sm:h-56 object-contain" loading="lazy" />
           </div>
         </div>
         <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-white/10 to-transparent"></div>
         <div class="relative group flex-shrink-0">
-          <div class="absolute inset-0 rounded-lg bg-red-600/20 blur-2xl scale-90 group-hover:scale-110 transition-all duration-700"></div>
-          <div class="relative bg-white rounded-2xl p-4 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
+          <div
+            class="absolute inset-0 rounded-lg bg-red-600/20 blur-2xl scale-90 group-hover:scale-110 transition-all duration-700">
+          </div>
+          <div
+            class="relative bg-white rounded-2xl p-4 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
             <img src="assets/img/4.png" alt="Lector Jean – Licores Premium"
               class="w-32 h-32 sm:w-44 sm:h-44 object-contain" loading="lazy" />
           </div>
         </div>
-        </div>
-        <div class="hidden sm:block flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-white/10"></div>
       </div>
+      <div class="hidden sm:block flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-white/10"></div>
+    </div>
 
-      <div
-        class="mt-10 bg-gradient-to-r from-red-500/10 via-red-600/5 to-transparent border border-red-500/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
-            <i class="fa-solid fa-motorcycle text-red-400 text-2xl"></i>
-          </div>
-          <div>
-            <p class="font-bold text-white text-lg">Delivery a domicilio disponible</p>
-            <p class="text-slate-400 text-sm">Costo de envío: <strong class="text-red-400">$1.500</strong> · Pedido
-              mínimo: <strong class="text-red-400">$5.000</strong></p>
-          </div>
+    <div
+      class="mt-10 bg-gradient-to-r from-red-500/10 via-red-600/5 to-transparent border border-red-500/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-motorcycle text-red-400 text-2xl"></i>
         </div>
-        <a href="#catalogo"
-          class="flex-shrink-0 bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 whitespace-nowrap">
-          <i class="fa-solid fa-cart-shopping mr-2"></i>Pedir ahora
-        </a>
+        <div>
+          <p class="font-bold text-white text-lg">Delivery a domicilio disponible</p>
+          <p class="text-slate-400 text-sm">Costo de envío: <strong class="text-red-400">$1.500</strong> · Pedido
+            mínimo: <strong class="text-red-400">$5.000</strong></p>
+        </div>
       </div>
+      <a href="#catalogo"
+        class="flex-shrink-0 bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 whitespace-nowrap">
+        <i class="fa-solid fa-cart-shopping mr-2"></i>Pedir ahora
+      </a>
+    </div>
     </div>
   </section>
 
@@ -842,7 +852,8 @@
     <div class="footer-cta-strip relative overflow-hidden">
       <div class="footer-cta-bg"></div>
       <div class="relative z-10 max-w-4xl mx-auto px-6 py-14 text-center">
-        <p class="text-red-300/80 text-xs font-black uppercase tracking-[.2em] mb-3">Delivery Express · Toda la comuna</p>
+        <p class="text-red-300/80 text-xs font-black uppercase tracking-[.2em] mb-3">Delivery Express · Toda la comuna
+        </p>
         <h2 class="font-display text-3xl sm:text-5xl font-black text-white leading-tight mb-6">
           Tu próxima ronda<br class="hidden sm:block" /> está a un mensaje.
         </h2>
@@ -861,15 +872,17 @@
         <!-- Columna 1: Logo + redes -->
         <div>
           <div class="bg-white inline-block rounded-2xl px-4 py-2.5 mb-5 shadow-lg shadow-black/40">
-            <img src="assets/img/3.png" alt="Lector Jean – Botillería & Licores"
-              class="h-10 w-auto object-contain" loading="lazy" />
+            <img src="assets/img/3.png" alt="Lector Jean – Botillería & Licores" class="h-10 w-auto object-contain"
+              loading="lazy" />
           </div>
-          <p class="text-slate-400 text-sm leading-relaxed mb-6">Tu botillería de confianza. Variedad, frescura y el mejor servicio de delivery de la zona.</p>
+          <p class="text-slate-400 text-sm leading-relaxed mb-6">Tu botillería de confianza. Variedad, frescura y el
+            mejor servicio de delivery de la zona.</p>
           <div class="flex gap-2.5">
             <a href="#" class="footer-social-btn"><i class="fa-brands fa-instagram"></i></a>
             <a href="#" class="footer-social-btn"><i class="fa-brands fa-facebook-f"></i></a>
             <a href="#" class="footer-social-btn"><i class="fa-brands fa-tiktok"></i></a>
-            <a href="#" target="_blank" rel="noopener" class="footer-social-btn footer-social-wa"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="#" target="_blank" rel="noopener" class="footer-social-btn footer-social-wa"><i
+                class="fa-brands fa-whatsapp"></i></a>
           </div>
         </div>
 
@@ -912,7 +925,8 @@
       <div class="footer-bottom-line"></div>
       <div class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-400">
         <!-- Triple-click secreto = abrir panel admin -->
-        <p id="footer-copy" class="cursor-default select-none">© 2026 Botillería Lector Jean · Todos los derechos reservados.</p>
+        <p id="footer-copy" class="cursor-default select-none">© 2026 Botillería Lector Jean · Todos los derechos
+          reservados.</p>
         <p><i class="fa-solid fa-shield-halved mr-1 text-red-500/50"></i>Solo para mayores de 18 años.</p>
       </div>
     </div>

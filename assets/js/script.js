@@ -35,13 +35,73 @@ function initSupabase() {
 
 function isSupabaseReady() { return !!_sbClient; }
 
-// ─── LABELS SUBCATEGORÍAS CERVEZAS ──────────────────────────────────
+// ─── LABELS DE SUBCATEGORÍAS (todas las categorías) ──────────────────
 const SUBCAT_LABELS = {
+  // Cervezas
   'latones': 'Latón',
   'latas-sueltas': 'Lata Suelta',
   'pack-latas': 'Pack Latas',
   'botellines': 'Pack Botellines',
   'botellas': 'Botella Grande',
+  // Destilados
+  'pisco': 'Pisco',
+  'ron': 'Ron',
+  'vodka': 'Vodka',
+  'whisky': 'Whisky',
+  'gin': 'Gin',
+  'tequila': 'Tequila',
+  // Vinos
+  'tintos': 'Tintos',
+  'blancos': 'Blancos',
+  'rose': 'Rosé / Dulces',
+  'caja': 'En Caja',
+  // Espumantes
+  'brut': 'Brut / Extra Brut',
+  'demi-sec': 'Demi Sec',
+  'moscato': 'Moscato',
+  // Cócteles RTD
+  'sour': 'Sour',
+  'frutas': 'Cócteles de Fruta',
+  'spritz': 'Spritz y Aperitivos',
+  // Licores
+  'cremas': 'Cremas',
+  'hierbas': 'Hierbas y Amargos',
+  'dulces': 'Licores Dulces',
+  // Bebidas
+  'gaseosas': 'Gaseosas',
+  'energetica': 'Energéticas',
+  'jugos': 'Jugos',
+  'aguas': 'Aguas y Tónicas',
+  // Snacks
+  'hielo': 'Hielo',
+  'snacks-salados': 'Snacks Salados',
+  'extras': 'Extras',
+};
+
+// ─── MAPA CATEGORÍA → SUBCATEGORÍAS DISPONIBLES ───────────────────────
+const CAT_SUBFILTROS = {
+  cervezas: ['latones', 'latas-sueltas', 'pack-latas', 'botellines', 'botellas'],
+  destilados: ['pisco', 'ron', 'vodka', 'whisky', 'gin', 'tequila'],
+  vinos: ['tintos', 'blancos', 'rose', 'caja'],
+  espumantes: ['brut', 'demi-sec', 'moscato'],
+  cocteles: ['sour', 'frutas', 'spritz'],
+  licores: ['cremas', 'hierbas', 'dulces'],
+  bebidas: ['gaseosas', 'energetica', 'jugos', 'aguas'],
+  snacks: ['hielo', 'snacks-salados', 'extras'],
+  promos: [],
+};
+
+// ─── NOMBRES LEGIBLES DE CATEGORÍA (para badges y UI) ────────────────
+const CAT_LABELS = {
+  cervezas: 'Cerveza',
+  destilados: 'Destilado',
+  vinos: 'Vino',
+  espumantes: 'Espumante',
+  cocteles: 'Cóctel RTD',
+  licores: 'Licor',
+  bebidas: 'Bebida',
+  snacks: 'Snack',
+  promos: 'Promo',
 };
 
 // ─── PRODUCTOS BASE ────────────────────────────────────────────────────
@@ -618,6 +678,7 @@ function enviarPedidoWhatsApp() {
 
 // ─── CATALOG RENDER ────────────────────────────────────────────────────
 let activeSubcat = 'todos';
+let activeBusqueda = '';
 
 function renderProductos(filtro = 'todos', subcat = null) {
   if (subcat !== null) activeSubcat = subcat;
@@ -625,12 +686,43 @@ function renderProductos(filtro = 'todos', subcat = null) {
   const noRes = document.getElementById('no-results');
   if (!grid) return;
   let prods = getProductos().filter(p => p.disponible && (filtro === 'todos' || p.categoria === filtro));
-  if (filtro === 'cervezas' && activeSubcat !== 'todos') {
+  // Aplica subfiltro genérico
+  if (filtro !== 'todos' && activeSubcat !== 'todos' && (CAT_SUBFILTROS[filtro] || []).length > 0) {
     prods = prods.filter(p => p.subcategoria === activeSubcat);
+  }
+  // Aplica búsqueda por texto
+  if (activeBusqueda.trim()) {
+    const q = activeBusqueda.trim().toLowerCase();
+    prods = prods.filter(p =>
+      p.nombre.toLowerCase().includes(q) ||
+      (p.descripcion || '').toLowerCase().includes(q) ||
+      (CAT_LABELS[p.categoria] || p.categoria).toLowerCase().includes(q) ||
+      (p.subcategoria ? (SUBCAT_LABELS[p.subcategoria] || '').toLowerCase() : '').includes(q)
+    );
   }
   grid.innerHTML = prods.map(p => buildCard(p)).join('');
   if (noRes) noRes.classList.toggle('hidden', prods.length > 0);
 }
+
+function onCatalogSearch(val) {
+  activeBusqueda = val;
+  const clearBtn = document.getElementById('search-clear-btn');
+  if (clearBtn) clearBtn.classList.toggle('hidden', !val.trim());
+  const cat = document.querySelector('#filtros .cat-btn.active')?.dataset.cat || 'todos';
+  renderProductos(cat);
+}
+
+function clearCatalogSearch() {
+  activeBusqueda = '';
+  const input = document.getElementById('catalog-search');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('search-clear-btn');
+  if (clearBtn) clearBtn.classList.add('hidden');
+  const cat = document.querySelector('#filtros .cat-btn.active')?.dataset.cat || 'todos';
+  renderProductos(cat);
+  input?.focus();
+}
+
 
 function buildCard(p) {
   const inCart = cart.find(i => i.id === p.id);
@@ -650,9 +742,9 @@ function buildCard(p) {
       ? `<span class="absolute top-3 left-3 ${badgeCls} text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide shadow-lg">${p.etiqueta}</span>`
       : ''}
         <!-- Subcategoría / categoría badge top-right -->
-        ${(p.categoria === 'cervezas' && p.subcategoria)
-      ? `<span class="absolute top-3 right-3 bg-sky-950/80 backdrop-blur-sm text-sky-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-sky-500/25">${SUBCAT_LABELS[p.subcategoria] || p.subcategoria}</span>`
-      : `<span class="absolute top-3 right-3 bg-slate-900/75 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${p.categoria}</span>`
+        ${(p.subcategoria && SUBCAT_LABELS[p.subcategoria])
+      ? `<span class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${SUBCAT_LABELS[p.subcategoria]}</span>`
+      : `<span class="absolute top-3 right-3 bg-slate-900/75 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${CAT_LABELS[p.categoria] || p.categoria}</span>`
     }
         <!-- Gradient overlay bottom para fusión suave -->
         <div class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#0d1a2e]/80 to-transparent pointer-events-none"></div>
@@ -661,6 +753,11 @@ function buildCard(p) {
       <!-- Info -->
       <div class="p-4 flex flex-col flex-1 gap-3">
         <div class="flex-1">
+          <!-- Breadcrumb categoría > subcategoría -->
+          <p class="text-[10px] text-slate-600 font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
+            ${CAT_LABELS[p.categoria] || p.categoria}
+            ${(p.subcategoria && SUBCAT_LABELS[p.subcategoria]) ? `<i class="fa-solid fa-chevron-right text-[8px]"></i>${SUBCAT_LABELS[p.subcategoria]}` : ''}
+          </p>
           <h3 class="font-bold text-white text-sm leading-snug line-clamp-2 mb-1">${p.nombre}</h3>
           ${p.descripcion ? `<p class="text-slate-500 text-xs line-clamp-1">${p.descripcion}</p>` : ''}
         </div>
@@ -692,37 +789,55 @@ function buildCard(p) {
   `;
 }
 
+function buildSubfiltrosBtns(subWrap, subs, renderFn, getCat) {
+  if (!subWrap) return;
+  if (!subs || subs.length === 0) {
+    subWrap.classList.add('hidden');
+    subWrap.classList.remove('flex');
+    subWrap.innerHTML = '';
+    return;
+  }
+  // Construir botones dinámicamente
+  let html = '<button class="sub-cat-btn active" data-sub="todos">Todos</button>';
+  subs.forEach(s => {
+    html += `<button class="sub-cat-btn" data-sub="${s}">${SUBCAT_LABELS[s] || s}</button>`;
+  });
+  subWrap.innerHTML = html;
+  subWrap.classList.remove('hidden');
+  subWrap.classList.add('flex');
+  // Asignar listeners a los nuevos botones
+  subWrap.querySelectorAll('.sub-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      subWrap.querySelectorAll('.sub-cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderFn(getCat(), btn.dataset.sub);
+    });
+  });
+}
+
 function initFiltros() {
   const btns = document.querySelectorAll('#filtros .cat-btn');
   const subWrap = document.getElementById('sub-filtros');
-  const subBtns = document.querySelectorAll('#sub-filtros .sub-cat-btn');
+  let currentCat = 'todos';
 
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const cat = btn.dataset.cat;
-      // Mostrar u ocultar sub-filtros de cervezas
-      if (cat === 'cervezas') {
-        subWrap?.classList.remove('hidden');
-        subWrap?.classList.add('flex');
-      } else {
-        subWrap?.classList.add('hidden');
-        subWrap?.classList.remove('flex');
-        activeSubcat = 'todos';
-        subBtns.forEach(b => b.classList.toggle('active', b.dataset.sub === 'todos'));
-      }
-      renderProductos(cat);
+      currentCat = btn.dataset.cat;
+      activeSubcat = 'todos';
+      const subs = CAT_SUBFILTROS[currentCat] || [];
+      buildSubfiltrosBtns(subWrap, subs, renderProductos, () => currentCat);
+      renderProductos(currentCat);
     });
   });
 
-  subBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      subBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderProductos('cervezas', btn.dataset.sub);
-    });
-  });
+  // Inicialmente sin subfiltros
+  if (subWrap) {
+    subWrap.classList.add('hidden');
+    subWrap.classList.remove('flex');
+    subWrap.innerHTML = '';
+  }
 }
 
 // ─── ADMIN ACCESS ──────────────────────────────────────────────────────
@@ -814,7 +929,8 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
   const grid = document.getElementById('admin-products-grid');
   if (!grid) return;
   let prods = getProductos().filter(p => filtro === 'todos' || p.categoria === filtro);
-  if (filtro === 'cervezas' && activeAdminSubcat !== 'todos') {
+  // Applica subfiltro genérico para cualquier categoría con subcategorías
+  if (filtro !== 'todos' && activeAdminSubcat !== 'todos' && (CAT_SUBFILTROS[filtro] || []).length > 0) {
     prods = prods.filter(p => p.subcategoria === activeAdminSubcat);
   }
   if (!prods.length) {
@@ -822,12 +938,9 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
     return;
   }
   grid.innerHTML = prods.map(p => {
-    const subcatLabel = (p.categoria === 'cervezas' && p.subcategoria)
-      ? (SUBCAT_LABELS[p.subcategoria] || p.subcategoria)
-      : p.categoria;
-    const subcatColor = p.categoria === 'cervezas'
-      ? 'bg-sky-900/50 text-sky-300 border-sky-500/20'
-      : 'bg-slate-700 text-slate-400 border-transparent';
+    const catLabel = CAT_LABELS[p.categoria] || p.categoria;
+    const subcatLabel = p.subcategoria && SUBCAT_LABELS[p.subcategoria]
+      ? SUBCAT_LABELS[p.subcategoria] : null;
     return `
     <div class="bg-slate-800 border border-white/5 rounded-2xl overflow-hidden flex flex-col ${!p.disponible ? 'opacity-50' : ''} hover:border-red-500/20 transition-colors">
       <div class="relative h-32 bg-gradient-to-b from-slate-700 to-slate-800 flex items-center justify-center p-3">
@@ -838,11 +951,15 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
       </div>
       <div class="p-4 flex-1 flex flex-col gap-2">
         <p class="font-bold text-white text-sm line-clamp-2 leading-tight">${p.nombre}</p>
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-red-400 font-black text-base">${formatPeso(p.precio)}</span>
-          <span class="border text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${subcatColor}">${subcatLabel}</span>
+        <!-- Categoría + Subcategoría -->
+        <div class="flex flex-wrap gap-1.5">
+          <span class="border border-slate-600 bg-slate-700/60 text-slate-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">${catLabel}</span>
+          ${subcatLabel ? `<span class="border border-red-500/30 bg-red-900/20 text-red-300 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">${subcatLabel}</span>` : ''}
         </div>
-        <div class="flex gap-2 mt-auto pt-2">
+        <div class="flex items-center justify-between gap-2 mt-auto">
+          <span class="text-red-400 font-black text-base">${formatPeso(p.precio)}</span>
+        </div>
+        <div class="flex gap-2">
           <button onclick="openProductForm(${p.id})" class="flex-1 bg-sky-600/20 hover:bg-sky-600/40 text-sky-400 border border-sky-500/20 text-xs font-bold py-2 rounded-lg transition-all">
             <i class="fa-solid fa-pen mr-1"></i>Editar
           </button>
@@ -859,33 +976,47 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
 function initAdminFiltros() {
   const btns = document.querySelectorAll('#admin-filtros .admin-cat-btn');
   const subWrap = document.getElementById('admin-sub-filtros');
-  const subBtns = document.querySelectorAll('#admin-sub-filtros .admin-sub-btn');
+  let currentAdminCat = 'todos';
 
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const cat = btn.dataset.cat;
-      if (cat === 'cervezas') {
-        subWrap?.classList.remove('hidden');
-        subWrap?.classList.add('flex');
+      currentAdminCat = btn.dataset.cat;
+      activeAdminSubcat = 'todos';
+      const subs = CAT_SUBFILTROS[currentAdminCat] || [];
+      if (!subWrap) { renderAdminProducts(currentAdminCat); return; }
+      if (subs.length === 0) {
+        subWrap.classList.add('hidden');
+        subWrap.classList.remove('flex');
+        subWrap.innerHTML = '';
       } else {
-        subWrap?.classList.add('hidden');
-        subWrap?.classList.remove('flex');
-        activeAdminSubcat = 'todos';
-        subBtns.forEach(b => b.classList.toggle('active', b.dataset.sub === 'todos'));
+        let html = '<span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mr-1"><i class="fa-solid fa-filter mr-1"></i>Tipo:</span>';
+        html += '<button class="admin-sub-btn active" data-sub="todos">Todos</button>';
+        subs.forEach(s => {
+          html += `<button class="admin-sub-btn" data-sub="${s}">${SUBCAT_LABELS[s] || s}</button>`;
+        });
+        subWrap.innerHTML = html;
+        subWrap.classList.remove('hidden');
+        subWrap.classList.add('flex');
+        subWrap.querySelectorAll('.admin-sub-btn').forEach(sb => {
+          sb.addEventListener('click', () => {
+            subWrap.querySelectorAll('.admin-sub-btn').forEach(b => b.classList.remove('active'));
+            sb.classList.add('active');
+            renderAdminProducts(currentAdminCat, sb.dataset.sub);
+          });
+        });
       }
-      renderAdminProducts(cat);
+      renderAdminProducts(currentAdminCat);
     });
   });
 
-  subBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      subBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderAdminProducts('cervezas', btn.dataset.sub);
-    });
-  });
+  // Ocultar subfiltros al inicio
+  if (subWrap) {
+    subWrap.classList.add('hidden');
+    subWrap.classList.remove('flex');
+    subWrap.innerHTML = '';
+  }
 }
 
 // ─── PRODUCT FORM ─────────────────────────────────────────────────────
@@ -903,8 +1034,16 @@ function toggleSubcatField() {
   const wrap = document.getElementById('pf-subcat-wrap');
   const sel = document.getElementById('pf-subcategoria');
   if (!wrap) return;
-  if (cat === 'cervezas') {
+  const hasSubs = cat && (CAT_SUBFILTROS[cat] || []).length > 0;
+  if (hasSubs) {
     wrap.classList.remove('hidden');
+    // Actualizar opciones del select según la categoría
+    if (sel) {
+      const subs = CAT_SUBFILTROS[cat] || [];
+      const current = sel.value;
+      sel.innerHTML = '<option value="">Selecciona tipo</option>' +
+        subs.map(s => `<option value="${s}"${current === s ? ' selected' : ''}>${SUBCAT_LABELS[s] || s}</option>`).join('');
+    }
   } else {
     wrap.classList.add('hidden');
     if (sel) sel.value = '';
@@ -930,7 +1069,11 @@ function openProductForm(id) {
     document.getElementById('pf-etiqueta').value = p.etiqueta || '';
     document.getElementById('pf-etiquetacolor').value = p.etiquetaColor || '';
     document.getElementById('pf-disponible').checked = p.disponible !== false;
-    document.getElementById('pf-subcategoria').value = p.subcategoria || '';
+    // Primero generamos las opciones del select de subcategoría...
+    toggleSubcatField();
+    // ...y luego asignamos el valor (las opciones ya existen)
+    const subcatSel = document.getElementById('pf-subcategoria');
+    if (subcatSel) subcatSel.value = p.subcategoria || '';
   } else {
     title.textContent = 'Agregar Producto';
     document.getElementById('pf-id').value = '';
@@ -946,7 +1089,8 @@ function openProductForm(id) {
   }
 
   // Mostrar u ocultar subcategoría según la categoría cargada
-  toggleSubcatField();
+  // (solo para el caso nuevo; en edición ya se llamó arriba)
+  if (!id) toggleSubcatField();
 
   // Guardar snapshot de valores originales para detectar cambios
   _pfOriginal = getPFValues();
