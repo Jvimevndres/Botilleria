@@ -680,6 +680,110 @@ function enviarPedidoWhatsApp() {
 let activeSubcat = 'todos';
 let activeBusqueda = '';
 
+// Normaliza texto: quita tildes, minúsculas y puntuación extra
+function normalizeText(str) {
+  return (str || '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Mapa de alias: palabras coloquiales → términos que aparecen en el índice
+const SEARCH_ALIASES = {
+  // Variantes sin acento / en inglés
+  'coctel':       'cocteles coctel rtd',
+  'cocteles':     'cocteles coctel rtd',
+  'cocktail':     'cocteles coctel rtd',
+  'cocktails':    'cocteles coctel rtd',
+  'champagne':    'espumante espumantes brut demi sec',
+  'champana':     'espumante espumantes brut demi sec',
+  'champaña':     'espumante espumantes',
+  'whiskey':      'whisky',
+  'tequilla':     'tequila',
+  'ginebra':      'gin',
+
+  // Formas de buscar subcategorías naturalmente
+  'en caja':      'caja en caja',
+  'caja':         'caja',
+  'lata':         'lata laton latas latones',
+  'latas':        'lata laton latas latones',
+  'laton':        'laton latones',
+  'latones':      'laton latones',
+  'botella':      'botella botellines botellas',
+  'botellas':     'botella botellines botellas',
+  'botellín':     'botellines',
+  'botellin':     'botellines',
+  'pack':         'pack latas botellines',
+  'tinto':        'tinto tintos',
+  'tintos':       'tinto tintos',
+  'blanco':       'blanco blancos',
+  'blancos':      'blanco blancos',
+  'rose':         'rose rosé dulces',
+  'rosé':         'rose rosé dulces',
+  'dulce':        'dulce dulces rosé rose',
+  'sour':         'sour',
+  'spritz':       'spritz aperitivo',
+  'aperitivo':    'spritz aperitivo aperitivos',
+  'crema':        'crema cremas licor',
+  'hierbas':      'hierbas amargos',
+  'amargo':       'hierbas amargos',
+  'gaseosa':      'gaseosa gaseosas',
+  'gaseosas':     'gaseosa gaseosas',
+  'refresco':     'gaseosa gaseosas',
+  'jugo':         'jugo jugos',
+  'jugos':        'jugo jugos',
+  'agua':         'agua aguas tonicas',
+  'tonico':       'aguas tonicas',
+  'tonica':       'aguas tonicas',
+  'energetica':   'energetica energeticas',
+  'energética':   'energetica energeticas',
+  'hielo':        'hielo',
+  'snack':        'snack snacks salado',
+  'combo':        'combo promos promo',
+  'oferta':       'promo promos combo',
+  'promo':        'promo promos',
+  'regalo':       'promo promos combo',
+};
+
+// Construye el texto de índice completo para un producto
+function buildSearchIndex(p) {
+  const parts = [
+    p.nombre,
+    p.descripcion || '',
+    p.categoria,
+    CAT_LABELS[p.categoria] || '',
+    p.subcategoria || '',
+    SUBCAT_LABELS[p.subcategoria] || '',
+    p.etiqueta || '',
+  ];
+  return normalizeText(parts.join(' '));
+}
+
+// Expande la query aplicando aliases
+function expandQuery(raw) {
+  let q = normalizeText(raw);
+  // Primero busca frases compuestas (orden: más largo primero)
+  const aliasKeys = Object.keys(SEARCH_ALIASES).sort((a, b) => b.length - a.length);
+  aliasKeys.forEach(alias => {
+    const aliasNorm = normalizeText(alias);
+    if (q.includes(aliasNorm)) {
+      q = q + ' ' + normalizeText(SEARCH_ALIASES[alias]);
+    }
+  });
+  // Elimina duplicados de palabras
+  const words = [...new Set(q.split(' ').filter(Boolean))];
+  return words;
+}
+
+function matchesSearch(p, words) {
+  const index = buildSearchIndex(p);
+  // Todas las palabras deben aparecer en el índice (AND)
+  return words.every(w => index.includes(w));
+}
+
 function renderProductos(filtro = 'todos', subcat = null) {
   if (subcat !== null) activeSubcat = subcat;
   const grid = document.getElementById('products-grid');
@@ -690,15 +794,17 @@ function renderProductos(filtro = 'todos', subcat = null) {
   if (filtro !== 'todos' && activeSubcat !== 'todos' && (CAT_SUBFILTROS[filtro] || []).length > 0) {
     prods = prods.filter(p => p.subcategoria === activeSubcat);
   }
-  // Aplica búsqueda por texto
-  if (activeBusqueda.trim()) {
-    const q = activeBusqueda.trim().toLowerCase();
-    prods = prods.filter(p =>
-      p.nombre.toLowerCase().includes(q) ||
-      (p.descripcion || '').toLowerCase().includes(q) ||
-      (CAT_LABELS[p.categoria] || p.categoria).toLowerCase().includes(q) ||
-      (p.subcategoria ? (SUBCAT_LABELS[p.subcategoria] || '').toLowerCase() : '').includes(q)
-    );
+  // Aplica búsqueda inteligente
+  const rawQuery = activeBusqueda.trim();
+  if (rawQuery) {
+    const words = expandQuery(rawQuery);
+    // Intenta AND (todas las palabras). Si no hay resultados, intenta OR (alguna palabra)
+    let andResults = prods.filter(p => matchesSearch(p, words));
+    if (andResults.length > 0) {
+      prods = andResults;
+    } else {
+      prods = prods.filter(p => words.some(w => buildSearchIndex(p).includes(w)));
+    }
   }
   grid.innerHTML = prods.map(p => buildCard(p)).join('');
   if (noRes) noRes.classList.toggle('hidden', prods.length > 0);

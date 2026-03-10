@@ -9,7 +9,10 @@ html {
 }
 
 body {
-  background: linear-gradient(180deg, #0a0f1e 0%, #0d1220 40%, #0f172a 100%);
+  background:
+    radial-gradient(ellipse 80% 50% at 15% 0%, rgba(127,0,0,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 85% 10%, rgba(100,0,0,0.07) 0%, transparent 65%),
+    linear-gradient(170deg, #080c18 0%, #0b1020 35%, #0d1228 65%, #0a0e1c 100%);
   min-height: 100vh;
 }
 
@@ -60,8 +63,9 @@ body {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  filter: blur(100px);
+  filter: blur(120px);
   z-index: 1;
+  opacity: 0.75;
 }
 
 /* ─── FEATURE CARD HOVER ACCENT ─────────────────── */
@@ -405,6 +409,19 @@ select.form-input option {
   box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
 }
 
+/* ─── HERO BADGES FLOAT ANIMATION ───────────────── */
+@keyframes floatBadge {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-7px); }
+}
+
+/* Cada badge flota con un delay distinto */
+#hero .absolute:nth-child(5) { animation: floatBadge 4s ease-in-out infinite; }
+#hero .absolute:nth-child(6) { animation: floatBadge 4.8s ease-in-out infinite 0.6s; }
+#hero .absolute:nth-child(7) { animation: floatBadge 4.2s ease-in-out infinite 1.2s; }
+#hero .absolute:nth-child(8) { animation: floatBadge 5s ease-in-out infinite 0.3s; }
+#hero .absolute:nth-child(9) { animation: floatBadge 4.5s ease-in-out infinite 0.9s; }
+
 /* ─── HERO SCROLL INDICATOR ─────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .animate-bounce {
@@ -604,4 +621,83 @@ select.form-input option {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(239, 68, 68, .3) 50%, transparent);
   margin-bottom: 0;
+}
+
+/* ─── BARRA DE BÚSQUEDA DEL CATÁLOGO ─────────────── */
+.search-bar-wrap {
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-bar-wrap .relative {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-bar-icon {
+  position: absolute;
+  left: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: .9rem;
+  pointer-events: none;
+  z-index: 1;
+  transition: color .2s;
+}
+
+.search-bar-input {
+  width: 100%;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+  padding: .75rem 2.8rem .75rem 2.6rem;
+  color: #e2e8f0;
+  font-size: .93rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.search-bar-input::placeholder {
+  color: #475569;
+}
+
+.search-bar-input:focus {
+  border-color: rgba(239, 68, 68, .5);
+  background: rgba(30, 41, 59, 1);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .08);
+}
+
+.search-bar-input:focus + .search-clear-btn,
+.search-bar-wrap:focus-within .search-bar-icon {
+  color: #ef4444;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 8px;
+  background: rgba(100, 116, 139, .15);
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  transition: background .2s, color .2s;
+}
+
+.search-clear-btn:hover {
+  background: rgba(239, 68, 68, .15);
+  color: #ef4444;
 }
