@@ -679,6 +679,8 @@ function enviarPedidoWhatsApp() {
 // ─── CATALOG RENDER ────────────────────────────────────────────────────
 let activeSubcat = 'todos';
 let activeBusqueda = '';
+let currentPage = 1;
+const ITEMS_PER_PAGE = 12;
 
 // Normaliza texto: quita tildes, minúsculas y puntuación extra
 function normalizeText(str) {
@@ -784,8 +786,9 @@ function matchesSearch(p, words) {
   return words.every(w => index.includes(w));
 }
 
-function renderProductos(filtro = 'todos', subcat = null) {
+function renderProductos(filtro = 'todos', subcat = null, resetPage = true) {
   if (subcat !== null) activeSubcat = subcat;
+  if (resetPage) currentPage = 1;
   const grid = document.getElementById('products-grid');
   const noRes = document.getElementById('no-results');
   if (!grid) return;
@@ -798,7 +801,6 @@ function renderProductos(filtro = 'todos', subcat = null) {
   const rawQuery = activeBusqueda.trim();
   if (rawQuery) {
     const words = expandQuery(rawQuery);
-    // Intenta AND (todas las palabras). Si no hay resultados, intenta OR (alguna palabra)
     let andResults = prods.filter(p => matchesSearch(p, words));
     if (andResults.length > 0) {
       prods = andResults;
@@ -806,8 +808,50 @@ function renderProductos(filtro = 'todos', subcat = null) {
       prods = prods.filter(p => words.some(w => buildSearchIndex(p).includes(w)));
     }
   }
-  grid.innerHTML = prods.map(p => buildCard(p)).join('');
+  const totalPages = Math.ceil(prods.length / ITEMS_PER_PAGE);
+  if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageProds = prods.slice(start, start + ITEMS_PER_PAGE);
+  grid.innerHTML = pageProds.map(p => buildCard(p)).join('');
   if (noRes) noRes.classList.toggle('hidden', prods.length > 0);
+  renderPagination(totalPages, prods.length);
+}
+
+function renderPagination(totalPages, totalItems) {
+  const container = document.getElementById('pagination');
+  if (!container) return;
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+  const prev = currentPage > 1;
+  const next = currentPage < totalPages;
+  let pages = '';
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      pages += `<button onclick="goToPage(${i})" class="pagination-btn${i === currentPage ? ' active' : ''}">${i}</button>`;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      pages += `<span class="pagination-dots">&hellip;</span>`;
+    }
+  }
+  container.innerHTML = `
+    <div class="flex items-center justify-center gap-2 mt-10 flex-wrap">
+      <button onclick="goToPage(${currentPage - 1})" ${prev ? '' : 'disabled'} class="pagination-btn pagination-arrow">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+      </button>
+      ${pages}
+      <button onclick="goToPage(${currentPage + 1})" ${next ? '' : 'disabled'} class="pagination-btn pagination-arrow">
+        <i class="fa-solid fa-chevron-right text-xs"></i>
+      </button>
+    </div>
+    <p class="text-center text-slate-500 text-xs mt-3">
+      Página ${currentPage} de ${totalPages} &middot; ${totalItems} productos
+    </p>
+  `;
+}
+
+function goToPage(page) {
+  currentPage = page;
+  const cat = document.querySelector('#filtros .cat-btn.active')?.dataset.cat || 'todos';
+  renderProductos(cat, null, false);
+  document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function onCatalogSearch(val) {

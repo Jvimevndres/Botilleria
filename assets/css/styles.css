@@ -257,6 +257,56 @@ body {
   font-weight: 800;
 }
 
+.sub-cat-btn.active {
+  background: rgba(239, 68, 68, .18);
+  border-color: rgba(239, 68, 68, .5);
+  color: #fca5a5;
+  font-weight: 800;
+}
+
+/* ─── PAGINATION ─────────────────────────────────── */
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 .65rem;
+  border-radius: .75rem;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, .08);
+  color: #94a3b8;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+  background: rgba(239, 68, 68, .12);
+  border-color: rgba(239, 68, 68, .35);
+  color: #fca5a5;
+}
+
+.pagination-btn.active {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, .35);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-dots {
+  color: #475569;
+  font-size: .85rem;
+  padding: 0 .2rem;
+  line-height: 2.25rem;
+}
+
 /* ─── SUB-CATEGORY BUTTONS (admin) ─────────────── */
 .admin-sub-btn {
   display: inline-flex;
