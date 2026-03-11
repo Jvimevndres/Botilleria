@@ -684,7 +684,7 @@
                 </div>
 
                 <!-- Pie del card: foto del local -->
-                <div class="relative h-36 overflow-hidden">
+                <div class="relative h-56 overflow-hidden">
                   <img
                     src="https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=9oveEMMsRR5PSdu3J4jBhw&cb_client=search.gws-prod.gps&w=408&h=240&yaw=331.7536&pitch=0&thumbfov=100"
                     alt="Street View Lector Jean"
@@ -834,32 +834,69 @@
           </div>
         </div>
 
-        <!-- Sello de marca -->
-        <div class="mt-16 flex justify-center items-center gap-4 sm:gap-10">
-          <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-white/10"></div>
-          <div class="relative group flex-shrink-0">
-            <div
-              class="absolute inset-0 rounded-full bg-red-600/30 blur-3xl scale-90 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <div
-              class="relative bg-white rounded-full p-5 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
-              <img src="assets/img/2.png" alt="Lector Jean – Botillería & Licores"
-                class="w-44 h-44 sm:w-56 sm:h-56 object-contain" loading="lazy" />
-            </div>
-          </div>
-          <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-white/10 to-transparent"></div>
-          <div class="relative group flex-shrink-0">
-            <div
-              class="absolute inset-0 rounded-lg bg-red-600/20 blur-2xl scale-90 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <div
-              class="relative bg-white rounded-2xl p-4 shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105">
-              <img src="assets/img/4.png" alt="Lector Jean – Licores Premium"
-                class="w-32 h-32 sm:w-44 sm:h-44 object-contain" loading="lazy" />
+        <!-- Card ubicación -->
+        <div class="mt-14 flex justify-center">
+          <div class="relative w-full max-w-xl">
+            <div class="absolute -inset-4 bg-red-600/20 blur-3xl rounded-3xl pointer-events-none"></div>
+            <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-black/60" style="backdrop-filter: blur(2px);">
+              <div class="flex items-center justify-between px-5 py-4 bg-slate-900/90 border-b border-white/8">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center">
+                    <i class="fa-solid fa-location-dot text-red-400 text-sm"></i>
+                  </div>
+                  <div>
+                    <p class="text-white text-sm font-bold leading-none">Botillería Lector Jean</p>
+                    <p class="text-slate-500 text-[11px] mt-0.5">Germán Tenderini 1802, Renca</p>
+                  </div>
+                </div>
+                <span class="flex items-center gap-1.5 bg-green-500/15 border border-green-500/25 text-green-400 text-[10px] font-bold px-3 py-1.5 rounded-full">
+                  <span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block blink-dot"></span>Abierto
+                </span>
+              </div>
+              <div class="relative h-80 bg-slate-900">
+                <iframe
+                  src="https://maps.google.com/maps?q=Germ%C3%A1n+Tenderini+1802+Renca+Santiago+Chile&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                  class="w-full h-full border-0"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  title="Ubicación Botillería Lector Jean">
+                </iframe>
+                <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, transparent 60%, rgba(15,23,42,0.4) 100%);"></div>
+              </div>
+              <div class="relative h-56 overflow-hidden">
+                <img
+                  src="https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=9oveEMMsRR5PSdu3J4jBhw&cb_client=search.gws-prod.gps&w=408&h=240&yaw=331.7536&pitch=0&thumbfov=100"
+                  alt="Street View Lector Jean"
+                  class="w-full h-full object-cover"
+                  style="filter: brightness(0.75) saturate(0.85);"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-transparent to-transparent"></div>
+                <div class="absolute bottom-3 left-5 flex items-center gap-2">
+                  <i class="fa-brands fa-google text-white/40 text-xs"></i>
+                  <span class="text-white/50 text-[10px]">Street View · Germán Tenderini 1802</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="hidden sm:block flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-white/10"></div>
+
+        <!-- Sello de marca -->
+        <div class="mt-16 flex flex-col sm:flex-row justify-center items-center gap-20">
+          <div class="relative group">
+            <div class="absolute inset-0 rounded-full bg-red-600/30 blur-3xl scale-90 group-hover:scale-110 transition-all duration-700"></div>
+            <div class="relative bg-white rounded-full overflow-hidden shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105" style="width: 320px; height: 320px;">
+              <img src="assets/img/3.png" alt="Lector Jean – Botillería & Licores"
+                style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" />
+            </div>
+          </div>
+          <div class="relative group">
+            <div class="absolute inset-0 rounded-3xl bg-red-600/20 blur-2xl scale-90 group-hover:scale-110 transition-all duration-700"></div>
+            <div class="relative bg-white rounded-3xl overflow-hidden shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105" style="width: 320px; height: 320px;">
+              <img src="assets/img/4.png" alt="Lector Jean – Licores Premium"
+                style="width: 100%; height: 100%; object-fit: contain; display: block; padding: 8px;" loading="lazy" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div
@@ -911,8 +948,9 @@
 
         <!-- Columna 1: Logo + redes -->
         <div>
-          <div class="bg-white inline-block rounded-2xl px-4 py-2.5 mb-5 shadow-lg shadow-black/40">
-            <img src="assets/img/3.png" alt="Lector Jean – Botillería & Licores" class="h-10 w-auto object-contain"
+          <div class="bg-white rounded-2xl mb-5 shadow-lg shadow-black/40" style="width: 100%; padding: 0;">
+            <img src="assets/img/2.png" alt="Lector Jean – Botillería & Licores"
+              style="width: 100%; height: auto; display: block;"
               loading="lazy" />
           </div>
           <p class="text-slate-400 text-sm leading-relaxed mb-6">Tu botillería de confianza. Variedad, frescura y el
