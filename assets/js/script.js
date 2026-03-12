@@ -1111,8 +1111,19 @@ function showAdminPanel() {
   updateAdminStats();
   renderAdminProducts('todos');
   initAdminFiltros();
-  loadSugerencias();
-  loadDashboard();
+  switchAdminTab('dashboard');
+}
+
+function switchAdminTab(tab) {
+  ['dashboard', 'gestion', 'sugerencias'].forEach(t => {
+    const el = document.getElementById(`admin-tab-${t}`);
+    if (el) el.classList.toggle('hidden', t !== tab);
+  });
+  document.querySelectorAll('.admin-tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+  if (tab === 'sugerencias') loadSugerencias();
+  if (tab === 'dashboard') loadDashboard();
 }
 
 // ─── PEDIDOS (tracking confirmados) ─────────────────────────────────────────
@@ -1197,13 +1208,18 @@ async function sendSugerencia() {
   const okEl  = document.getElementById('sugerencia-ok');
   const msg = input.value.trim();
   if (!msg) return;
+
+  // Siempre guardar en localStorage (nunca se pierde)
+  const list = JSON.parse(localStorage.getItem('blj_sugerencias') || '[]');
+  const entry = { mensaje: msg, created_at: new Date().toISOString() };
+  list.unshift(entry);
+  localStorage.setItem('blj_sugerencias', JSON.stringify(list));
+
+  // Además intentar guardar en Supabase (cross-device)
   if (isSupabaseReady()) {
-    await _sbClient.from('sugerencias').insert({ mensaje: msg });
-  } else {
-    const list = JSON.parse(localStorage.getItem('blj_sugerencias') || '[]');
-    list.unshift({ mensaje: msg, created_at: new Date().toISOString() });
-    localStorage.setItem('blj_sugerencias', JSON.stringify(list));
+    _sbClient.from('sugerencias').insert({ mensaje: msg }).then(() => {});
   }
+
   input.value = '';
   okEl.classList.remove('hidden');
   setTimeout(() => okEl.classList.add('hidden'), 3000);
@@ -1213,13 +1229,22 @@ async function loadSugerencias() {
   const container = document.getElementById('admin-sugerencias');
   const badge     = document.getElementById('sug-badge');
   if (!container) return;
-  let items = [];
+
+  // Siempre leer localStorage primero
+  let localItems = JSON.parse(localStorage.getItem('blj_sugerencias') || '[]');
+  let items = localItems;
+
+  // Si Supabase disponible intentar obtener de ahí
   if (isSupabaseReady()) {
-    const { data } = await _sbClient.from('sugerencias')
-      .select('*').order('created_at', { ascending: false });
-    items = data || [];
-  } else {
-    items = JSON.parse(localStorage.getItem('blj_sugerencias') || '[]');
+    try {
+      const { data, error } = await _sbClient.from('sugerencias')
+        .select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        items = data;
+        // Sincronizar localStorage con lo que tiene Supabase
+        localStorage.setItem('blj_sugerencias', JSON.stringify(data));
+      }
+    } catch (_) { /* usar localStorage */ }
   }
   if (badge) {
     if (items.length) { badge.textContent = items.length; badge.classList.remove('hidden'); }
@@ -1252,6 +1277,23 @@ function updateAdminStats() {
   set('stat-promos',     prods.filter(p => p.categoria === 'promos').length);
 }
 
+let adminViewMode = 'grid'; // 'grid' | 'list'
+
+function setAdminView(mode) {
+  adminViewMode = mode;
+  document.getElementById('view-grid-btn')?.classList.toggle('active', mode === 'grid');
+  document.getElementById('view-list-btn')?.classList.toggle('active', mode === 'list');
+  const grid = document.getElementById('admin-products-grid');
+  if (grid) {
+    if (mode === 'grid') {
+      grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+    } else {
+      grid.className = 'flex flex-col gap-2';
+    }
+  }
+  renderAdminProducts();
+}
+
 let activeAdminSubcat = 'todos';
 
 const KNOWN_CATS = Object.keys(CAT_LABELS);
@@ -1274,10 +1316,48 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
   if (filtro !== 'todos' && activeAdminSubcat !== 'todos' && (CAT_SUBFILTROS[filtro] || []).length > 0) {
     prods = prods.filter(p => p.subcategoria === activeAdminSubcat);
   }
+
+  // Ordenar
+  const sort = document.getElementById('admin-sort')?.value || 'default';
+  if (sort === 'az')         prods = [...prods].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  else if (sort === 'za')   prods = [...prods].sort((a, b) => b.nombre.localeCompare(a.nombre, 'es'));
+  else if (sort === 'price-asc')  prods = [...prods].sort((a, b) => a.precio - b.precio);
+  else if (sort === 'price-desc') prods = [...prods].sort((a, b) => b.precio - a.precio);
+
   if (!prods.length) {
     grid.innerHTML = '<p class="col-span-full text-slate-500 text-center py-10">No hay productos en esta categoría.</p>';
     return;
   }
+
+  if (adminViewMode === 'list') {
+    grid.innerHTML = prods.map(p => {
+      const catLabel = CAT_LABELS[p.categoria] || p.categoria;
+      const subcatLabel = p.subcategoria && SUBCAT_LABELS[p.subcategoria] ? SUBCAT_LABELS[p.subcategoria] : null;
+      return `
+      <div class="admin-list-row">
+        <img class="alr-img" src="${p.imagen || ''}" alt="${escHtml(p.nombre)}" loading="lazy" onerror="this.style.opacity='.2'" />
+        <div class="flex-1 min-w-0">
+          <p class="alr-name truncate">${escHtml(p.nombre)}</p>
+          <p class="alr-cat mt-0.5">${catLabel}${subcatLabel ? ' · ' + subcatLabel : ''}</p>
+        </div>
+        ${p.etiqueta ? `<span class="alr-badge hidden sm:inline">${escHtml(p.etiqueta)}</span>` : ''}
+        ${!p.disponible ? `<span class="alr-unavail hidden sm:inline">No disponible</span>` : ''}
+        <span class="alr-price">${formatPeso(p.precio)}</span>
+        <div class="flex gap-2 shrink-0">
+          <button onclick="openProductForm(${p.id})" title="Editar"
+            class="bg-sky-600/20 hover:bg-sky-600/40 text-sky-400 border border-sky-500/20 text-xs font-bold px-3 py-2 rounded-lg transition-all">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button onclick="openDeleteModal(${p.id})" title="Eliminar"
+            class="bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/20 text-xs font-bold px-3 py-2 rounded-lg transition-all">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
   grid.innerHTML = prods.map(p => {
     const catLabel = CAT_LABELS[p.categoria] || p.categoria;
     const subcatLabel = p.subcategoria && SUBCAT_LABELS[p.subcategoria]

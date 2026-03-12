@@ -365,6 +365,79 @@ body {
   color: #fff;
 }
 
+/* ─── ADMIN TABS ─────────────────────── */
+.admin-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .625rem 1.25rem;
+  font-size: .875rem;
+  font-weight: 700;
+  border-radius: .875rem .875rem 0 0;
+  border: 1.5px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all .2s ease;
+  position: relative;
+  bottom: -1px;
+}
+.admin-tab-btn:hover {
+  color: #e2e8f0;
+  background: rgba(255,255,255,.04);
+}
+.admin-tab-btn.active {
+  background: #1e293b;
+  border-color: rgba(255,255,255,.08);
+  color: #fff;
+}
+
+/* ─── ADMIN VIEW TOGGLE ─────────────────────────── */
+.admin-view-btn {
+  color: #64748b;
+  cursor: pointer;
+}
+.admin-view-btn:hover { color: #e2e8f0; }
+.admin-view-btn.active {
+  background: rgba(239,68,68,.18);
+  color: #f87171;
+}
+
+/* Lista de productos admin */
+.admin-list-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(30,41,59,.7);
+  border: 1.5px solid rgba(255,255,255,.06);
+  border-radius: 1rem;
+  padding: .625rem 1rem;
+  transition: border-color .15s;
+}
+.admin-list-row:hover { border-color: rgba(239,68,68,.25); }
+.admin-list-row .alr-img {
+  width: 48px;
+  height: 48px;
+  border-radius: .625rem;
+  object-fit: contain;
+  background: #1e293b;
+  flex-shrink: 0;
+}
+.admin-list-row .alr-name  { font-weight: 700; color: #f1f5f9; font-size: .875rem; }
+.admin-list-row .alr-cat   { font-size: .7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+.admin-list-row .alr-price { font-weight: 900; color: #f87171; font-size: .9375rem; white-space: nowrap; }
+.admin-list-row .alr-badge {
+  font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  padding: .175rem .6rem; border-radius: 9999px;
+  border: 1px solid rgba(239,68,68,.35); background: rgba(239,68,68,.12); color: #fca5a5;
+}
+.admin-list-row .alr-unavail {
+  font-size: .65rem; font-weight: 700; text-transform: uppercase;
+  padding: .175rem .6rem; border-radius: 9999px;
+  background: rgba(100,116,139,.2); border: 1px solid rgba(100,116,139,.3); color: #94a3b8;
+}
+
 /* ─── FORM ELEMENTS ──────────────────────────────── */
 .form-label {
   display: block;
