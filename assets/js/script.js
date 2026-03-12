@@ -43,6 +43,7 @@ const SUBCAT_LABELS = {
   'pack-latas': 'Pack Latas',
   'botellines': 'Pack Botellines',
   'botellas': 'Botella Grande',
+  'retornables': 'Retornables',
   // Destilados
   'pisco': 'Pisco',
   'ron': 'Ron',
@@ -69,6 +70,7 @@ const SUBCAT_LABELS = {
   'dulces': 'Licores Dulces',
   // Bebidas
   'gaseosas': 'Gaseosas',
+  'gaseosas-retornables': 'Gaseosas Retornables',
   'energetica': 'Energéticas',
   'jugos': 'Jugos',
   'aguas': 'Aguas y Tónicas',
@@ -80,13 +82,13 @@ const SUBCAT_LABELS = {
 
 // ─── MAPA CATEGORÍA → SUBCATEGORÍAS DISPONIBLES ───────────────────────
 const CAT_SUBFILTROS = {
-  cervezas: ['latones', 'latas-sueltas', 'pack-latas', 'botellines', 'botellas'],
+  cervezas: ['latones', 'latas-sueltas', 'pack-latas', 'botellines', 'botellas', 'retornables'],
   destilados: ['pisco', 'ron', 'vodka', 'whisky', 'gin', 'tequila'],
   vinos: ['tintos', 'blancos', 'rose', 'caja'],
   espumantes: ['brut', 'demi-sec', 'moscato'],
   cocteles: ['sour', 'frutas', 'spritz'],
   licores: ['cremas', 'hierbas', 'dulces'],
-  bebidas: ['gaseosas', 'energetica', 'jugos', 'aguas'],
+  bebidas: ['gaseosas', 'gaseosas-retornables', 'energetica', 'jugos', 'aguas'],
   snacks: ['hielo', 'snacks-salados', 'extras'],
   promos: [],
 };
@@ -735,6 +737,8 @@ const SEARCH_ALIASES = {
   'gaseosa':      'gaseosa gaseosas',
   'gaseosas':     'gaseosa gaseosas',
   'refresco':     'gaseosa gaseosas',
+  'retornable':   'retornable retornables gaseosas-retornables',
+  'retornables':  'retornable retornables gaseosas-retornables',
   'jugo':         'jugo jugos',
   'jugos':        'jugo jugos',
   'agua':         'agua aguas tonicas',
@@ -1074,11 +1078,22 @@ function updateAdminStats() {
 
 let activeAdminSubcat = 'todos';
 
+const KNOWN_CATS = Object.keys(CAT_LABELS);
+
 function renderAdminProducts(filtro = 'todos', subcat = null) {
   if (subcat !== null) activeAdminSubcat = subcat;
   const grid = document.getElementById('admin-products-grid');
   if (!grid) return;
-  let prods = getProductos().filter(p => filtro === 'todos' || p.categoria === filtro);
+  let prods = getProductos().filter(p => {
+    if (filtro === 'todos') return true;
+    if (filtro === 'sin-categoria') {
+      const missingCat = !p.categoria || !KNOWN_CATS.includes(p.categoria);
+      const needsSub = !missingCat && (CAT_SUBFILTROS[p.categoria] || []).length > 0;
+      const missingSub = needsSub && (!p.subcategoria || !(CAT_SUBFILTROS[p.categoria] || []).includes(p.subcategoria));
+      return missingCat || missingSub;
+    }
+    return p.categoria === filtro;
+  });
   // Applica subfiltro genérico para cualquier categoría con subcategorías
   if (filtro !== 'todos' && activeAdminSubcat !== 'todos' && (CAT_SUBFILTROS[filtro] || []).length > 0) {
     prods = prods.filter(p => p.subcategoria === activeAdminSubcat);

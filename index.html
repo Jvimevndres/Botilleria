@@ -428,6 +428,7 @@
           <button class="admin-cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1"></i>Bebidas</button>
           <button class="admin-cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1"></i>Snacks</button>
           <button class="admin-cat-btn" data-cat="promos"><i class="fa-solid fa-tag mr-1"></i>Promos</button>
+          <button class="admin-cat-btn" data-cat="sin-categoria"><i class="fa-solid fa-circle-question mr-1"></i>Sin Categoría</button>
         </div>
 
         <!-- Sub-filtros admin (inyectados dinámicamente por JS) -->
@@ -605,15 +606,15 @@
               Delivery Express &middot; Toda la comuna
             </div>
 
-            <h1 class="font-display text-5xl sm:text-7xl md:text-8xl font-black leading-[0.92] tracking-tight mb-6">
+            <h1 class="font-display text-4xl sm:text-7xl md:text-8xl font-black leading-[0.92] tracking-tight mb-6">
               Tu Sed<br />Termina <span class="gradient-text">Aquí.</span>
             </h1>
             <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed">
-              Cervezas heladas, destilados premium, vinos selectos e hielo.<br />
+              Cervezas heladas, destilados premium, vinos selectos e hielo.
               <strong class="text-white">Entrega rápida directo a tu puerta.</strong>
             </p>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-14">
+            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8 sm:mb-14">
               <a href="#catalogo"
                 class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl shadow-red-900/40 flex items-center justify-center gap-2">
                 <i class="fa-solid fa-cart-shopping"></i>Ver Catálogo
@@ -625,20 +626,20 @@
             </div>
 
             <!-- Stats -->
-            <div class="flex items-center gap-8 justify-center lg:justify-start">
+            <div class="flex items-center gap-5 sm:gap-8 justify-center lg:justify-start">
               <div class="text-center">
-                <div class="font-display text-4xl font-black gradient-text leading-none" id="hero-stat-products">+20</div>
+                <div class="font-display text-3xl sm:text-4xl font-black gradient-text leading-none" id="hero-stat-products">+20</div>
                 <div class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1.5">Productos</div>
               </div>
               <div class="w-px h-10 bg-white/10"></div>
               <div class="text-center">
-                <div class="font-display text-4xl font-black gradient-text leading-none">30'</div>
+                <div class="font-display text-3xl sm:text-4xl font-black gradient-text leading-none">30'</div>
                 <div class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1.5">Delivery</div>
               </div>
               <div class="w-px h-10 bg-white/10"></div>
               <div class="text-center">
-                <div class="font-display text-4xl font-black leading-none flex items-center gap-1.5">
-                  <i class="fa-solid fa-star text-amber-400 text-2xl"></i>
+                <div class="font-display text-3xl sm:text-4xl font-black leading-none flex items-center gap-1.5">
+                  <i class="fa-solid fa-star text-amber-400 text-xl sm:text-2xl"></i>
                   <span class="gradient-text">5.0</span>
                 </div>
                 <div class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1.5">Valoración</div>
@@ -715,9 +716,9 @@
     <!-- ═══════════════════════════════════════════════════════
      CATÁLOGO
 ════════════════════════════════════════════════════════ -->
-    <section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-24">
+    <section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-24">
       <!-- Header sección -->
-      <div class="text-center mb-12">
+      <div class="text-center mb-8 sm:mb-12">
         <span class="section-label"><i class="fa-solid fa-bag-shopping"></i>Productos</span>
         <h2 class="font-display text-4xl sm:text-5xl font-black text-white mt-3 mb-3">Nuestro <span
             class="gradient-text">Catálogo</span></h2>
@@ -774,9 +775,9 @@
     <!-- ═══════════════════════════════════════════════════════
      ¿POR QUÉ ELEGIRNOS?
 ════════════════════════════════════════════════════════ -->
-    <section id="nosotros" class="bg-slate-800/30 border-t border-white/5 py-24 px-4 sm:px-6">
+    <section id="nosotros" class="bg-slate-800/30 border-t border-white/5 py-14 sm:py-24 px-4 sm:px-6">
       <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-14">
+        <div class="text-center mb-8 sm:mb-14">
           <span class="section-label"><i class="fa-solid fa-shield-halved"></i>¿Por qué elegirnos?</span>
           <h2 class="font-display text-4xl sm:text-5xl font-black text-white mt-3 mb-2">La experiencia <span
               class="gradient-text">Lector Jean</span></h2>
@@ -881,17 +882,17 @@
         </div>
 
         <!-- Sello de marca -->
-        <div class="mt-16 flex flex-col sm:flex-row justify-center items-center gap-20">
+        <div class="mt-10 sm:mt-16 flex flex-col sm:flex-row justify-center items-center gap-8 sm:gap-20">
           <div class="relative group">
             <div class="absolute inset-0 rounded-full bg-red-600/30 blur-3xl scale-90 group-hover:scale-110 transition-all duration-700"></div>
-            <div class="relative bg-white rounded-full overflow-hidden shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105" style="width: 320px; height: 320px;">
+            <div class="relative bg-white rounded-full overflow-hidden shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105 w-56 h-56 sm:w-80 sm:h-80">
               <img src="assets/img/3.png" alt="Lector Jean – Botillería & Licores"
                 style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" />
             </div>
           </div>
           <div class="relative group">
             <div class="absolute inset-0 rounded-3xl bg-red-600/20 blur-2xl scale-90 group-hover:scale-110 transition-all duration-700"></div>
-            <div class="relative bg-white rounded-3xl overflow-hidden shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105" style="width: 320px; height: 320px;">
+            <div class="relative bg-white rounded-3xl overflow-hidden shadow-2xl shadow-black/50 transition-transform duration-500 group-hover:scale-105 w-56 h-56 sm:w-80 sm:h-80">
               <img src="assets/img/4.png" alt="Lector Jean – Licores Premium"
                 style="width: 100%; height: 100%; object-fit: contain; display: block; padding: 8px;" loading="lazy" />
             </div>

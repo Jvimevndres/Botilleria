@@ -751,3 +751,53 @@ select.form-input option {
   background: rgba(239, 68, 68, .15);
   color: #ef4444;
 }
+
+/* ─── MOBILE OPTIMIZATIONS ──────────────────────── */
+@media (max-width: 639px) {
+
+  /* Filter bar: scroll horizontal en lugar de envolver */
+  #filtros {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-left: .75rem;
+    padding-right: .75rem;
+  }
+  #filtros::-webkit-scrollbar { display: none; }
+
+  /* Sub-filter bar: mismo tratamiento */
+  #sub-filtros {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    justify-content: flex-start !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #sub-filtros::-webkit-scrollbar { display: none; }
+
+  /* Reducir altura imagen en tarjetas para ver más contenido */
+  .product-img-wrap {
+    height: 185px;
+  }
+
+  /* Cards en 2 columnas en móvil */
+  #products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem;
+  }
+
+  /* Ajustar texto de tarjeta para 2 cols */
+  #products-grid .product-card .font-display.text-2xl {
+    font-size: 1.2rem;
+  }
+
+  /* Botón agregar al carrito más compacto en móvil */
+  #products-grid .product-card button[onclick*='addToCart'] {
+    font-size: 0.7rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    gap: 0.25rem;
+  }
+}
