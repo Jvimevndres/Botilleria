@@ -381,6 +381,16 @@ function checkOpenStatus() {
   const s = document.getElementById('status-badge');
   const c = document.getElementById('closed-badge');
   const f = document.getElementById('footer-status');
+
+  // Highlight del día activo en la tabla de horarios
+  const badgeLJ  = document.getElementById('badge-lunjue');
+  const badgeVS  = document.getElementById('badge-viesab');
+  const badgeDom = document.getElementById('badge-dom');
+  [badgeLJ, badgeVS, badgeDom].forEach(b => b?.classList.remove('footer-time-badge--hot'));
+  if (day >= 1 && day <= 4)              badgeLJ?.classList.add('footer-time-badge--hot');
+  else if (day === 5 || day === 6)       badgeVS?.classList.add('footer-time-badge--hot');
+  else if (day === 0)                    badgeDom?.classList.add('footer-time-badge--hot');
+
   if (open) {
     s?.classList.remove('hidden'); s?.classList.add('flex');
     c?.classList.remove('flex');   c?.classList.add('hidden');
@@ -707,6 +717,7 @@ function enviarPedidoWhatsApp() {
     `_Enviado desde botillerialectorjean.cl_`,
   ].filter(l => l !== null).join('\n');
 
+  guardarPedido(orderNum);
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank', 'noopener');
 
@@ -1100,18 +1111,145 @@ function showAdminPanel() {
   updateAdminStats();
   renderAdminProducts('todos');
   initAdminFiltros();
+  loadSugerencias();
+  loadDashboard();
+}
+
+// ─── PEDIDOS (tracking confirmados) ─────────────────────────────────────────
+async function guardarPedido(orderRef) {
+  const items = cart.map(item => ({
+    pedido_ref:      String(orderRef),
+    producto_id:     item.id || null,
+    producto_nombre: item.nombre,
+    categoria:       item.categoria || null,
+    precio:          item.precio,
+    qty:             item.qty,
+  }));
+  if (isSupabaseReady()) {
+    await _sbClient.from('pedidos_items').insert(items);
+  } else {
+    const saved = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
+    const now = new Date().toISOString();
+    items.forEach(i => saved.push({ ...i, created_at: now }));
+    localStorage.setItem('blj_pedidos_items', JSON.stringify(saved));
+  }
+}
+
+async function loadDashboard() {
+  const container = document.getElementById('admin-dashboard');
+  if (!container) return;
+  container.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">Cargando...</p>';
+  let items = [];
+  if (isSupabaseReady()) {
+    const { data } = await _sbClient.from('pedidos_items').select('*');
+    items = data || [];
+  } else {
+    items = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
+  }
+  if (!items.length) {
+    container.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">Sin pedidos confirmados aún</p>';
+    return;
+  }
+  // Agrupar por nombre de producto
+  const agg = {};
+  items.forEach(i => {
+    if (!agg[i.producto_nombre]) agg[i.producto_nombre] = { nombre: i.producto_nombre, categoria: i.categoria, qty: 0, revenue: 0 };
+    agg[i.producto_nombre].qty     += Number(i.qty) || 0;
+    agg[i.producto_nombre].revenue += (Number(i.precio) || 0) * (Number(i.qty) || 0);
+  });
+  const top = Object.values(agg).sort((a, b) => b.qty - a.qty).slice(0, 10);
+  const maxQty = top[0]?.qty || 1;
+  const catColors = { cervezas:'text-sky-400', destilados:'text-purple-400', vinos:'text-rose-400',
+    espumantes:'text-pink-400', cocteles:'text-orange-400', licores:'text-amber-400',
+    bebidas:'text-teal-400', snacks:'text-lime-400', promos:'text-yellow-400' };
+  container.innerHTML = `
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      ${top.map((p, idx) => `
+        <div class="flex items-center gap-3 bg-slate-800/70 border border-white/5 rounded-xl px-4 py-3">
+          <span class="text-slate-500 font-bold text-sm w-5 shrink-0 text-center">${idx + 1}</span>
+          <div class="flex-1 min-w-0">
+            <p class="text-white text-sm font-semibold truncate">${escHtml(p.nombre)}</p>
+            <div class="flex items-center gap-2 mt-1.5">
+              <div class="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-red-500 rounded-full transition-all" style="width:${Math.round(p.qty / maxQty * 100)}%"></div>
+              </div>
+              <span class="text-slate-500 text-[10px] ${catColors[p.categoria] || 'text-slate-400'}">${CAT_LABELS[p.categoria] || p.categoria || ''}</span>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-white font-black text-sm">${p.qty} <span class="text-slate-500 font-normal text-xs">ud.</span></div>
+            <div class="text-slate-400 text-xs">${formatPeso(p.revenue)}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <p class="text-slate-600 text-xs text-right mt-2">Basado en ${items.length} líneas de ${new Set(items.map(i=>i.pedido_ref)).size} pedido(s) confirmado(s)</p>
+  `;
+}
+
+// ─── SUGERENCIAS ─────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function sendSugerencia() {
+  const input = document.getElementById('sugerencia-input');
+  const okEl  = document.getElementById('sugerencia-ok');
+  const msg = input.value.trim();
+  if (!msg) return;
+  if (isSupabaseReady()) {
+    await _sbClient.from('sugerencias').insert({ mensaje: msg });
+  } else {
+    const list = JSON.parse(localStorage.getItem('blj_sugerencias') || '[]');
+    list.unshift({ mensaje: msg, created_at: new Date().toISOString() });
+    localStorage.setItem('blj_sugerencias', JSON.stringify(list));
+  }
+  input.value = '';
+  okEl.classList.remove('hidden');
+  setTimeout(() => okEl.classList.add('hidden'), 3000);
+}
+
+async function loadSugerencias() {
+  const container = document.getElementById('admin-sugerencias');
+  const badge     = document.getElementById('sug-badge');
+  if (!container) return;
+  let items = [];
+  if (isSupabaseReady()) {
+    const { data } = await _sbClient.from('sugerencias')
+      .select('*').order('created_at', { ascending: false });
+    items = data || [];
+  } else {
+    items = JSON.parse(localStorage.getItem('blj_sugerencias') || '[]');
+  }
+  if (badge) {
+    if (items.length) { badge.textContent = items.length; badge.classList.remove('hidden'); }
+    else { badge.classList.add('hidden'); }
+  }
+  if (!items.length) {
+    container.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">Sin mensajes aún</p>';
+    return;
+  }
+  container.innerHTML = items.map(i => `
+    <div class="bg-slate-800/70 border border-white/5 rounded-xl px-4 py-3">
+      <p class="text-white text-sm">${escHtml(i.mensaje)}</p>
+      <p class="text-slate-500 text-xs mt-1">${new Date(i.created_at).toLocaleString('es-CL')}</p>
+    </div>
+  `).join('');
 }
 
 function updateAdminStats() {
   const prods = getProductos();
-  const sTotal = document.getElementById('stat-total');
-  const sCerv = document.getElementById('stat-cervezas');
-  const sDest = document.getElementById('stat-destilados');
-  const sVinos = document.getElementById('stat-vinos');
-  if (sTotal) sTotal.textContent = prods.length;
-  if (sCerv) sCerv.textContent = prods.filter(p => p.categoria === 'cervezas').length;
-  if (sDest) sDest.textContent = prods.filter(p => p.categoria === 'destilados').length;
-  if (sVinos) sVinos.textContent = prods.filter(p => p.categoria === 'vinos').length;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('stat-total',      prods.length);
+  set('stat-cervezas',   prods.filter(p => p.categoria === 'cervezas').length);
+  set('stat-destilados', prods.filter(p => p.categoria === 'destilados').length);
+  set('stat-vinos',      prods.filter(p => p.categoria === 'vinos').length);
+  set('stat-espumantes', prods.filter(p => p.categoria === 'espumantes').length);
+  set('stat-cocteles',   prods.filter(p => p.categoria === 'cocteles').length);
+  set('stat-licores',    prods.filter(p => p.categoria === 'licores').length);
+  set('stat-bebidas',    prods.filter(p => p.categoria === 'bebidas').length);
+  set('stat-snacks',     prods.filter(p => p.categoria === 'snacks').length);
+  set('stat-promos',     prods.filter(p => p.categoria === 'promos').length);
 }
 
 let activeAdminSubcat = 'todos';
