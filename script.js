@@ -11,7 +11,7 @@
       Formato: código de país + número, sin + ni espacios
       Ejemplo Chile: 56912345678
 ══════════════════════════════════════════════════════════ */
-const WHATSAPP_NUMBER = '56900000000'; // ← REEMPLAZA con tu número real
+const WHATSAPP_NUMBER = '56988265568';
 
 
 /* ══════════════════════════════════════════════════════════

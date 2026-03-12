@@ -5,18 +5,19 @@
 
 // ─── CONFIG ───────────────────────────────────────────────────────────
 const CONFIG = {
-  whatsappNumber: '56900000000',
+  whatsappNumber: '56988265568',
   adminPassword: 'admin2026',
   deliveryFee: 1500,
+  deliveryFeeNight: 3000,  // después de las 22:00
   minOrder: 5000,
   storeName: 'Botillería Lector Jean',
   transferencia: {
-    banco: 'Banco Estado',
-    tipo: 'Cuenta RUT',
-    numero: '12.345.678-9',
-    rut: '12.345.678-9',
-    titular: 'Jean Pérez López',
-    email: 'lectorjean@gmail.com',
+    banco: 'Banco Santander',
+    tipo: 'Cuenta Corriente',
+    numero: '87393534',
+    rut: '25.491.864-4',
+    titular: 'Lector Jean',
+    email: 'lectorjean50@gmail.com',
   },
 };
 
@@ -360,27 +361,33 @@ function checkAge(ok) {
 
 // ─── OPEN STATUS ──────────────────────────────────────────────────────
 function checkOpenStatus() {
-  const now = new Date();
-  const day = now.getDay();   // 0=Sun,1=Mon…6=Sat
-  const hour = now.getHours();
-  const min = now.getMinutes();
-  const t = hour * 60 + min;
+  const now  = new Date();
+  const day  = now.getDay();   // 0=Dom, 1=Lun … 6=Sáb
+  const t    = now.getHours() * 60 + now.getMinutes();
 
   let open = false;
-  if (day >= 1 && day <= 4) open = t >= 720 && t < 1500;       // Mon-Thu 12-01
-  else if (day === 5 || day === 6) open = t >= 720 && t < 1620; // Fri-Sat 12-03
-  else if (day === 0) open = t >= 780 && t < 1440;              // Sun 13-24
+
+  // Lun–Jue (1-4): abre 12:00, cierra 01:00 del día siguiente
+  if (day >= 1 && day <= 4 && t >= 720) open = true;   // desde las 12:00
+  if (day >= 2 && day <= 5 && t < 60)  open = true;   // 00:00–01:00 (noche anterior)
+
+  // Vie–Sáb (5-6): abre 12:00, cierra 03:00 del día siguiente
+  if ((day === 5 || day === 6) && t >= 720) open = true;          // desde las 12:00
+  if ((day === 6 || day === 0) && t < 180) open = true;           // 00:00–03:00 (noche anterior)
+
+  // Dom (0): abre 13:00, cierra 00:00
+  if (day === 0 && t >= 780) open = true;
 
   const s = document.getElementById('status-badge');
   const c = document.getElementById('closed-badge');
   const f = document.getElementById('footer-status');
   if (open) {
     s?.classList.remove('hidden'); s?.classList.add('flex');
-    c?.classList.remove('flex'); c?.classList.add('hidden');
+    c?.classList.remove('flex');   c?.classList.add('hidden');
     if (f) f.innerHTML = '<span class="text-green-400"><i class="fa-solid fa-circle mr-1"></i>Estamos abiertos ahora</span>';
   } else {
     c?.classList.remove('hidden'); c?.classList.add('flex');
-    s?.classList.remove('flex'); s?.classList.add('hidden');
+    s?.classList.remove('flex');   s?.classList.add('hidden');
     if (f) f.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-circle mr-1"></i>Actualmente cerrados</span>';
   }
 }
@@ -389,7 +396,27 @@ function checkOpenStatus() {
 function setWaLinks() {
   const msg = `Hola! Quiero hacer un pedido en ${CONFIG.storeName}.`;
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
-  document.querySelectorAll('#wa-nav-btn, #wa-float, #footer-wa-cta').forEach(el => el.setAttribute('href', url));
+  document.querySelectorAll('#wa-nav-btn, #footer-wa-cta').forEach(el => el.setAttribute('href', url));
+}
+
+let _waTooltipTimer = null;
+function waFloatClick() {
+  // Si el carrito cumple el pedido mínimo, abrir checkout directamente
+  if (cartTotal() >= CONFIG.minOrder) {
+    openCheckout();
+    return;
+  }
+  // Si hay algo en el carrito pero no llega al mínimo, abrir el drawer
+  if (cartTotal() > 0) {
+    toggleCart();
+    return;
+  }
+  // Carrito vacío: mostrar burbuja informativa
+  const tooltip = document.getElementById('wa-float-tooltip');
+  if (!tooltip) return;
+  tooltip.classList.remove('hidden');
+  clearTimeout(_waTooltipTimer);
+  _waTooltipTimer = setTimeout(() => tooltip.classList.add('hidden'), 2800);
 }
 
 // ─── CART ─────────────────────────────────────────────────────────────
@@ -426,6 +453,10 @@ function clearCart() {
   updateCartUI();
 }
 
+function getDeliveryFee() {
+  return new Date().getHours() >= 22 ? CONFIG.deliveryFeeNight : CONFIG.deliveryFee;
+}
+
 function cartTotal() {
   return cart.reduce((s, i) => s + i.precio * i.qty, 0);
 }
@@ -444,7 +475,10 @@ function updateCartUI() {
   const sub = document.getElementById('cart-subtotal');
   const tot = document.getElementById('cart-total');
   if (sub) sub.textContent = formatPeso(total);
-  if (tot) tot.textContent = formatPeso(total + CONFIG.deliveryFee);
+  if (tot) tot.textContent = formatPeso(total + getDeliveryFee());
+  // Actualizar costo delivery en el drawer
+  const dFeeEl = document.getElementById('cart-delivery-fee');
+  if (dFeeEl) dFeeEl.textContent = '+ ' + formatPeso(getDeliveryFee());
 
   // Hero stat
   const heroStat = document.getElementById('hero-stat-products');
@@ -553,11 +587,11 @@ function buildCheckoutSummary() {
       <span>Subtotal</span><span>${formatPeso(cartTotal())}</span>
     </div>
     <div class="flex justify-between px-4 py-3 text-xs text-slate-500">
-      <span>Delivery</span><span class="text-red-400">+ ${formatPeso(CONFIG.deliveryFee)}</span>
+      <span>Delivery</span><span class="text-red-400">+ ${formatPeso(getDeliveryFee())}</span>
     </div>
   `;
   const tot = document.getElementById('checkout-total-display');
-  if (tot) tot.textContent = formatPeso(cartTotal() + CONFIG.deliveryFee);
+  if (tot) tot.textContent = formatPeso(cartTotal() + getDeliveryFee());
 }
 
 function buildTransferBox() {
@@ -575,7 +609,11 @@ function buildTransferBox() {
     </div>
     <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
       <span class="text-slate-500 text-xs">Monto a transferir:</span>
-      <span class="text-red-400 font-black text-xl">${formatPeso(cartTotal() + CONFIG.deliveryFee)}</span>
+      <span class="text-red-400 font-black text-xl">${formatPeso(cartTotal() + getDeliveryFee())}</span>
+    </div>
+    <div class="mt-3 pt-3 border-t border-white/5 flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2">
+      <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 flex-shrink-0"></i>
+      <p class="text-amber-300 text-xs font-bold leading-snug">¡Importante! Al realizar la transferencia ingresa el correo <span class="text-white">${t.email}</span> para que podamos verificar tu pago.</p>
     </div>
   `;
 }
@@ -622,7 +660,7 @@ function enviarPedidoWhatsApp() {
 
   const orderNum = getOrderNum();
   const t = CONFIG.transferencia;
-  const total = cartTotal() + CONFIG.deliveryFee;
+  const total = cartTotal() + getDeliveryFee();
 
   const lineasProductos = cart.map(item =>
     `  • ${item.nombre} x${item.qty}  →  ${formatPeso(item.precio * item.qty)}`
@@ -631,28 +669,28 @@ function enviarPedidoWhatsApp() {
   const direccionCompleta = [direccion, depto, comuna].filter(Boolean).join(', ');
 
   const msg = [
-    `🍺 *${CONFIG.storeName}*`,
-    `📋 *PEDIDO #${orderNum}*`,
-    `📅 ${fechaHora()}`,
+    `*${CONFIG.storeName}*`,
+    `*PEDIDO #${orderNum}*`,
+    `${fechaHora()}`,
     `${'─'.repeat(30)}`,
     ``,
-    `👤 *DATOS DEL CLIENTE*`,
+    `*DATOS DEL CLIENTE*`,
     `  Nombre: ${nombre}`,
     `  Teléfono: ${telefono}`,
     ``,
-    `📦 *PRODUCTOS SOLICITADOS*`,
+    `*PRODUCTOS SOLICITADOS*`,
     lineasProductos,
     ``,
     `  Subtotal:          ${formatPeso(cartTotal())}`,
-    `  Delivery:          + ${formatPeso(CONFIG.deliveryFee)}`,
+    `  Delivery:          + ${formatPeso(getDeliveryFee())}`,
     `  ─────────────────────`,
     `  *TOTAL A PAGAR:    ${formatPeso(total)}*`,
     ``,
-    `🏠 *DIRECCIÓN DE ENTREGA*`,
+    `*DIRECCIÓN DE ENTREGA*`,
     `  ${direccionCompleta}`,
     referencia ? `  Referencia: ${referencia}` : null,
     ``,
-    `💳 *PAGO – TRANSFERENCIA BANCARIA*`,
+    `*PAGO – TRANSFERENCIA BANCARIA*`,
     `  Banco:    ${t.banco}`,
     `  Tipo:     ${t.tipo}`,
     `  N° Cta:   ${t.numero}`,
@@ -661,11 +699,11 @@ function enviarPedidoWhatsApp() {
     `  Email:    ${t.email}`,
     `  *Monto:   ${formatPeso(total)}*`,
     ``,
-    comp ? `📸 *El cliente SOLICITA comprobante de transferencia*` : `ℹ️ Sin solicitud de comprobante`,
-    notas ? `\n📝 *Notas del cliente:*\n  ${notas}` : null,
+    `*ADJUNTAR COMPROBANTE DE TRANSFERENCIA*`,
+    notas ? `\n*Notas del cliente:*\n  ${notas}` : null,
     ``,
     `${'─'.repeat(30)}`,
-    `✅ Por favor confirmar recepción del pedido.`,
+    `Por favor espere confirmación de su pedido.`,
     `_Enviado desde botillerialectorjean.cl_`,
   ].filter(l => l !== null).join('\n');
 
