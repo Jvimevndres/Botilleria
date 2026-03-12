@@ -1,93 +1,120 @@
-﻿# 🍺 Botillería Lector Jean
+﻿# Botillería Lector Jean
 
-Sitio web de **delivery premium** con carrito de compras, checkout por WhatsApp y panel de administración. Stack: HTML + Tailwind CSS CDN + Vanilla JS. Sin dependencias de build — listo para subir a cualquier hosting estático.
+Sitio web de **delivery premium** con catálogo, carrito, checkout por WhatsApp y panel de administración completo. Stack: HTML + Tailwind CSS CDN + Vanilla JS + Supabase. Sin dependencias de build — listo para cualquier hosting estático.
 
 ---
 
-## ⚙️ Configuración antes de publicar
+## Estructura del proyecto
 
-Abre `script.js` y edita el objeto `CONFIG` al inicio del archivo:
+```
+Botilleria/
+├── index.html              ← app completa (todos los módales, carrito, admin)
+├── README.md
+└── assets/
+    ├── css/styles.css          ← estilos personalizados
+    ├── js/script.js            ← toda la lógica (carrito, WA, admin, Supabase)
+    └── img/                    ← logos e imágenes (1-5.png)
+```
+
+---
+
+## Funcionalidades
+
+| Módulo | Descripción |
+|---|---|
+| Catálogo | +150 productos con filtro por categoría, subcategoría y búsqueda |
+| Verificación edad | Modal de mayoridad al entrar al sitio |
+| Carrito | Agregar, quitar, cambiar cantidad, mínimo de compra |
+| Delivery dinámico | $1.500 antes de las 22:00 · $3.000 después |
+| Horarios | Estado abierto/cerrado automático según día y hora |
+| Checkout | Formulario con datos del cliente, dirección y transferencia bancaria |
+| WhatsApp | Mensaje formateado con todo el pedido + datos de pago |
+| Sugerencias | Los clientes pueden enviar sugerencias o reclamos desde el hero |
+| Admin – Dashboard | Top 10 productos más vendidos (pedidos confirmados) |
+| Admin – Gestión | CRUD completo, vista cuadrícula/lista, filtros, orden A-Z y por precio |
+| Admin – Sugerencias | Bandeja de mensajes de clientes |
+| Persistencia | Supabase en producción · localStorage como fallback offline |
+
+---
+
+## Configuración
+
+Abre `assets/js/script.js` y edita el objeto `CONFIG` al inicio:
 
 ```js
 const CONFIG = {
-  whatsappNumber: '56900000000',     // ← Número real sin + ni espacios (ej: 56912345678)
-  adminPassword:  'admin2026',       // ← Cambia a una contraseña segura
-
-  deliveryFee: 1500,                 // Costo delivery en pesos CLP
-  minOrder:    5000,                 // Pedido mínimo en pesos CLP
-  storeName:   'Botillería Lector Jean',
-
+  whatsappNumber: '56988265568',     // sin + ni espacios
+  adminPassword:  'admin2026',       // cambia por una contraseña segura
+  deliveryFee:    1500,              // tarifa nocturna normal (CLP)
+  deliveryFeeNight: 3000,            // tarifa después de las 22:00 (CLP)
+  minOrder:       5000,              // pedido mínimo (CLP)
+  storeName:      'Botiillería Lector Jean',
   transferencia: {
-    banco:   'Banco Estado',         // ← Tu banco
-    tipo:    'Cuenta RUT',           // ← Tipo de cuenta
-    numero:  '12.345.678-9',         // ← Número de cuenta
-    rut:     '12.345.678-9',         // ← Tu RUT
-    titular: 'Jean Pérez López',     // ← Nombre del titular
-    email:   'lectorjean@gmail.com', // ← Correo para transferencia
+    banco:   'Banco Santander',
+    tipo:    'Cuenta Corriente',
+    numero:  '87393534',
+    rut:     '25.491.864-4',
+    titular: 'Lector Jean',
+    email:   'lectorjean50@gmail.com',
   },
 };
 ```
 
-También edita en `index.html`:
-
-- **Footer** → teléfono, dirección y los `href="#"` de redes sociales (Instagram, Facebook, TikTok)
-- **`<meta og:url>` y `<link rel="canonical">`** → reemplaza `https://botillerialectorjean.cl` con tu dominio real
+También en `index.html`:
+- **Footer** → teléfono, dirección y links de redes sociales
+- **`<meta og:url>` y `<link rel="canonical">`** → pon tu dominio real
 
 ---
 
-## 🔐 Panel de Administración
+## Panel de Administración
 
-Dos formas de acceder:
-
+Acceso (dos formas):
 1. **Triple-click** sobre el texto de copyright en el footer
-2. Navegando a `https://tudominio.cl/#admin`
+2. Navegar a `https://tudominio.cl/#admin`
 
+Contraseña: configurada en `CONFIG.adminPassword`  
 La sesión dura hasta cerrar la pestaña (`sessionStorage`).
 
----
-
-## 🛒 Funcionalidades
-
-| Módulo | Descripción |
-|---|---|
-| Catálogo | 23 productos con filtro por categoría |
-| Carrito | Agregar, quitar, cambiar cantidad |
-| Checkout | Formulario con datos del cliente, dirección y pago |
-| WhatsApp | Mensaje formateado con el pedido completo |
-| Admin CRUD | Agregar, editar, eliminar y restaurar productos |
-| Persistencia | Productos guardados en `localStorage` |
+### Tabs del panel
+| Tab | Contenido |
+|    ---       |                                ---                             |
+| Más Vendidos | Top 10 productos de pedidos confirmados con barras de progreso |
+| Gestión      | CRUD   +   vista grid/lista   +   filtros de categoría + orden |
+| Sugerencias  |            Mensajes enviados por los clientes                  |
 
 ---
 
-## 🚀 Despliegue (sin build)
+## Supabase (base de datos en la nube)
+
+Ver guía completa en el [README de Supabase](https://supabase.com/docs).
+
+Tablas necesarias (crear desde el SQL Editor de Supabase):
+- `productos` — catálogo
+- `sugerencias` — mensajes de clientes
+- `pedidos_items` — líneas de pedidos confirmados (para el dashboard)
+
+Sin Supabase el sitio funciona igual usando `localStorage`.
+
+---
+
+## Despliegue (sin build)
 
 | Plataforma | Pasos |
-|---|---|
-| **GitHub Pages** | Sube los 3 archivos → `Settings > Pages > Deploy from branch` |
-| **Netlify** | Arrastra la carpeta a [app.netlify.com/drop](https://app.netlify.com/drop) |
-| **Vercel** | `vercel --prod` desde la carpeta del proyecto |
-| **Hosting FTP** | Sube `index.html`, `script.js` y `styles.css` |
+|  ---  |  ---     |
+| **Netlify**      | Arrastra la carpeta a [app.netlify.com/drop](https://app.netlify.com/drop) |
+| **GitHub Pages** | `Settings > Pages > Deploy from branch (main / root)` |
+| **Vercel**       | `vercel --prod` desde la carpeta del proyecto |
+| **Hosting FTP**  | Sube toda la carpeta tal cual |
 
-No se necesita servidor, base de datos ni proceso de compilación.
-
----
-
-## 📁 Estructura
-
-```
-Botilleria/
-├── index.html    # App completa — todos los modales, carrito, admin
-├── script.js     # Lógica — carrito, checkout, WhatsApp, CRUD admin
-└── styles.css    # CSS custom + overrides de Tailwind
-```
+No se necesita servidor ni proceso de compilación.
 
 ---
 
-## 🛠 Stack
+## Stack
 
 - [Tailwind CSS v3](https://tailwindcss.com) · CDN
 - [Font Awesome 6.5](https://fontawesome.com) · CDN
-- [Google Fonts](https://fonts.google.com) · Plus Jakarta Sans + DM Sans
+- [Google Fonts](https://fonts.google.com) · Plus Jakarta Sans
+- [Supabase JS SDK](https://supabase.com) · CDN
 - WhatsApp `wa.me` API
-- `localStorage` · productos personalizados
-- `sessionStorage` · sesión admin + verificación de edad
+- `localStorage` / `sessionStorage` · fallback y sesión admin

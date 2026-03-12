@@ -502,7 +502,7 @@
               <button class="admin-cat-btn" data-cat="sin-categoria"><i class="fa-solid fa-circle-question mr-1"></i>Sin Categoría</button>
             </div>
             <!-- Ordenar -->
-            <select id="admin-sort" onchange="renderAdminProducts()"
+            <select id="admin-sort" onchange="renderAdminProducts(_currentAdminFiltro)"
               class="bg-slate-800 border border-white/10 text-slate-300 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-red-500/50 cursor-pointer">
               <option value="default">↕ Orden original</option>
               <option value="az"><i class="fa-solid fa-arrow-down-a-z"></i> A → Z</option>

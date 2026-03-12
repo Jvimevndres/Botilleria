@@ -1278,6 +1278,7 @@ function updateAdminStats() {
 }
 
 let adminViewMode = 'grid'; // 'grid' | 'list'
+let _currentAdminFiltro = 'todos';
 
 function setAdminView(mode) {
   adminViewMode = mode;
@@ -1291,7 +1292,7 @@ function setAdminView(mode) {
       grid.className = 'flex flex-col gap-2';
     }
   }
-  renderAdminProducts();
+  renderAdminProducts(_currentAdminFiltro);
 }
 
 let activeAdminSubcat = 'todos';
@@ -1299,6 +1300,7 @@ let activeAdminSubcat = 'todos';
 const KNOWN_CATS = Object.keys(CAT_LABELS);
 
 function renderAdminProducts(filtro = 'todos', subcat = null) {
+  _currentAdminFiltro = filtro;
   if (subcat !== null) activeAdminSubcat = subcat;
   const grid = document.getElementById('admin-products-grid');
   if (!grid) return;
