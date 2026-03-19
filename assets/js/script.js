@@ -527,7 +527,7 @@ function checkOpenStatus() {
 function setWaLinks() {
   const msg = `Hola! Quiero hacer un pedido en ${CONFIG.storeName}.`;
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
-  document.querySelectorAll('#wa-nav-btn, #footer-wa-cta').forEach(el => el.setAttribute('href', url));
+  document.querySelectorAll('#wa-nav-btn, #hero-wa-cta, #footer-wa-cta').forEach(el => el.setAttribute('href', url));
 }
 
 let _waTooltipTimer = null;
