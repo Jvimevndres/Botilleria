@@ -192,76 +192,346 @@ body {
   transition: transform 0.35s cubic-bezier(.22, 1, .36, 1);
 }
 
-/* ─── CATEGORY BUTTONS – PUBLIC ────────────────── */
-.cat-btn {
-  display: inline-flex;
+/* ─── FILTER SECTION - BARRA HORIZONTAL ELEGANTE ────── */
+.filters-section {
+  background: linear-gradient(180deg, rgba(15, 23, 42, .6) 0%, rgba(30, 41, 59, .4) 100%);
+  border: none;
+  border-bottom: 2px solid rgba(239, 68, 68, .2);
+  border-radius: 0;
+  padding: 0 2rem;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .2);
+  transition: all .3s cubic-bezier(.22, 1, .36, 1);
+}
+
+.filters-section:hover {
+  border-bottom-color: rgba(239, 68, 68, .3);
+}
+
+@media (max-width: 768px) {
+  .filters-section {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters-section {
+    padding: 0 0.75rem;
+  }
+}
+
+/* Header del filtro */
+.filters-header {
+  display: flex;
   align-items: center;
-  gap: .375rem;
-  padding: .5rem 1.2rem;
-  font-size: .8rem;
-  font-weight: 700;
-  border-radius: 9999px;
-  border: 1.5px solid rgba(255, 255, 255, .07);
-  background: rgba(255, 255, 255, .04);
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.filters-header h3 {
+  margin: 0;
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  tracking-widest: true;
+  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filters-header i {
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+@media (max-width: 480px) {
+  .filters-header {
+    margin-bottom: 0.3rem;
+  }
+  
+  .filters-header h3 {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+  }
+  
+  .filters-header i {
+    font-size: 0.7rem;
+  }
+}
+
+/* Grid de filtros - Barra horizontal elegante */
+.filters-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+  padding: 1rem 0;
+}
+
+@media (max-width: 768px) {
+  .filters-grid {
+    gap: 1.5rem;
+    padding: 0.8rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters-grid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    margin: 0 -0.75rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    scrollbar-width: none;
+  }
+  
+  .filters-grid::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Sub-filters grid - Barra vertical debajo */
+.sub-filters-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  width: 100%;
+  padding: 1rem 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(239, 68, 68, .15);
+  animation: slideDown 0.3s ease;
+}
+
+.sub-filters-label {
+  flex-basis: 100%;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(239, 68, 68, .1);
+}
+
+@media (max-width: 768px) {
+  .sub-filters-grid {
+    gap: 1rem;
+    padding: 0.75rem 0;
+  }
+  
+  .sub-filters-label {
+    font-size: 0.65rem;
+    padding-bottom: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sub-filters-grid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+    padding: 0.75rem 0;
+    margin: 0 -0.75rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    scrollbar-width: none;
+  }
+  
+  .sub-filters-grid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .sub-filters-label {
+    flex-basis: 100%;
+    padding-left: -0.75rem;
+    padding-right: -0.75rem;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mejorar touch targets en móvil */
+@media (max-width: 480px) {
+  .cat-btn::after,
+  .sub-cat-btn::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    bottom: -8px;
+    left: -8px;
+    right: -8px;
+    z-index: -1;
+  }
+}
+
+/* ─── CATEGORY BUTTONS – ESTILO MENÚ HORIZONTAL ───────── */
+.cat-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
   color: #94a3b8;
   cursor: pointer;
-  transition: all .22s cubic-bezier(.22, 1, .36, 1);
+  transition: all 0.3s cubic-bezier(.22, 1, .36, 1);
   white-space: nowrap;
-  letter-spacing: .01em;
+  position: relative;
+  text-transform: uppercase;
+  min-width: auto;
+}
+
+.cat-btn i {
+  font-size: 1.5rem;
+  transition: all 0.3s cubic-bezier(.22, 1, .36, 1);
+}
+
+.cat-btn span {
+  display: block;
+  text-align: center;
 }
 
 .cat-btn:hover:not(.active) {
-  background: rgba(239, 68, 68, .1);
-  border-color: rgba(239, 68, 68, .35);
+  color: #cbd5e1;
+  border-bottom-color: rgba(239, 68, 68, .4);
+}
+
+.cat-btn:hover:not(.active) i {
+  transform: scale(1.1);
   color: #fca5a5;
-  transform: translateY(-1px);
 }
 
 .cat-btn.active {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border-color: #ef4444;
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(239, 68, 68, .38),
-    0 1px 4px rgba(239, 68, 68, .2);
-  transform: translateY(-1px);
+  color: #ef4444;
+  border-bottom-color: #ef4444;
+  font-weight: 700;
 }
 
-/* ─── SUB-CATEGORY BUTTONS (filtros públicos) ───── */
+.cat-btn.active i {
+  color: #ef4444;
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, .3));
+}
+
+/* Responsive para tablets */
+@media (max-width: 768px) {
+  .filters-grid {
+    gap: 1.5rem;
+    padding: 0.8rem 0;
+  }
+  
+  .cat-btn {
+    padding: 0.7rem 1.3rem;
+    font-size: 0.8rem;
+    gap: 0.5rem;
+  }
+  
+  .cat-btn i {
+    font-size: 1.3rem;
+  }
+  
+  .cat-btn span {
+    font-size: 0.75rem;
+  }
+}
+
+/* Responsive para móviles - OPTIMIZADO */
+@media (max-width: 480px) {
+  .cat-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.7rem;
+    gap: 0.4rem;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+  
+  .cat-btn i {
+    font-size: 1.2rem;
+  }
+  
+  .cat-btn span {
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+}
+
+/* ─── SUB-CATEGORY BUTTONS (filtros públicos) ────────────── */
 .sub-cat-btn {
   display: inline-flex;
   align-items: center;
-  gap: .3rem;
-  padding: .3rem .9rem;
-  font-size: .72rem;
-  font-weight: 700;
-  border-radius: 9999px;
-  border: 1.5px solid rgba(255, 255, 255, .07);
-  background: rgba(255, 255, 255, .03);
-  color: #64748b;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #94a3b8;
   cursor: pointer;
-  transition: all .18s cubic-bezier(.22, 1, .36, 1);
+  transition: all 0.25s cubic-bezier(.22, 1, .36, 1);
   white-space: nowrap;
-  letter-spacing: .01em;
+  position: relative;
+  text-transform: capitalize;
 }
 
 .sub-cat-btn:hover:not(.active) {
-  background: rgba(239, 68, 68, .09);
-  border-color: rgba(239, 68, 68, .3);
-  color: #fca5a5;
+  color: #cbd5e1;
+  border-bottom-color: rgba(239, 68, 68, .3);
 }
 
 .sub-cat-btn.active {
-  background: rgba(239, 68, 68, .18);
-  border-color: rgba(239, 68, 68, .5);
-  color: #fca5a5;
-  font-weight: 800;
+  color: #ef4444;
+  border-bottom-color: #ef4444;
+  font-weight: 700;
 }
 
-.sub-cat-btn.active {
-  background: rgba(239, 68, 68, .18);
-  border-color: rgba(239, 68, 68, .5);
-  color: #fca5a5;
-  font-weight: 800;
+@media (max-width: 768px) {
+  .sub-cat-btn {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sub-cat-btn {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+    gap: 0.3rem;
+  }
 }
 
 /* ─── PAGINATION ─────────────────────────────────── */

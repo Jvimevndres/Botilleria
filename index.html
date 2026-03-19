@@ -494,7 +494,7 @@
               <button class="admin-cat-btn" data-cat="destilados"><i class="fa-solid fa-whiskey-glass mr-1"></i>Destilados</button>
               <button class="admin-cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1"></i>Vinos</button>
               <button class="admin-cat-btn" data-cat="espumantes"><i class="fa-solid fa-champagne-glasses mr-1"></i>Espumantes</button>
-              <button class="admin-cat-btn" data-cat="cocteles"><i class="fa-solid fa-martini-glass-citrus mr-1"></i>Cócteles</button>
+              <button class="admin-cat-btn" data-cat="cocteles"><i class="fa-solid fa-martini-glass-citrus mr-1"></i>Cocteles</button>
               <button class="admin-cat-btn" data-cat="licores"><i class="fa-solid fa-bottle-droplet mr-1"></i>Licores</button>
               <button class="admin-cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1"></i>Bebidas</button>
               <button class="admin-cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1"></i>Snacks</button>
@@ -568,12 +568,12 @@
               <option value="cervezas">Cervezas</option>
               <option value="destilados">Destilados</option>
               <option value="vinos">Vinos</option>
-              <option value="espumantes">Espumantes y Celebración</option>
-              <option value="cocteles">Cócteles Listos (RTD)</option>
-                <option value="licores">Licores y Bajativos</option>
-                <option value="bebidas">Bebidas y Mixers</option>
-                <option value="snacks">Snacks y Complementos</option>
-                <option value="promos">Promos y Combos</option>
+              <option value="espumantes">Espumantes</option>
+              <option value="cocteles">Cocteles</option>
+              <option value="licores">Licores</option>
+              <option value="bebidas">Bebidas</option>
+              <option value="snacks">Snacks</option>
+              <option value="promos">Promos</option>
             </select>
           </div>
           <div>
@@ -678,7 +678,7 @@
         <div class="absolute inset-0" style="background: linear-gradient(135deg, #120308 0%, #0a0c18 100%);"></div>
         <!-- Patrón logo: invert+grayscale+contrast → fondo negro puro, logos blanco puro; screen los hace visibles sobre oscuro -->
         <div class="absolute inset-0" style="
-          background-image: url('assets/img/5.png');
+          background-image: url('assets/img/1.png');
           background-repeat: repeat;
           background-size: 180px auto;
           filter: invert(1) grayscale(1) contrast(6);
@@ -698,15 +698,16 @@
           <div class="text-center lg:text-left">
             <div class="inline-flex items-center gap-2.5 bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-full mb-8 shadow-lg">
               <span class="blink-dot w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
-              Delivery Express &middot; Toda la comuna
+              No hagas fila · Paga aquí y recibe tu pedido
             </div>
 
             <h1 class="font-display text-4xl sm:text-7xl md:text-8xl font-black leading-[0.92] tracking-tight mb-6">
-              Tu Sed<br />Termina <span class="gradient-text">Aquí.</span>
+              No Pierdas<br />Tiempo en <span class="gradient-text">Filas.</span>
             </h1>
             <p class="text-slate-300 text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed">
-              Cervezas heladas, destilados premium, vinos selectos e hielo.
-              <strong class="text-white">Entrega rápida directo a tu puerta.</strong>
+              Botillería Lector Jean · <strong>Germán Tenderini 1802</strong><br>
+              <span class="text-white font-bold">Cervezas heladas, destilados premium, vinos selectos e hielo.</span>
+              <br><span class="text-red-400">Entrega rápida y sin esperas.</span>
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8 sm:mb-14">
@@ -823,25 +824,37 @@
           WhatsApp con un solo click</p>
       </div>
 
-      <!-- Filtros de categoría -->
-      <div
-        class="flex flex-wrap justify-center gap-2 mb-3 px-3 py-3 bg-slate-800/30 border border-white/4 rounded-2xl backdrop-blur-sm"
-        id="filtros">
-        <button class="cat-btn active" data-cat="todos"><i class="fa-solid fa-border-all mr-1.5"></i>Todos</button>
-        <button class="cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty mr-1.5"></i>Cervezas</button>
-        <button class="cat-btn" data-cat="destilados"><i class="fa-solid fa-whiskey-glass mr-1.5"></i>Destilados</button>
-        <button class="cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass mr-1.5"></i>Vinos</button>
-        <button class="cat-btn" data-cat="espumantes"><i class="fa-solid fa-champagne-glasses mr-1.5"></i>Espumantes</button>
-        <button class="cat-btn" data-cat="cocteles"><i class="fa-solid fa-martini-glass-citrus mr-1.5"></i>Cócteles RTD</button>
-        <button class="cat-btn" data-cat="licores"><i class="fa-solid fa-bottle-droplet mr-1.5"></i>Licores</button>
-        <button class="cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer mr-1.5"></i>Bebidas</button>
-        <button class="cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite mr-1.5"></i>Snacks</button>
-        <button class="cat-btn" data-cat="promos"><i class="fa-solid fa-tag mr-1.5"></i>Promos</button>
-      </div>
+      <!-- Filtro Sección -->
+      <div class="filters-section mb-8">
+        <!-- Header del filtro - Discreto -->
+        <div class="filters-header mb-0 hidden">
+          <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders text-slate-600 text-xs"></i>Filtrar
+          </h3>
+        </div>
 
-      <!-- Sub-filtros dinámicos (inyectados por JS al seleccionar categoría) -->
-      <div id="sub-filtros"
-        class="hidden items-center justify-center gap-2 flex-wrap mb-4 px-4 py-3 bg-slate-800/50 border border-white/6 rounded-2xl backdrop-blur-sm transition-all">
+        <!-- Filtros de categoría - Barra horizontal -->
+        <div
+          class="filters-grid"
+          id="filtros">
+          <button class="cat-btn active" data-cat="todos"><i class="fa-solid fa-border-all"></i><span>Todos</span></button>
+          <button class="cat-btn" data-cat="cervezas"><i class="fa-solid fa-beer-mug-empty"></i><span>Cervezas</span></button>
+          <button class="cat-btn" data-cat="destilados"><i class="fa-solid fa-whiskey-glass"></i><span>Destilados</span></button>
+          <button class="cat-btn" data-cat="vinos"><i class="fa-solid fa-wine-glass"></i><span>Vinos</span></button>
+          <button class="cat-btn" data-cat="espumantes"><i class="fa-solid fa-champagne-glasses"></i><span>Espumantes</span></button>
+          <button class="cat-btn" data-cat="cocteles"><i class="fa-solid fa-martini-glass-citrus"></i><span>Cocteles</span></button>
+          <button class="cat-btn" data-cat="licores"><i class="fa-solid fa-bottle-droplet"></i><span>Licores</span></button>
+          <button class="cat-btn" data-cat="bebidas"><i class="fa-solid fa-mug-saucer"></i><span>Bebidas</span></button>
+          <button class="cat-btn" data-cat="snacks"><i class="fa-solid fa-cookie-bite"></i><span>Snacks</span></button>
+          <button class="cat-btn" data-cat="promos"><i class="fa-solid fa-tag"></i><span>Promos</span></button>
+        </div>
+
+        <!-- Sub-filtros dinámicos (inyectados por JS al seleccionar categoría) -->
+        <div id="sub-filtros"
+          class="hidden sub-filters-grid mt-4 transition-all"
+          style="animation: slideDown 0.3s ease;">
+          <span class="sub-filters-label">Tipos disponibles:</span>
+        </div>
       </div>
 
       <!-- Barra de búsqueda -->
@@ -1027,7 +1040,7 @@
     <div class="footer-cta-strip relative overflow-hidden">
       <div class="footer-cta-bg"></div>
       <div class="relative z-10 max-w-4xl mx-auto px-6 py-14 text-center">
-        <p class="text-red-300/80 text-xs font-black uppercase tracking-[.2em] mb-3">Delivery Express · Toda la comuna
+        <p class="text-red-300/80 text-xs font-black uppercase tracking-[.2em] mb-3">Botillería Lector Jean · Germán Tenderini 1802
         </p>
         <h2 class="font-display text-3xl sm:text-5xl font-black text-white leading-tight mb-6">
           Tu próxima ronda<br class="hidden sm:block" /> está a un mensaje.

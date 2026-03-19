@@ -45,52 +45,152 @@ const SUBCAT_LABELS = {
   'botellines': 'Pack Botellines',
   'botellas': 'Botella Grande',
   'retornables': 'Retornables',
-  // Destilados
-  'pisco': 'Pisco',
-  'ron': 'Ron',
-  'vodka': 'Vodka',
-  'whisky': 'Whisky',
-  'gin': 'Gin',
-  'tequila': 'Tequila',
-  // Vinos
-  'tintos': 'Tintos',
-  'blancos': 'Blancos',
-  'rose': 'Rosé / Dulces',
-  'caja': 'En Caja',
+  // Destilados (Tipo + Medida)
+  'whisky-petaca': 'Whisky Petaca',
+  'whisky-750': 'Whisky 750ml',
+  'whisky-1lt': 'Whisky 1Lt',
+  'ron-petaca': 'Ron Petaca',
+  'ron-750': 'Ron 750ml',
+  'ron-1lt': 'Ron 1Lt',
+  'pisco-petaca': 'Pisco Petaca',
+  'pisco-750': 'Pisco 750ml',
+  'pisco-1lt': 'Pisco 1Lt',
+  'gin-petaca': 'Gin Petaca',
+  'gin-750': 'Gin 750ml',
+  'gin-1lt': 'Gin 1Lt',
+  'tequila-petaca': 'Tequila Petaca',
+  'tequila-750': 'Tequila 750ml',
+  'tequila-1lt': 'Tequila 1Lt',
+  'vodka-petaca': 'Vodka Petaca',
+  'vodka-750': 'Vodka 750ml',
+  'vodka-1lt': 'Vodka 1Lt',
+  'otros-destilados-petaca': 'Otros Petaca',
+  'otros-destilados-750': 'Otros 750ml',
+  'otros-destilados-1lt': 'Otros 1Lt',
+  // Vinos (Tipo + Volumen)
+  'tinto-750': 'Tinto 750ml',
+  'tinto-1500': 'Tinto 1.5Lt',
+  'blanco-750': 'Blanco 750ml',
+  'blanco-1500': 'Blanco 1.5Lt',
+  'rosado-750': 'Rosado 750ml',
+  'rosado-1500': 'Rosado 1.5Lt',
+  'dulce-750': 'Dulce 750ml',
+  'dulce-1500': 'Dulce 1.5Lt',
+  'vino-caja-500': 'Caja 500ml',
+  'vino-caja-1000': 'Caja 1Lt',
+  'vino-caja-2000': 'Caja 2Lt',
   // Espumantes
   'brut': 'Brut / Extra Brut',
   'demi-sec': 'Demi Sec',
   'moscato': 'Moscato',
-  // Cócteles RTD
-  'sour': 'Sour',
-  'frutas': 'Cócteles de Fruta',
-  'spritz': 'Spritz y Aperitivos',
+  'espumante-rose': 'Rose',
+  // Cocteles (Sabor + Volumen)
+  'sour-275': 'Sour 275ml',
+  'sour-700': 'Sour 700ml',
+  'sour-1lt': 'Sour 1Lt',
+  'mango-275': 'Mango 275ml',
+  'mango-700': 'Mango 700ml',
+  'mango-1lt': 'Mango 1Lt',
+  'pina-colada-275': 'Piña Colada 275ml',
+  'pina-colada-700': 'Piña Colada 700ml',
+  'pina-colada-1lt': 'Piña Colada 1Lt',
+  'manquehuito-275': 'Manquehuito 275ml',
+  'manquehuito-700': 'Manquehuito 700ml',
+  'manquehuito-1lt': 'Manquehuito 1Lt',
+  'otros-cockteles-275': 'Otros 275ml',
+  'otros-cockteles-700': 'Otros 700ml',
+  'otros-cockteles-1lt': 'Otros 1Lt',
   // Licores
   'cremas': 'Cremas',
   'hierbas': 'Hierbas y Amargos',
   'dulces': 'Licores Dulces',
-  // Bebidas
-  'gaseosas': 'Gaseosas',
-  'gaseosas-retornables': 'Gaseosas Retornables',
-  'energetica': 'Energéticas',
-  'jugos': 'Jugos',
-  'aguas': 'Aguas y Tónicas',
-  // Snacks
+  // Bebidas (Rediseñado)
+  'lata': 'Lata',
+  'desechable-500': 'Desechable 500ml',
+  'desechable-1250': 'Desechable 1.25Lt',
+  'desechable-1500': 'Desechable 1.5Lt',
+  'desechable-3000': 'Desechable 3Lt',
+  'retornable-1250': 'Retornable 1.25Lt',
+  'retornable-2000': 'Retornable 2Lt',
+  'retornable-3000': 'Retornable 3Lt',
+  'jugos-1500': 'Jugos 1.5Lt',
+  'energeticas-250': 'Energeticas 250ml',
+  'energeticas-350': 'Energeticas 350ml',
+  'energeticas-473': 'Energeticas 473ml',
+  'aguas-500': 'Aguas 500ml',
+  'aguas-1500': 'Aguas 1.5Lt',
+  'aguas-2000': 'Aguas 2Lt',
+  // Snacks (Rediseñado)
   'hielo': 'Hielo',
-  'snacks-salados': 'Snacks Salados',
-  'extras': 'Extras',
+  'snacks': 'Snacks',
+  'dulces-snack': 'Dulces',
+  'chicles': 'Chicles',
+  'mentas': 'Mentas',
 };
 
 // ─── MAPA CATEGORÍA → SUBCATEGORÍAS DISPONIBLES ───────────────────────
 const CAT_SUBFILTROS = {
   cervezas: ['latones', 'latas-sueltas', 'pack-latas', 'botellines', 'botellas', 'retornables'],
-  destilados: ['pisco', 'ron', 'vodka', 'whisky', 'gin', 'tequila'],
-  vinos: ['tintos', 'blancos', 'rose', 'caja'],
-  espumantes: ['brut', 'demi-sec', 'moscato'],
-  cocteles: ['sour', 'frutas', 'spritz'],
+  destilados: [
+    // Whisky
+    'whisky-petaca', 'whisky-750', 'whisky-1lt',
+    // Ron
+    'ron-petaca', 'ron-750', 'ron-1lt',
+    // Pisco
+    'pisco-petaca', 'pisco-750', 'pisco-1lt',
+    // Gin
+    'gin-petaca', 'gin-750', 'gin-1lt',
+    // Tequila
+    'tequila-petaca', 'tequila-750', 'tequila-1lt',
+    // Vodka
+    'vodka-petaca', 'vodka-750', 'vodka-1lt',
+    // Otros
+    'otros-destilados-petaca', 'otros-destilados-750', 'otros-destilados-1lt',
+  ],
+  vinos: [
+    // Tintos
+    'tinto-750', 'tinto-1500',
+    // Blancos
+    'blanco-750', 'blanco-1500',
+    // Rosados
+    'rosado-750', 'rosado-1500',
+    // Dulces
+    'dulce-750', 'dulce-1500',
+    // Cajas
+    'vino-caja-500', 'vino-caja-1000', 'vino-caja-2000',
+  ],
+  espumantes: ['brut', 'demi-sec', 'moscato', 'espumante-rose'],
+  cocteles: [
+    // Sour
+    'sour-275', 'sour-700', 'sour-1lt',
+    // Mango
+    'mango-275', 'mango-700', 'mango-1lt',
+    // Piña Colada
+    'pina-colada-275', 'pina-colada-700', 'pina-colada-1lt',
+    // Manquehuito
+    'manquehuito-275', 'manquehuito-700', 'manquehuito-1lt',
+    // Otros
+    'otros-cockteles-275', 'otros-cockteles-700', 'otros-cockteles-1lt',
+  ],
   licores: ['cremas', 'hierbas', 'dulces'],
-  bebidas: ['gaseosas', 'gaseosas-retornables', 'energetica', 'jugos', 'aguas'],
-  snacks: ['hielo', 'snacks-salados', 'extras'],
+  bebidas: [
+    'lata',
+    'desechable-500',
+    'desechable-1250',
+    'desechable-1500',
+    'desechable-3000',
+    'retornable-1250',
+    'retornable-2000',
+    'retornable-3000',
+    'jugos-1500',
+    'energeticas-250',
+    'energeticas-350',
+    'energeticas-473',
+    'aguas-500',
+    'aguas-1500',
+    'aguas-2000',
+  ],
+  snacks: ['hielo', 'snacks', 'dulces-snack', 'chicles', 'mentas'],
   promos: [],
 };
 
@@ -100,7 +200,7 @@ const CAT_LABELS = {
   destilados: 'Destilado',
   vinos: 'Vino',
   espumantes: 'Espumante',
-  cocteles: 'Cóctel RTD',
+  cocteles: 'Cocteles',
   licores: 'Licor',
   bebidas: 'Bebida',
   snacks: 'Snack',
@@ -143,6 +243,9 @@ const PRODUCTOS_BASE = [
   { id: 22, nombre: 'Whisky Old Times 750ml', categoria: 'destilados', precio: 9990, descripcion: 'Blended scotch suave · 40°', imagen: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta', etiquetaColor: 'amber', disponible: true },
   { id: 23, nombre: 'Gin Beefeater 750ml', categoria: 'destilados', precio: 17990, descripcion: '40° · London dry gin clásico', imagen: 'https://images.unsplash.com/photo-1624365169138-4c9e00a18e43?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
   { id: 24, nombre: 'Tequila José Cuervo 750ml', categoria: 'destilados', precio: 13990, descripcion: '38° · Silver suave y neutro', imagen: 'https://images.unsplash.com/photo-1565299512474-b3c1d3a3d09d?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 116, nombre: 'Whisky Johnny Walker Black 1Lt', categoria: 'destilados', precio: 18990, descripcion: '40° · Escocés premium', imagen: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'green', disponible: true },
+  { id: 117, nombre: 'Ron Zacapa 750ml', categoria: 'destilados', precio: 22990, descripcion: '40° · Gran reserva guatemalteco', imagen: 'https://images.unsplash.com/photo-1609350393940-c2e0d0e11c0d?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'blue', disponible: true },
+  { id: 34, nombre: 'Pisco 1942 Petaca 375ml', categoria: 'destilados', precio: 4990, descripcion: '40° · Puro chileno', imagen: 'https://images.unsplash.com/photo-1516535794938-6063878f08cc?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta', etiquetaColor: 'amber', disponible: true },
 
   // VINOS
   { id: 25, nombre: 'Casillero del Diablo Cabernet 750ml', categoria: 'vinos', precio: 5990, descripcion: 'Concha y Toro · Tinto· D.O. Valle Central', imagen: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80', etiqueta: 'Popular', etiquetaColor: 'red', disponible: true },
@@ -150,12 +253,30 @@ const PRODUCTOS_BASE = [
   { id: 27, nombre: 'Gato Negro Blanco 750ml', categoria: 'vinos', precio: 3290, descripcion: 'Sauvignon Blanc refrescante', imagen: 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
   { id: 28, nombre: 'Frontera Rosé 1.5L', categoria: 'vinos', precio: 5990, descripcion: 'Rosado fresco y afrutado', imagen: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80', etiqueta: 'Promo', etiquetaColor: 'green', disponible: true },
   { id: 29, nombre: 'Cono Sur 20 Barrels Merlot', categoria: 'vinos', precio: 7490, descripcion: 'Tinto premium · Valle de Colchagua', imagen: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=400&q=80', etiqueta: 'Premium', etiquetaColor: 'blue', disponible: true },
+  { id: 35, nombre: 'Santa Rita Blanco 1.5Lt', categoria: 'vinos', precio: 6490, descripcion: 'Chardonnay dulce y frutal', imagen: 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 36, nombre: 'Carmenere Dulce 750ml', categoria: 'vinos', precio: 4990, descripcion: 'Varietal chileno suave', imagen: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80', etiqueta: 'Oferta', etiquetaColor: 'amber', disponible: true },
 
-  // HIELO & SNACKS
-  { id: 30, nombre: 'Hielo Bolsa 3kg', categoria: 'hielo', precio: 1990, descripcion: 'Hielo fabricado · Ideal para cócteles', imagen: 'https://images.unsplash.com/photo-1548504769-900b70ed122e?auto=format&fit=crop&w=400&q=80', etiqueta: 'Esencial', etiquetaColor: 'blue', disponible: true },
-  { id: 31, nombre: 'Hielo Bolsa 6kg', categoria: 'hielo', precio: 3490, descripcion: 'Formato grande para fiestas', imagen: 'https://images.unsplash.com/photo-1581393293369-ec7deaec8f3b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack', etiquetaColor: 'green', disponible: true },
-  { id: 32, nombre: 'Snack Mix Salado 100g', categoria: 'hielo', precio: 990, descripcion: 'Papas, churritos y maní · Mix perfecto', imagen: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
-  { id: 33, nombre: 'Jugo DayFresh 1L', categoria: 'hielo', precio: 1290, descripcion: 'Naranja o piña · Mezcla tus trago', imagen: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  // COCTELES (RTD - Ready to Drink)
+  { id: 37, nombre: 'Coctel Sour Sin Alcohol 275ml', categoria: 'cocteles', precio: 2990, descripcion: 'Refrescante Sour clásico', imagen: 'https://images.unsplash.com/photo-1621895290207-c73fc8cf4628?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 38, nombre: 'Coctel Mango 700ml', categoria: 'cocteles', precio: 5490, descripcion: 'Tropical con sabor a mango', imagen: 'https://images.unsplash.com/photo-1621895290207-c73fc8cf4628?auto=format&fit=crop&w=400&q=80', etiqueta: 'Verano', etiquetaColor: 'amber', disponible: true },
+  { id: 39, nombre: 'Coctel Piña Colada 1Lt', categoria: 'cocteles', precio: 8990, descripcion: 'Clásica piña colada helada', imagen: 'https://images.unsplash.com/photo-1621895290207-c73fc8cf4628?auto=format&fit=crop&w=400&q=80', etiqueta: 'Popular', etiquetaColor: 'red', disponible: true },
+  { id: 40, nombre: 'Coctel Manquehuito 700ml', categoria: 'cocteles', precio: 5990, descripcion: 'Especial chileno tradicional', imagen: 'https://images.unsplash.com/photo-1621895290207-c73fc8cf4628?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+
+  // BEBIDAS
+  { id: 41, nombre: 'Fanta Naranja Lata 350ml', categoria: 'bebidas', precio: 1290, descripcion: 'Refrescante bebida gaseosa', imagen: 'https://images.unsplash.com/photo-1600788148184-403a693e8fe1?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 42, nombre: 'Sprite Lata 350ml', categoria: 'bebidas', precio: 1290, descripcion: 'Limón refrescante', imagen: 'https://images.unsplash.com/photo-1600788148184-403a693e8fe1?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 43, nombre: 'Jugo Natural 1.5Lt', categoria: 'bebidas', precio: 3490, descripcion: 'Naranja o piña · 100% natural', imagen: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 44, nombre: 'Coca Cola Desechable 1.5Lt', categoria: 'bebidas', precio: 2990, descripcion: 'Clásica refrescante', imagen: 'https://images.unsplash.com/photo-1554866585-acbb2d17c7ca?auto=format&fit=crop&w=400&q=80', etiqueta: 'Popular', etiquetaColor: 'red', disponible: true },
+  { id: 45, nombre: 'Energética Red Bull 250ml', categoria: 'bebidas', precio: 3490, descripcion: 'Te da alas · 250ml', imagen: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 46, nombre: 'Agua Mineral 1.5Lt', categoria: 'bebidas', precio: 1490, descripcion: 'Purificada y refrescante', imagen: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+
+  // SNACKS
+  { id: 30, nombre: 'Hielo Bolsa 3kg', categoria: 'snacks', precio: 1990, descripcion: 'Hielo fabricado · Ideal para cócteles', imagen: 'https://images.unsplash.com/photo-1548504769-900b70ed122e?auto=format&fit=crop&w=400&q=80', etiqueta: 'Esencial', etiquetaColor: 'blue', disponible: true },
+  { id: 31, nombre: 'Hielo Bolsa 6kg', categoria: 'snacks', precio: 3490, descripcion: 'Formato grande para fiestas', imagen: 'https://images.unsplash.com/photo-1581393293369-ec7deaec8f3b?auto=format&fit=crop&w=400&q=80', etiqueta: 'Pack', etiquetaColor: 'green', disponible: true },
+  { id: 32, nombre: 'Snack Mix Salado 100g', categoria: 'snacks', precio: 990, descripcion: 'Papas, churritos y maní · Mix perfecto', imagen: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 47, nombre: 'Chicles Trident 14g', categoria: 'snacks', precio: 490, descripcion: 'Fresh mint refrescante', imagen: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 48, nombre: 'Mentas Extra Strong 30g', categoria: 'snacks', precio: 790, descripcion: 'Intensas y refrescantes', imagen: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
+  { id: 49, nombre: 'Caramelos Duros Surtidos 200g', categoria: 'snacks', precio: 1290, descripcion: 'Variados sabores dulces', imagen: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=400&q=80', etiqueta: '', etiquetaColor: '', disponible: true },
 ];
 
 // ─── BADGE COLORS ──────────────────────────────────────────────────────
@@ -744,6 +865,191 @@ function normalizeText(str) {
     .trim();
 }
 
+function parseVolumeMl(text) {
+  if (!text) return null;
+  const raw = String(text).toLowerCase();
+  if (/\b3\s*\/\s*4\b/.test(raw)) return 750;
+
+  const volumeMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(ml|cc|l|lt|lts|litro|litros)\b/);
+  if (!volumeMatch) return null;
+
+  const value = Number(String(volumeMatch[1]).replace(',', '.'));
+  if (!Number.isFinite(value)) return null;
+
+  const unit = volumeMatch[2];
+  if (unit === 'ml' || unit === 'cc') return Math.round(value);
+  return Math.round(value * 1000);
+}
+
+function resolveProductSubcat(p) {
+  const category = p.categoria;
+  const validSubs = CAT_SUBFILTROS[category] || [];
+  const currentSub = p.subcategoria || '';
+  if (validSubs.includes(currentSub)) return currentSub;
+
+  const rawText = [p.nombre || '', p.descripcion || ''].join(' ');
+  const text = normalizeText(rawText);
+  const volume = parseVolumeMl(rawText);
+
+  // ─── DESTILADOS: Tipo (whisky/ron/pisco/gin/tequila/vodka) + Medida ───
+  if (category === 'destilados') {
+    let tipo = 'otros-destilados';
+    let medida = 'botella-750';
+    
+    // Detectar tipo de destilado
+    if (/\bwhisky\b/.test(text)) tipo = 'whisky';
+    else if (/\bron\b/.test(text)) tipo = 'ron';
+    else if (/\bpisco\b/.test(text)) tipo = 'pisco';
+    else if (/\bgin\b/.test(text)) tipo = 'gin';
+    else if (/\btequila\b/.test(text)) tipo = 'tequila';
+    else if (/\bvodka\b/.test(text)) tipo = 'vodka';
+    
+    // Detectar medida
+    if (/\bpetaca\b/.test(text)) medida = 'petaca';
+    else if (volume >= 950) medida = '1lt';
+    else medida = '750';
+    
+    return `${tipo}-${medida}`;
+  }
+
+  // ─── VINOS: Tipo (tinto/blanco/rosado/dulce) + Volumen ───
+  if (category === 'vinos') {
+    let tipo = 'tinto';
+    let volumen = '750';
+    
+    // Detectar tipo de vino
+    if (/\bblanco\b|\bchardonnay\b|\bsauvignon\b/.test(text)) tipo = 'blanco';
+    else if (/\brosado\b|\brose\b|\bros[ée]\b/.test(text)) tipo = 'rosado';
+    else if (/\bdulce\b|\rmuscat\b|\bmoscatel\b/.test(text)) tipo = 'dulce';
+    else tipo = 'tinto'; // default
+    
+    // Detectar cajas (tienen su propio flujo)
+    if (/\bcaja\b|\bbox\b|\btetra\b/.test(text)) {
+      if (volume <= 550) return 'vino-caja-500';
+      if (volume <= 1200) return 'vino-caja-1000';
+      return 'vino-caja-2000';
+    }
+    
+    // Detectar volumen
+    if (/\b1\s*[.,]\s*5\s*(l|lt|lts|litro|litros)\b|\b1500\s*(ml|cc)\b|\bbotellon\b/.test(text) || volume >= 1400) {
+      volumen = '1500';
+    } else {
+      volumen = '750';
+    }
+    
+    return `${tipo}-${volumen}`;
+  }
+
+  // ─── ESPUMANTES ───
+  if (category === 'espumantes') {
+    if (/\brose\b|\bros[ée]\b/.test(text)) return 'espumante-rose';
+    if (/\bdemi\s*sec\b/.test(text)) return 'demi-sec';
+    if (/\bmoscato\b/.test(text)) return 'moscato';
+    return 'brut';
+  }
+
+  // ─── COCTELES: Sabor (sour/mango/pina-colada/manquehuito) + Volumen ───
+  if (category === 'cocteles') {
+    let sabor = 'otros-cockteles';
+    let volumen = '700';
+    
+    // Detectar sabor del coctel
+    if (/\bsour\b/.test(text)) sabor = 'sour';
+    else if (/\bmango\b/.test(text)) sabor = 'mango';
+    else if (/\bpina\b|\bpiña\b|\bpinacola\b|\bpina\s*colada\b|\bpinuela\b/.test(text)) sabor = 'pina-colada';
+    else if (/\bmanquehuito\b|\bmanquehue\b/.test(text)) sabor = 'manquehuito';
+    else sabor = 'otros-cockteles';
+    
+    // Detectar volumen
+    if (volume >= 950) volumen = '1lt';
+    else if (volume >= 600) volumen = '700';
+    else volumen = '275';
+    
+    return `${sabor}-${volumen}`;
+  }
+
+  // ─── BEBIDAS ───
+  if (category === 'bebidas') {
+    // Jugos: solo existen 1.5Lt
+    if (/\bjugo\b/.test(text)) {
+      return 'jugos-1500';
+    }
+    
+    // Energéticas
+    if (/\benergetica\b|\benergy\b/.test(text)) {
+      if (volume >= 430) return 'energeticas-473';
+      if (volume >= 320) return 'energeticas-350';
+      return 'energeticas-250';
+    }
+    
+    // Aguas, Tónicas, Minerales
+    if (/\bagua\b|\btonica\b|\bmineral\b/.test(text)) {
+      if (volume >= 1800) return 'aguas-2000';
+      if (volume >= 1200) return 'aguas-1500';
+      return 'aguas-500';
+    }
+
+    // Latas (antes "desechable-lata")
+    const isCan = /\blata\b|\blaton\b/.test(text);
+    if (isCan) return 'lata';
+    
+    // Retornables vs Desechables
+    const isRetornable = /\bretornable\b/.test(text);
+    if (isRetornable) {
+      if (volume >= 2600) return 'retornable-3000';
+      if (volume >= 1700) return 'retornable-2000';
+      return 'retornable-1250';
+    }
+    
+    // Desechables (botellas plásticas)
+    if (volume >= 2600) return 'desechable-3000';
+    if (volume >= 1400) return 'desechable-1500';
+    if (volume >= 1150) return 'desechable-1250';
+    return 'desechable-500';
+  }
+
+  // ─── SNACKS ───
+  if (category === 'snacks') {
+    if (/\bhielo\b/.test(text)) return 'hielo';
+    if (/\bchicle\b/.test(text)) return 'chicles';
+    if (/\bmenta\b/.test(text)) return 'mentas';
+    if (/\bdulce\b|\bcaramelo\b|\bchocolate\b|\bgolosina\b/.test(text)) return 'dulces-snack';
+    if (/\bsnack\b|\bpapas\b|\bchurritos\b|\bmani\b|\bmaani\b|\bfrutos\b/.test(text)) return 'snacks';
+    return 'snacks'; // default
+  }
+
+  return currentSub || 'todos';
+}
+
+function sortBySubcatOrder(prods, categoria) {
+  const order = CAT_SUBFILTROS[categoria] || [];
+  if (!order.length) return prods;
+  const rank = new Map(order.map((sub, idx) => [sub, idx]));
+  return [...prods].sort((a, b) => {
+    const aRank = rank.get(resolveProductSubcat(a));
+    const bRank = rank.get(resolveProductSubcat(b));
+    const ra = Number.isInteger(aRank) ? aRank : Number.MAX_SAFE_INTEGER;
+    const rb = Number.isInteger(bRank) ? bRank : Number.MAX_SAFE_INTEGER;
+    if (ra !== rb) return ra - rb;
+    return a.nombre.localeCompare(b.nombre, 'es');
+  });
+}
+
+function getAvailableSubfiltros(categoria) {
+  const configured = CAT_SUBFILTROS[categoria] || [];
+  if (!configured.length) return [];
+
+  const available = new Set();
+  getProductos()
+    .filter(p => p.disponible && p.categoria === categoria)
+    .forEach(p => {
+      const resolved = resolveProductSubcat(p);
+      if (configured.includes(resolved)) available.add(resolved);
+    });
+
+  return configured.filter(sub => available.has(sub));
+}
+
 // Mapa de alias: palabras coloquiales → términos que aparecen en el índice
 const SEARCH_ALIASES = {
   // Variantes sin acento / en inglés
@@ -805,13 +1111,14 @@ const SEARCH_ALIASES = {
 
 // Construye el texto de índice completo para un producto
 function buildSearchIndex(p) {
+  const resolvedSubcat = resolveProductSubcat(p);
   const parts = [
     p.nombre,
     p.descripcion || '',
     p.categoria,
     CAT_LABELS[p.categoria] || '',
-    p.subcategoria || '',
-    SUBCAT_LABELS[p.subcategoria] || '',
+    resolvedSubcat,
+    SUBCAT_LABELS[resolvedSubcat] || '',
     p.etiqueta || '',
   ];
   return normalizeText(parts.join(' '));
@@ -848,7 +1155,7 @@ function renderProductos(filtro = 'todos', subcat = null, resetPage = true) {
   let prods = getProductos().filter(p => p.disponible && (filtro === 'todos' || p.categoria === filtro));
   // Aplica subfiltro genérico
   if (filtro !== 'todos' && activeSubcat !== 'todos' && (CAT_SUBFILTROS[filtro] || []).length > 0) {
-    prods = prods.filter(p => p.subcategoria === activeSubcat);
+    prods = prods.filter(p => resolveProductSubcat(p) === activeSubcat);
   }
   // Aplica búsqueda inteligente
   const rawQuery = activeBusqueda.trim();
@@ -861,6 +1168,11 @@ function renderProductos(filtro = 'todos', subcat = null, resetPage = true) {
       prods = prods.filter(p => words.some(w => buildSearchIndex(p).includes(w)));
     }
   }
+
+  if (filtro !== 'todos') {
+    prods = sortBySubcatOrder(prods, filtro);
+  }
+
   const totalPages = Math.ceil(prods.length / ITEMS_PER_PAGE);
   if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
   const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -928,6 +1240,7 @@ function clearCatalogSearch() {
 
 
 function buildCard(p) {
+  const resolvedSubcat = resolveProductSubcat(p);
   const inCart = cart.find(i => i.id === p.id);
   const badgeCls = p.etiquetaColor && BADGE_CLASSES[p.etiquetaColor] ? BADGE_CLASSES[p.etiquetaColor] : '';
   const fallback = 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80';
@@ -945,8 +1258,8 @@ function buildCard(p) {
       ? `<span class="absolute top-3 left-3 ${badgeCls} text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide shadow-lg">${p.etiqueta}</span>`
       : ''}
         <!-- Subcategoría / categoría badge top-right -->
-        ${(p.subcategoria && SUBCAT_LABELS[p.subcategoria])
-      ? `<span class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${SUBCAT_LABELS[p.subcategoria]}</span>`
+        ${(resolvedSubcat && SUBCAT_LABELS[resolvedSubcat])
+      ? `<span class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${SUBCAT_LABELS[resolvedSubcat]}</span>`
       : `<span class="absolute top-3 right-3 bg-slate-900/75 backdrop-blur-sm text-slate-300 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10">${CAT_LABELS[p.categoria] || p.categoria}</span>`
     }
         <!-- Gradient overlay bottom para fusión suave -->
@@ -959,7 +1272,7 @@ function buildCard(p) {
           <!-- Breadcrumb categoría > subcategoría -->
           <p class="text-[10px] text-slate-600 font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
             ${CAT_LABELS[p.categoria] || p.categoria}
-            ${(p.subcategoria && SUBCAT_LABELS[p.subcategoria]) ? `<i class="fa-solid fa-chevron-right text-[8px]"></i>${SUBCAT_LABELS[p.subcategoria]}` : ''}
+            ${(resolvedSubcat && SUBCAT_LABELS[resolvedSubcat]) ? `<i class="fa-solid fa-chevron-right text-[8px]"></i>${SUBCAT_LABELS[resolvedSubcat]}` : ''}
           </p>
           <h3 class="font-bold text-white text-sm leading-snug line-clamp-2 mb-1">${p.nombre}</h3>
           ${p.descripcion ? `<p class="text-slate-500 text-xs line-clamp-1">${p.descripcion}</p>` : ''}
@@ -996,18 +1309,19 @@ function buildSubfiltrosBtns(subWrap, subs, renderFn, getCat) {
   if (!subWrap) return;
   if (!subs || subs.length === 0) {
     subWrap.classList.add('hidden');
-    subWrap.classList.remove('flex');
+    subWrap.classList.remove('flex', 'sub-filters-grid');
     subWrap.innerHTML = '';
     return;
   }
-  // Construir botones dinámicamente
-  let html = '<button class="sub-cat-btn active" data-sub="todos">Todos</button>';
+  // Construir botones dinámicamente con label
+  let html = '<span class="sub-filters-label">Tipos disponibles:</span>';
+  html += '<button class="sub-cat-btn active" data-sub="todos">Todos</button>';
   subs.forEach(s => {
     html += `<button class="sub-cat-btn" data-sub="${s}">${SUBCAT_LABELS[s] || s}</button>`;
   });
   subWrap.innerHTML = html;
   subWrap.classList.remove('hidden');
-  subWrap.classList.add('flex');
+  subWrap.classList.add('sub-filters-grid');
   // Asignar listeners a los nuevos botones
   subWrap.querySelectorAll('.sub-cat-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1029,7 +1343,7 @@ function initFiltros() {
       btn.classList.add('active');
       currentCat = btn.dataset.cat;
       activeSubcat = 'todos';
-      const subs = CAT_SUBFILTROS[currentCat] || [];
+      const subs = getAvailableSubfiltros(currentCat);
       buildSubfiltrosBtns(subWrap, subs, renderProductos, () => currentCat);
       renderProductos(currentCat);
     });
@@ -1309,14 +1623,15 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
     if (filtro === 'sin-categoria') {
       const missingCat = !p.categoria || !KNOWN_CATS.includes(p.categoria);
       const needsSub = !missingCat && (CAT_SUBFILTROS[p.categoria] || []).length > 0;
-      const missingSub = needsSub && (!p.subcategoria || !(CAT_SUBFILTROS[p.categoria] || []).includes(p.subcategoria));
+      const resolvedSubcat = resolveProductSubcat(p);
+      const missingSub = needsSub && (!resolvedSubcat || !(CAT_SUBFILTROS[p.categoria] || []).includes(resolvedSubcat));
       return missingCat || missingSub;
     }
     return p.categoria === filtro;
   });
   // Applica subfiltro genérico para cualquier categoría con subcategorías
   if (filtro !== 'todos' && activeAdminSubcat !== 'todos' && (CAT_SUBFILTROS[filtro] || []).length > 0) {
-    prods = prods.filter(p => p.subcategoria === activeAdminSubcat);
+    prods = prods.filter(p => resolveProductSubcat(p) === activeAdminSubcat);
   }
 
   // Ordenar
@@ -1334,7 +1649,8 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
   if (adminViewMode === 'list') {
     grid.innerHTML = prods.map(p => {
       const catLabel = CAT_LABELS[p.categoria] || p.categoria;
-      const subcatLabel = p.subcategoria && SUBCAT_LABELS[p.subcategoria] ? SUBCAT_LABELS[p.subcategoria] : null;
+      const resolvedSubcat = resolveProductSubcat(p);
+      const subcatLabel = resolvedSubcat && SUBCAT_LABELS[resolvedSubcat] ? SUBCAT_LABELS[resolvedSubcat] : null;
       return `
       <div class="admin-list-row">
         <img class="alr-img" src="${p.imagen || ''}" alt="${escHtml(p.nombre)}" loading="lazy" onerror="this.style.opacity='.2'" />
@@ -1362,8 +1678,9 @@ function renderAdminProducts(filtro = 'todos', subcat = null) {
 
   grid.innerHTML = prods.map(p => {
     const catLabel = CAT_LABELS[p.categoria] || p.categoria;
-    const subcatLabel = p.subcategoria && SUBCAT_LABELS[p.subcategoria]
-      ? SUBCAT_LABELS[p.subcategoria] : null;
+    const resolvedSubcat = resolveProductSubcat(p);
+    const subcatLabel = resolvedSubcat && SUBCAT_LABELS[resolvedSubcat]
+      ? SUBCAT_LABELS[resolvedSubcat] : null;
     return `
     <div class="bg-slate-800 border border-white/5 rounded-2xl overflow-hidden flex flex-col ${!p.disponible ? 'opacity-50' : ''} hover:border-red-500/20 transition-colors">
       <div class="relative h-32 bg-gradient-to-b from-slate-700 to-slate-800 flex items-center justify-center p-3">
@@ -1496,7 +1813,7 @@ function openProductForm(id) {
     toggleSubcatField();
     // ...y luego asignamos el valor (las opciones ya existen)
     const subcatSel = document.getElementById('pf-subcategoria');
-    if (subcatSel) subcatSel.value = p.subcategoria || '';
+    if (subcatSel) subcatSel.value = resolveProductSubcat(p) || '';
   } else {
     title.textContent = 'Agregar Producto';
     document.getElementById('pf-id').value = '';
