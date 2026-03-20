@@ -1670,12 +1670,25 @@ function mergeOrdersByRef(primary, secondary) {
   });
 }
 
+function parseHistory(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string' && value.trim()) {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 async function fetchOrdersFromItemsTable() {
   if (!isSupabaseReady()) return { ok: false, orders: [] };
   try {
     const { data, error } = await _sbClient
       .from('pedidos_items')
-      .select('id,pedido_ref,producto_id,producto_nombre,categoria,precio,qty,created_at')
+      .select('*')
       .order('id', { ascending: false });
     if (error) throw error;
 
@@ -1686,25 +1699,39 @@ async function fetchOrdersFromItemsTable() {
       if (!groups.has(ref)) {
         groups.set(ref, {
           pedido_ref: ref,
-          estado: ORDER_STATUS.pending,
-          cliente_nombre: '',
-          cliente_telefono: '',
-          direccion: '',
-          depto: '',
-          comuna: '',
-          referencia: '',
-          notas: '',
-          subtotal: 0,
-          delivery_fee: 0,
-          total: 0,
+          estado: row.estado || ORDER_STATUS.pending,
+          cliente_nombre: row.cliente_nombre || '',
+          cliente_telefono: row.cliente_telefono || '',
+          direccion: row.direccion || '',
+          depto: row.depto || '',
+          comuna: row.comuna || '',
+          referencia: row.referencia || '',
+          notas: row.notas || '',
+          subtotal: Number(row.subtotal) || 0,
+          delivery_fee: Number(row.delivery_fee) || 0,
+          total: Number(row.total) || 0,
           items: [],
-          status_historial: [],
+          status_historial: parseHistory(row.status_historial),
+          comprobante_declarado: row.comprobante_declarado === true,
           created_at: row.created_at || null,
-          updated_at: row.created_at || null,
+          updated_at: row.updated_at || row.created_at || null,
         });
       }
 
       const order = groups.get(ref);
+      if (!order.cliente_nombre && row.cliente_nombre) order.cliente_nombre = row.cliente_nombre;
+      if (!order.cliente_telefono && row.cliente_telefono) order.cliente_telefono = row.cliente_telefono;
+      if (!order.direccion && row.direccion) order.direccion = row.direccion;
+      if (!order.depto && row.depto) order.depto = row.depto;
+      if (!order.comuna && row.comuna) order.comuna = row.comuna;
+      if (!order.referencia && row.referencia) order.referencia = row.referencia;
+      if (!order.notas && row.notas) order.notas = row.notas;
+      if (row.estado) order.estado = row.estado;
+      if (Number(row.delivery_fee) > 0) order.delivery_fee = Number(row.delivery_fee);
+      if (Array.isArray(parseHistory(row.status_historial)) && parseHistory(row.status_historial).length > 0) {
+        order.status_historial = parseHistory(row.status_historial);
+      }
+
       const qty = Number(row.qty) || 0;
       const precio = Number(row.precio) || 0;
       order.items.push({
@@ -1715,7 +1742,9 @@ async function fetchOrdersFromItemsTable() {
         qty,
       });
       order.subtotal += precio * qty;
-      order.total = order.subtotal;
+      if (!order.total || order.total <= 0) {
+        order.total = order.subtotal + (Number(order.delivery_fee) || 0);
+      }
 
       const rowTime = Date.parse(row.created_at || 0) || 0;
       const currTime = Date.parse(order.created_at || 0) || 0;
@@ -1751,7 +1780,29 @@ async function fetchOrders() {
 async function saveOrderItemsToSupabase(order) {
   if (!isSupabaseReady()) return true;
   const ref = String(order.pedido_ref);
-  const lines = (order.items || []).map(i => ({
+  const linesDetailed = (order.items || []).map(i => ({
+    pedido_ref: ref,
+    producto_id: i.id || null,
+    producto_nombre: i.nombre,
+    categoria: i.categoria || null,
+    precio: Number(i.precio) || 0,
+    qty: Number(i.qty) || 0,
+    cliente_nombre: order.cliente_nombre || null,
+    cliente_telefono: order.cliente_telefono || null,
+    direccion: order.direccion || null,
+    depto: order.depto || null,
+    comuna: order.comuna || null,
+    referencia: order.referencia || null,
+    notas: order.notas || null,
+    comprobante_declarado: order.comprobante_declarado === true,
+    subtotal: Number(order.subtotal) || 0,
+    delivery_fee: Number(order.delivery_fee) || 0,
+    total: Number(order.total) || 0,
+    estado: order.estado || ORDER_STATUS.pending,
+    status_historial: order.status_historial || [],
+    updated_at: order.updated_at || order.created_at || new Date().toISOString(),
+  }));
+  const linesBasic = (order.items || []).map(i => ({
     pedido_ref: ref,
     producto_id: i.id || null,
     producto_nombre: i.nombre,
@@ -1759,7 +1810,7 @@ async function saveOrderItemsToSupabase(order) {
     precio: Number(i.precio) || 0,
     qty: Number(i.qty) || 0,
   }));
-  if (!lines.length) return true;
+  if (!linesDetailed.length) return true;
 
   try {
     const { data: existing, error: existingErr } = await _sbClient
@@ -1769,8 +1820,11 @@ async function saveOrderItemsToSupabase(order) {
       .limit(1);
     if (existingErr) throw existingErr;
     if (!existing || existing.length === 0) {
-      const { error: insErr } = await _sbClient.from('pedidos_items').insert(lines);
-      if (insErr) throw insErr;
+      const { error: insDetailedErr } = await _sbClient.from('pedidos_items').insert(linesDetailed);
+      if (insDetailedErr) {
+        const { error: insBasicErr } = await _sbClient.from('pedidos_items').insert(linesBasic);
+        if (insBasicErr) throw insBasicErr;
+      }
     }
     return true;
   } catch (err) {
@@ -1907,6 +1961,21 @@ async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
     updated_at: now,
   };
 
+  if (isSupabaseReady()) {
+    try {
+      await _sbClient
+        .from('pedidos_items')
+        .update({
+          estado: updatedOrder.estado,
+          status_historial: updatedOrder.status_historial,
+          updated_at: updatedOrder.updated_at,
+        })
+        .eq('pedido_ref', String(pedidoRef));
+    } catch (err) {
+      console.warn('No se pudo actualizar estado en pedidos_items:', err?.message || err);
+    }
+  }
+
   const local = getLocalOrders();
   const idx = local.findIndex(o => String(o.pedido_ref) === String(pedidoRef));
   if (idx >= 0) local[idx] = updatedOrder;
@@ -1973,6 +2042,27 @@ async function modificarPedido(pedidoRef) {
     status_historial: history,
     updated_at: now,
   };
+
+  if (isSupabaseReady()) {
+    try {
+      await _sbClient
+        .from('pedidos_items')
+        .update({
+          cliente_nombre: updatedOrder.cliente_nombre,
+          cliente_telefono: updatedOrder.cliente_telefono,
+          direccion: updatedOrder.direccion,
+          depto: updatedOrder.depto,
+          comuna: updatedOrder.comuna,
+          referencia: updatedOrder.referencia,
+          notas: updatedOrder.notas,
+          status_historial: updatedOrder.status_historial,
+          updated_at: updatedOrder.updated_at,
+        })
+        .eq('pedido_ref', ref);
+    } catch (err) {
+      console.warn('No se pudo actualizar metadata del pedido en pedidos_items:', err?.message || err);
+    }
+  }
 
   const local = getLocalOrders();
   const idx = local.findIndex(o => String(o.pedido_ref) === ref);
