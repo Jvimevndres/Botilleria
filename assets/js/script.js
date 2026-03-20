@@ -490,9 +490,36 @@ function genId() {
   return Math.max(...prods.map(p => p.id)) + 1;
 }
 
-function getOrderNum() {
-  const n = (parseInt(localStorage.getItem('blj_order_counter') || '0') + 1);
-  localStorage.setItem('blj_order_counter', String(n));
+async function getNextOrderCounter() {
+  let localCounter = parseInt(localStorage.getItem('blj_order_counter') || '0', 10);
+  if (!Number.isFinite(localCounter) || localCounter < 0) localCounter = 0;
+
+  if (isSupabaseReady()) {
+    try {
+      const { data, error } = await _sbClient
+        .from('pedidos')
+        .select('pedido_ref')
+        .not('pedido_ref', 'is', null)
+        .limit(10000);
+      if (!error && Array.isArray(data)) {
+        const maxRemote = data.reduce((max, row) => {
+          const n = parseInt(String(row.pedido_ref || '').replace(/\D/g, ''), 10);
+          return Number.isFinite(n) ? Math.max(max, n) : max;
+        }, 0);
+        localCounter = Math.max(localCounter, maxRemote);
+      }
+    } catch {
+      // fallback local
+    }
+  }
+
+  const next = localCounter + 1;
+  localStorage.setItem('blj_order_counter', String(next));
+  return next;
+}
+
+async function getOrderNum() {
+  const n = await getNextOrderCounter();
   return String(n).padStart(4, '0');
 }
 
@@ -913,7 +940,7 @@ async function enviarPedidoWhatsApp() {
   errBox.classList.add('hidden');
   errBox.classList.remove('flex');
 
-  const orderNum = getOrderNum();
+  const orderNum = await getOrderNum();
   const t = CONFIG.transferencia;
   const subtotal = cartTotal();
   const deliveryFee = getCheckoutDeliveryFee();
@@ -1683,84 +1710,53 @@ function parseHistory(value) {
   return [];
 }
 
-async function fetchOrdersFromItemsTable() {
+async function fetchOrdersFromPedidosTable() {
   if (!isSupabaseReady()) return { ok: false, orders: [] };
   try {
     const { data, error } = await _sbClient
-      .from('pedidos_items')
+      .from('pedidos')
       .select('*')
-      .order('id', { ascending: false });
+      .order('created_at', { ascending: false });
     if (error) throw error;
 
-    const groups = new Map();
-    (data || []).forEach(row => {
-      const ref = String(row.pedido_ref || '');
-      if (!ref) return;
-      if (!groups.has(ref)) {
-        groups.set(ref, {
-          pedido_ref: ref,
-          estado: row.estado || ORDER_STATUS.pending,
-          cliente_nombre: row.cliente_nombre || '',
-          cliente_telefono: row.cliente_telefono || '',
-          direccion: row.direccion || '',
-          depto: row.depto || '',
-          comuna: row.comuna || '',
-          referencia: row.referencia || '',
-          notas: row.notas || '',
-          subtotal: Number(row.subtotal) || 0,
-          delivery_fee: Number(row.delivery_fee) || 0,
-          total: Number(row.total) || 0,
-          items: [],
-          status_historial: parseHistory(row.status_historial),
-          comprobante_declarado: row.comprobante_declarado === true,
-          created_at: row.created_at || null,
-          updated_at: row.updated_at || row.created_at || null,
-        });
-      }
+    const orders = (data || []).map(row => {
+      const items = Array.isArray(row.items) ? row.items : [];
+      const subtotalFromItems = items.reduce((acc, i) => {
+        return acc + (Number(i.precio) || 0) * (Number(i.qty) || 0);
+      }, 0);
+      const subtotal = Number(row.subtotal) || subtotalFromItems;
+      const deliveryFee = Number(row.delivery_fee) || 0;
+      const total = Number(row.total) || (subtotal + deliveryFee);
 
-      const order = groups.get(ref);
-      if (!order.cliente_nombre && row.cliente_nombre) order.cliente_nombre = row.cliente_nombre;
-      if (!order.cliente_telefono && row.cliente_telefono) order.cliente_telefono = row.cliente_telefono;
-      if (!order.direccion && row.direccion) order.direccion = row.direccion;
-      if (!order.depto && row.depto) order.depto = row.depto;
-      if (!order.comuna && row.comuna) order.comuna = row.comuna;
-      if (!order.referencia && row.referencia) order.referencia = row.referencia;
-      if (!order.notas && row.notas) order.notas = row.notas;
-      if (row.estado) order.estado = row.estado;
-      if (Number(row.delivery_fee) > 0) order.delivery_fee = Number(row.delivery_fee);
-      if (Array.isArray(parseHistory(row.status_historial)) && parseHistory(row.status_historial).length > 0) {
-        order.status_historial = parseHistory(row.status_historial);
-      }
+      return {
+        pedido_ref: String(row.pedido_ref || ''),
+        estado: row.estado || ORDER_STATUS.pending,
+        cliente_nombre: row.cliente_nombre || '',
+        cliente_telefono: row.cliente_telefono || '',
+        direccion: row.direccion || '',
+        depto: row.depto || '',
+        comuna: row.comuna || '',
+        referencia: row.referencia || '',
+        notas: row.notas || '',
+        subtotal,
+        delivery_fee: deliveryFee,
+        total,
+        items,
+        status_historial: parseHistory(row.status_historial),
+        comprobante_declarado: row.comprobante_declarado === true,
+        created_at: row.created_at || null,
+        updated_at: row.updated_at || row.created_at || null,
+      };
+    }).filter(o => o.pedido_ref);
 
-      const qty = Number(row.qty) || 0;
-      const precio = Number(row.precio) || 0;
-      order.items.push({
-        id: row.producto_id || null,
-        nombre: row.producto_nombre || 'Producto',
-        categoria: row.categoria || null,
-        precio,
-        qty,
-      });
-      order.subtotal += precio * qty;
-      if (!order.total || order.total <= 0) {
-        order.total = order.subtotal + (Number(order.delivery_fee) || 0);
-      }
-
-      const rowTime = Date.parse(row.created_at || 0) || 0;
-      const currTime = Date.parse(order.created_at || 0) || 0;
-      if (!currTime || (rowTime && rowTime < currTime)) {
-        order.created_at = row.created_at || order.created_at;
-      }
-    });
-
-    const orders = [...groups.values()].sort((a, b) => {
+    const sorted = orders.sort((a, b) => {
       const aAt = Date.parse(a.created_at || 0) || 0;
       const bAt = Date.parse(b.created_at || 0) || 0;
       return bAt - aAt;
     });
-    return { ok: true, orders };
+    return { ok: true, orders: sorted };
   } catch (err) {
-    console.warn('No fue posible leer pedidos desde pedidos_items en Supabase:', err?.message || err);
+    console.warn('No fue posible leer pedidos desde pedidos en Supabase:', err?.message || err);
     return { ok: false, orders: [] };
   }
 }
@@ -1769,7 +1765,7 @@ async function fetchOrders() {
   const localOrders = getLocalOrders();
   if (!isSupabaseReady()) return localOrders;
 
-  const { ok, orders } = await fetchOrdersFromItemsTable();
+  const { ok, orders } = await fetchOrdersFromPedidosTable();
   if (!ok) return localOrders;
 
   const localByRef = new Map(
@@ -1813,16 +1809,11 @@ async function fetchOrders() {
   return finalOrders;
 }
 
-async function saveOrderItemsToSupabase(order) {
+async function saveOrderToSupabase(order) {
   if (!isSupabaseReady()) return true;
   const ref = String(order.pedido_ref);
-  const linesDetailed = (order.items || []).map(i => ({
+  const row = {
     pedido_ref: ref,
-    producto_id: i.id || null,
-    producto_nombre: i.nombre,
-    categoria: i.categoria || null,
-    precio: Number(i.precio) || 0,
-    qty: Number(i.qty) || 0,
     cliente_nombre: order.cliente_nombre || null,
     cliente_telefono: order.cliente_telefono || null,
     direccion: order.direccion || null,
@@ -1835,36 +1826,32 @@ async function saveOrderItemsToSupabase(order) {
     delivery_fee: Number(order.delivery_fee) || 0,
     total: Number(order.total) || 0,
     estado: order.estado || ORDER_STATUS.pending,
+    items: Array.isArray(order.items) ? order.items : [],
     status_historial: order.status_historial || [],
+    created_at: order.created_at || new Date().toISOString(),
     updated_at: order.updated_at || order.created_at || new Date().toISOString(),
-  }));
-  const linesBasic = (order.items || []).map(i => ({
-    pedido_ref: ref,
-    producto_id: i.id || null,
-    producto_nombre: i.nombre,
-    categoria: i.categoria || null,
-    precio: Number(i.precio) || 0,
-    qty: Number(i.qty) || 0,
-  }));
-  if (!linesDetailed.length) return true;
+  };
 
   try {
     const { data: existing, error: existingErr } = await _sbClient
-      .from('pedidos_items')
+      .from('pedidos')
       .select('pedido_ref')
       .eq('pedido_ref', ref)
       .limit(1);
     if (existingErr) throw existingErr;
     if (!existing || existing.length === 0) {
-      const { error: insDetailedErr } = await _sbClient.from('pedidos_items').insert(linesDetailed);
-      if (insDetailedErr) {
-        const { error: insBasicErr } = await _sbClient.from('pedidos_items').insert(linesBasic);
-        if (insBasicErr) throw insBasicErr;
-      }
+      const { error: insertErr } = await _sbClient.from('pedidos').insert([row]);
+      if (insertErr) throw insertErr;
+    } else {
+      const { error: updateErr } = await _sbClient
+        .from('pedidos')
+        .update(row)
+        .eq('pedido_ref', ref);
+      if (updateErr) throw updateErr;
     }
     return true;
   } catch (err) {
-    console.warn('No fue posible guardar pedido en pedidos_items de Supabase:', err?.message || err);
+    console.warn('No fue posible guardar pedido en pedidos de Supabase:', err?.message || err);
     return false;
   }
 }
@@ -1889,20 +1876,23 @@ async function guardarPedido(payload) {
   const localOrders = getLocalOrders();
   localOrders.unshift(order);
   saveLocalOrders(localOrders);
-  return saveOrderItemsToSupabase(order);
+  return saveOrderToSupabase(order);
 }
 
 async function loadDashboard() {
   const container = document.getElementById('admin-dashboard');
   if (!container) return;
   container.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">Cargando...</p>';
-  let items = [];
+  let orders = [];
   if (isSupabaseReady()) {
-    const { data } = await _sbClient.from('pedidos_items').select('*');
-    items = data || [];
+    const { data } = await _sbClient.from('pedidos').select('*');
+    orders = data || [];
   } else {
-    items = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
+    orders = getLocalOrders();
   }
+
+  const acceptedOrders = orders.filter(o => (o?.estado || ORDER_STATUS.pending) === ORDER_STATUS.accepted);
+  const items = acceptedOrders.flatMap(o => (Array.isArray(o.items) ? o.items : []));
   if (!items.length) {
     container.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">Sin pedidos confirmados aún</p>';
     return;
@@ -1910,9 +1900,10 @@ async function loadDashboard() {
   // Agrupar por nombre de producto
   const agg = {};
   items.forEach(i => {
-    if (!agg[i.producto_nombre]) agg[i.producto_nombre] = { nombre: i.producto_nombre, categoria: i.categoria, qty: 0, revenue: 0 };
-    agg[i.producto_nombre].qty     += Number(i.qty) || 0;
-    agg[i.producto_nombre].revenue += (Number(i.precio) || 0) * (Number(i.qty) || 0);
+    const nombre = i.nombre || i.producto_nombre || 'Producto';
+    if (!agg[nombre]) agg[nombre] = { nombre, categoria: i.categoria || null, qty: 0, revenue: 0 };
+    agg[nombre].qty     += Number(i.qty) || 0;
+    agg[nombre].revenue += (Number(i.precio) || 0) * (Number(i.qty) || 0);
   });
   const top = Object.values(agg).sort((a, b) => b.qty - a.qty).slice(0, 10);
   const maxQty = top[0]?.qty || 1;
@@ -1940,7 +1931,7 @@ async function loadDashboard() {
         </div>
       `).join('')}
     </div>
-    <p class="text-slate-600 text-xs text-right mt-2">Basado en ${items.length} líneas de ${new Set(items.map(i=>i.pedido_ref)).size} pedido(s) confirmado(s)</p>
+    <p class="text-slate-600 text-xs text-right mt-2">Basado en ${items.length} línea(s) de ${acceptedOrders.length} pedido(s) confirmado(s)</p>
   `;
 }
 
@@ -2000,7 +1991,7 @@ async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
   if (isSupabaseReady()) {
     try {
       await _sbClient
-        .from('pedidos_items')
+        .from('pedidos')
         .update({
           estado: updatedOrder.estado,
           status_historial: updatedOrder.status_historial,
@@ -2008,7 +1999,7 @@ async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
         })
         .eq('pedido_ref', String(pedidoRef));
     } catch (err) {
-      console.warn('No se pudo actualizar estado en pedidos_items:', err?.message || err);
+      console.warn('No se pudo actualizar estado en pedidos:', err?.message || err);
     }
   }
 
@@ -2030,6 +2021,28 @@ function aceptarPedido(pedidoRef) {
 function rechazarPedido(pedidoRef) {
   const motivo = prompt('Opcional: escribe el motivo del rechazo para historial interno', '') || '';
   updatePedidoEstado(String(pedidoRef), ORDER_STATUS.rejected, motivo.trim());
+}
+
+async function resetPedidosAdmin() {
+  if (!confirm('Se eliminarán todos los pedidos y el contador volverá a 0001. ¿Continuar?')) return;
+
+  if (isSupabaseReady()) {
+    try {
+      const { error } = await _sbClient.from('pedidos').delete().neq('pedido_ref', '');
+      if (error) throw error;
+    } catch (err) {
+      console.warn('No se pudo resetear pedidos en Supabase:', err?.message || err);
+      showToast('No se pudo resetear en Supabase', 'error');
+      return;
+    }
+  }
+
+  saveLocalOrders([]);
+  localStorage.setItem('blj_order_counter', '0');
+
+  await loadPedidosAdmin();
+  await loadDashboard();
+  showToast('<i class="fa-solid fa-check mr-1.5"></i> Reset listo: próximo pedido #0001', 'success');
 }
 
 async function modificarPedido(pedidoRef) {
@@ -2082,7 +2095,7 @@ async function modificarPedido(pedidoRef) {
   if (isSupabaseReady()) {
     try {
       await _sbClient
-        .from('pedidos_items')
+        .from('pedidos')
         .update({
           cliente_nombre: updatedOrder.cliente_nombre,
           cliente_telefono: updatedOrder.cliente_telefono,
@@ -2096,7 +2109,7 @@ async function modificarPedido(pedidoRef) {
         })
         .eq('pedido_ref', ref);
     } catch (err) {
-      console.warn('No se pudo actualizar metadata del pedido en pedidos_items:', err?.message || err);
+      console.warn('No se pudo actualizar metadata del pedido en pedidos:', err?.message || err);
     }
   }
 
@@ -2133,8 +2146,8 @@ async function eliminarPedidoAceptado(pedidoRef) {
 
   if (isSupabaseReady()) {
     try {
-      const { error: pedidosItemsError } = await _sbClient.from('pedidos_items').delete().eq('pedido_ref', ref);
-      if (pedidosItemsError) throw pedidosItemsError;
+      const { error: pedidoError } = await _sbClient.from('pedidos').delete().eq('pedido_ref', ref);
+      if (pedidoError) throw pedidoError;
     } catch (err) {
       console.warn('No se pudo eliminar pedido en Supabase:', err?.message || err);
       supabaseDeleteOk = false;
@@ -2143,10 +2156,6 @@ async function eliminarPedidoAceptado(pedidoRef) {
 
   const local = getLocalOrders().filter(o => String(o.pedido_ref) !== ref);
   saveLocalOrders(local);
-
-  const localItems = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]')
-    .filter(i => String(i.pedido_ref) !== ref);
-  localStorage.setItem('blj_pedidos_items', JSON.stringify(localItems));
 
   await loadPedidosAdmin();
   await loadDashboard();

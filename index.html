@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Botillería Lector Jean | Delivery Premium</title>
   <meta name="description"
     content="Botillería Lector Jean – Delivery rápido de cervezas, destilados, vinos, hielo y snacks. ¡Pide por WhatsApp ahora!" />
@@ -563,10 +563,16 @@
         <div id="admin-tab-pedidos" class="hidden">
           <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <p class="text-slate-400 text-sm">Gestión de pedidos enviados por WhatsApp con historial de estados</p>
-            <button onclick="loadPedidosAdmin()"
-              class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
-              <i class="fa-solid fa-rotate-right"></i> Actualizar
-            </button>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="loadPedidosAdmin()"
+                class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-rotate-right"></i> Actualizar
+              </button>
+              <button onclick="resetPedidosAdmin()"
+                class="flex items-center gap-1.5 text-xs bg-red-900/35 hover:bg-red-800/45 border border-red-500/30 text-red-300 px-3 py-1.5 rounded-xl transition-colors">
+                <i class="fa-solid fa-rotate-left"></i> Reset pedidos
+              </button>
+            </div>
           </div>
 
           <div id="pedidos-filtros" class="flex flex-wrap gap-2 mb-4">

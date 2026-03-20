@@ -22,6 +22,15 @@ body {
   overscroll-behavior-x: none;
 }
 
+a,
+button,
+input,
+select,
+textarea,
+[role="button"] {
+  touch-action: manipulation;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -678,6 +687,53 @@ body {
 .admin-view-btn.active {
   background: rgba(239,68,68,.18);
   color: #f87171;
+}
+
+@media (max-width: 639px) {
+  #admin-panel {
+    padding: 0.75rem !important;
+    padding-bottom: 5rem !important;
+  }
+
+  .admin-tab-btn {
+    font-size: .75rem;
+    padding: .55rem .8rem;
+    white-space: nowrap;
+  }
+
+  .admin-cat-btn {
+    font-size: .7rem;
+    padding: .35rem .8rem;
+  }
+
+  #admin-filtros,
+  #pedidos-filtros,
+  #pedidos-view-modes {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: .25rem;
+  }
+
+  #admin-filtros::-webkit-scrollbar,
+  #pedidos-filtros::-webkit-scrollbar,
+  #pedidos-view-modes::-webkit-scrollbar {
+    display: none;
+  }
+
+  #admin-pedidos {
+    max-height: 74vh;
+    padding-right: 0;
+  }
+
+  #admin-pedidos .grid.sm\:grid-cols-2.lg\:grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  #admin-pedidos .flex.gap-2.mt-3 {
+    flex-direction: column;
+  }
 }
 
 /* Lista de productos admin */
