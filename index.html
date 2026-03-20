@@ -563,16 +563,10 @@
         <div id="admin-tab-pedidos" class="hidden">
           <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <p class="text-slate-400 text-sm">Gestión de pedidos enviados por WhatsApp con historial de estados</p>
-            <div class="flex items-center gap-2 flex-wrap">
-              <button onclick="loadPedidosAdmin()"
-                class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
-                <i class="fa-solid fa-rotate-right"></i> Actualizar
-              </button>
-              <button onclick="resetPedidosAdmin()"
-                class="flex items-center gap-1.5 text-xs bg-red-900/35 hover:bg-red-800/45 border border-red-500/30 text-red-300 px-3 py-1.5 rounded-xl transition-colors">
-                <i class="fa-solid fa-rotate-left"></i> Reset pedidos
-              </button>
-            </div>
+            <button onclick="loadPedidosAdmin()"
+              class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
+              <i class="fa-solid fa-rotate-right"></i> Actualizar
+            </button>
           </div>
 
           <div id="pedidos-filtros" class="flex flex-wrap gap-2 mb-4">
