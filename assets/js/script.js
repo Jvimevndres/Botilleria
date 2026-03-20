@@ -1772,9 +1772,45 @@ async function fetchOrders() {
   const { ok, orders } = await fetchOrdersFromItemsTable();
   if (!ok) return localOrders;
 
-  // Supabase is the source of truth when reachable; keep local cache aligned.
-  saveLocalOrders(orders);
-  return orders;
+  const localByRef = new Map(
+    localOrders
+      .filter(o => o && o.pedido_ref)
+      .map(o => [String(o.pedido_ref), o])
+  );
+
+  const hydratedRemote = orders.map(o => {
+    const ref = String(o.pedido_ref || '');
+    const local = localByRef.get(ref);
+    const subtotal = Number(o.subtotal) || Number(local?.subtotal) || 0;
+    const deliveryFee = Number(o.delivery_fee) || Number(local?.delivery_fee) || 0;
+    const total = Number(o.total) || Number(local?.total) || (subtotal + deliveryFee);
+    const hasRemoteHistory = Array.isArray(o.status_historial) && o.status_historial.length > 0;
+
+    return {
+      ...o,
+      estado: o.estado || local?.estado || ORDER_STATUS.pending,
+      cliente_nombre: o.cliente_nombre || local?.cliente_nombre || '',
+      cliente_telefono: o.cliente_telefono || local?.cliente_telefono || '',
+      direccion: o.direccion || local?.direccion || '',
+      depto: o.depto || local?.depto || '',
+      comuna: o.comuna || local?.comuna || '',
+      referencia: o.referencia || local?.referencia || '',
+      notas: o.notas || local?.notas || '',
+      comprobante_declarado: o.comprobante_declarado === true || local?.comprobante_declarado === true,
+      subtotal,
+      delivery_fee: deliveryFee,
+      total,
+      status_historial: hasRemoteHistory ? o.status_historial : (local?.status_historial || []),
+      updated_at: o.updated_at || local?.updated_at || o.created_at || local?.created_at || null,
+    };
+  });
+
+  const remoteRefs = new Set(hydratedRemote.map(o => String(o.pedido_ref || '')));
+  const localOnly = localOrders.filter(o => !remoteRefs.has(String(o.pedido_ref || '')));
+  const finalOrders = mergeOrdersByRef(hydratedRemote, localOnly);
+
+  saveLocalOrders(finalOrders);
+  return finalOrders;
 }
 
 async function saveOrderItemsToSupabase(order) {
