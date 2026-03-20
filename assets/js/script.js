@@ -2050,6 +2050,8 @@ async function eliminarPedidoAceptado(pedidoRef) {
   const ok = confirm(`¿Eliminar pedido #${ref}? Esta acción quitará también sus productos confirmados del dashboard.`);
   if (!ok) return;
 
+  let supabaseDeleteOk = true;
+
   if (isSupabaseReady()) {
     try {
       const { error: pedidosItemsError } = await _sbClient.from('pedidos_items').delete().eq('pedido_ref', ref);
@@ -2059,8 +2061,7 @@ async function eliminarPedidoAceptado(pedidoRef) {
       if (pedidosError) throw pedidosError;
     } catch (err) {
       console.warn('No se pudo eliminar pedido en Supabase:', err?.message || err);
-      showToast('No se pudo eliminar en Supabase. No se aplicaron cambios.', 'error');
-      return;
+      supabaseDeleteOk = false;
     }
   }
 
@@ -2073,7 +2074,12 @@ async function eliminarPedidoAceptado(pedidoRef) {
 
   await loadPedidosAdmin();
   await loadDashboard();
-  showToast(`<i class="fa-solid fa-trash mr-1.5"></i> Pedido #${ref} eliminado`, 'success');
+
+  if (supabaseDeleteOk) {
+    showToast(`<i class="fa-solid fa-trash mr-1.5"></i> Pedido #${ref} eliminado`, 'success');
+  } else {
+    showToast(`<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Pedido #${ref} eliminado localmente. Error en Supabase.`, 'warning');
+  }
 }
 
 async function loadPedidosAdmin() {
