@@ -1672,7 +1672,25 @@ async function fetchOrders() {
   }
 }
 
-async function syncAcceptedItems(order) {
+async function removeAcceptedItemsByRef(ref) {
+  const pedidoRef = String(ref);
+
+  if (isSupabaseReady()) {
+    try {
+      const { error } = await _sbClient.from('pedidos_items').delete().eq('pedido_ref', pedidoRef);
+      if (error) throw error;
+    } catch (err) {
+      console.warn('No fue posible eliminar pedidos_items en Supabase:', err?.message || err);
+      throw err;
+    }
+  }
+
+  const saved = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
+  const filtered = saved.filter(i => String(i.pedido_ref) !== pedidoRef);
+  localStorage.setItem('blj_pedidos_items', JSON.stringify(filtered));
+}
+
+async function syncAcceptedItems(order, forceReplace = false) {
   const ref = String(order.pedido_ref);
   const items = (order.items || []).map(i => ({
     pedido_ref: ref,
@@ -1687,23 +1705,28 @@ async function syncAcceptedItems(order) {
 
   if (isSupabaseReady()) {
     try {
+      if (forceReplace) {
+        const { error: delErr } = await _sbClient.from('pedidos_items').delete().eq('pedido_ref', ref);
+        if (delErr) throw delErr;
+      }
       const { data, error } = await _sbClient.from('pedidos_items').select('pedido_ref').eq('pedido_ref', ref).limit(1);
       if (error) throw error;
       if (data && data.length > 0) return;
       await _sbClient.from('pedidos_items').insert(items);
-      return;
     } catch (err) {
       console.warn('No fue posible sincronizar pedidos_items en Supabase:', err?.message || err);
+      throw err;
     }
   }
 
   const saved = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
-  const already = saved.some(i => String(i.pedido_ref) === ref);
+  const cleaned = forceReplace ? saved.filter(i => String(i.pedido_ref) !== ref) : saved;
+  const already = cleaned.some(i => String(i.pedido_ref) === ref);
   if (!already) {
     const now = new Date().toISOString();
-    items.forEach(i => saved.push({ ...i, created_at: now }));
-    localStorage.setItem('blj_pedidos_items', JSON.stringify(saved));
+    items.forEach(i => cleaned.push({ ...i, created_at: now }));
   }
+  localStorage.setItem('blj_pedidos_items', JSON.stringify(cleaned));
 }
 
 async function guardarPedido(payload) {
@@ -1844,12 +1867,6 @@ async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
     updated_at: now,
   };
 
-  const local = getLocalOrders();
-  const idx = local.findIndex(o => String(o.pedido_ref) === String(pedidoRef));
-  if (idx >= 0) local[idx] = updatedOrder;
-  else local.unshift(updatedOrder);
-  saveLocalOrders(local);
-
   if (isSupabaseReady()) {
     try {
       const { error } = await _sbClient
@@ -1861,14 +1878,31 @@ async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
         })
         .eq('pedido_ref', String(pedidoRef));
       if (error) throw error;
+
+      if (nuevoEstado === ORDER_STATUS.accepted) {
+        await syncAcceptedItems(updatedOrder, true);
+      } else {
+        await removeAcceptedItemsByRef(String(pedidoRef));
+      }
     } catch (err) {
       console.warn('No se pudo actualizar estado en Supabase:', err?.message || err);
-      showToast('Estado actualizado localmente. Revisa conexión a Supabase.', 'warning');
+      showToast('No se pudo actualizar en Supabase. No se aplicaron cambios.', 'error');
+      return;
     }
   }
 
-  if (nuevoEstado === ORDER_STATUS.accepted) {
-    await syncAcceptedItems(updatedOrder);
+  const local = getLocalOrders();
+  const idx = local.findIndex(o => String(o.pedido_ref) === String(pedidoRef));
+  if (idx >= 0) local[idx] = updatedOrder;
+  else local.unshift(updatedOrder);
+  saveLocalOrders(local);
+
+  if (!isSupabaseReady()) {
+    if (nuevoEstado === ORDER_STATUS.accepted) {
+      await syncAcceptedItems(updatedOrder, true);
+    } else {
+      await removeAcceptedItemsByRef(String(pedidoRef));
+    }
   }
 
   await loadPedidosAdmin();
@@ -1883,6 +1917,163 @@ function aceptarPedido(pedidoRef) {
 function rechazarPedido(pedidoRef) {
   const motivo = prompt('Opcional: escribe el motivo del rechazo para historial interno', '') || '';
   updatePedidoEstado(String(pedidoRef), ORDER_STATUS.rejected, motivo.trim());
+}
+
+async function reiniciarPedidosAdmin() {
+  const warning = 'Esto eliminará TODOS los pedidos e items confirmados. El próximo pedido será #0001. ¿Continuar?';
+  if (!confirm(warning)) return;
+
+  if (isSupabaseReady()) {
+    try {
+      const { error: itemsErr } = await _sbClient.from('pedidos_items').delete().neq('id', -1);
+      if (itemsErr) throw itemsErr;
+
+      const { error: pedidosErr } = await _sbClient.from('pedidos').delete().neq('pedido_ref', '__never__');
+      if (pedidosErr) throw pedidosErr;
+    } catch (err) {
+      console.warn('No se pudo reiniciar pedidos en Supabase:', err?.message || err);
+      showToast('No se pudo reiniciar en Supabase. No se aplicaron cambios.', 'error');
+      return;
+    }
+  }
+
+  saveLocalOrders([]);
+  localStorage.setItem('blj_pedidos_items', JSON.stringify([]));
+  localStorage.setItem('blj_order_counter', '0');
+
+  await loadPedidosAdmin();
+  await loadDashboard();
+  showToast('<i class="fa-solid fa-check mr-1.5"></i> Pedidos reiniciados. El próximo será #0001', 'success');
+}
+
+async function modificarPedido(pedidoRef) {
+  const ref = String(pedidoRef);
+  const all = await fetchOrders();
+  const target = all.find(o => String(o.pedido_ref) === ref);
+
+  if (!target) {
+    showToast('No se encontró el pedido en historial', 'error');
+    return;
+  }
+
+  const nombre = prompt('Nombre del cliente', target.cliente_nombre || '');
+  if (nombre === null) return;
+  const telefono = prompt('Teléfono', target.cliente_telefono || '');
+  if (telefono === null) return;
+  const direccion = prompt('Dirección', target.direccion || '');
+  if (direccion === null) return;
+  const depto = prompt('Depto/Casa (opcional)', target.depto || '');
+  if (depto === null) return;
+  const comuna = prompt('Comuna', target.comuna || '');
+  if (comuna === null) return;
+  const referencia = prompt('Referencia (opcional)', target.referencia || '');
+  if (referencia === null) return;
+  const notas = prompt('Notas del pedido (opcional)', target.notas || '');
+  if (notas === null) return;
+
+  const now = new Date().toISOString();
+  const history = Array.isArray(target.status_historial) ? [...target.status_historial] : [];
+  history.push({
+    estado: target.estado || ORDER_STATUS.pending,
+    fecha: now,
+    actor: 'admin',
+    nota: 'Pedido modificado desde panel admin',
+  });
+
+  const updatedOrder = {
+    ...target,
+    cliente_nombre: nombre.trim(),
+    cliente_telefono: telefono.trim(),
+    direccion: direccion.trim(),
+    depto: depto.trim(),
+    comuna: comuna.trim(),
+    referencia: referencia.trim(),
+    notas: notas.trim(),
+    status_historial: history,
+    updated_at: now,
+  };
+
+  if (isSupabaseReady()) {
+    try {
+      const { error } = await _sbClient
+        .from('pedidos')
+        .update({
+          cliente_nombre: updatedOrder.cliente_nombre,
+          cliente_telefono: updatedOrder.cliente_telefono,
+          direccion: updatedOrder.direccion,
+          depto: updatedOrder.depto,
+          comuna: updatedOrder.comuna,
+          referencia: updatedOrder.referencia,
+          notas: updatedOrder.notas,
+          status_historial: updatedOrder.status_historial,
+          updated_at: updatedOrder.updated_at,
+        })
+        .eq('pedido_ref', ref);
+      if (error) throw error;
+
+      if (updatedOrder.estado === ORDER_STATUS.accepted) {
+        await syncAcceptedItems(updatedOrder, true);
+      }
+    } catch (err) {
+      console.warn('No se pudo modificar pedido en Supabase:', err?.message || err);
+      showToast('No se pudo modificar en Supabase. No se aplicaron cambios.', 'error');
+      return;
+    }
+  }
+
+  const local = getLocalOrders();
+  const idx = local.findIndex(o => String(o.pedido_ref) === ref);
+  if (idx >= 0) local[idx] = updatedOrder;
+  else local.unshift(updatedOrder);
+  saveLocalOrders(local);
+
+  await loadPedidosAdmin();
+  await loadDashboard();
+  showToast(`<i class="fa-solid fa-pen-to-square mr-1.5"></i> Pedido #${ref} modificado`, 'success');
+}
+
+async function eliminarPedidoAceptado(pedidoRef) {
+  const ref = String(pedidoRef);
+  const all = await fetchOrders();
+  const target = all.find(o => String(o.pedido_ref) === ref);
+
+  if (!target) {
+    showToast('No se encontró el pedido en historial', 'error');
+    return;
+  }
+
+  if (target.estado !== ORDER_STATUS.accepted) {
+    showToast('Solo se pueden eliminar pedidos aceptados', 'warning');
+    return;
+  }
+
+  const ok = confirm(`¿Eliminar pedido #${ref}? Esta acción quitará también sus productos confirmados del dashboard.`);
+  if (!ok) return;
+
+  if (isSupabaseReady()) {
+    try {
+      const { error: pedidosItemsError } = await _sbClient.from('pedidos_items').delete().eq('pedido_ref', ref);
+      if (pedidosItemsError) throw pedidosItemsError;
+
+      const { error: pedidosError } = await _sbClient.from('pedidos').delete().eq('pedido_ref', ref);
+      if (pedidosError) throw pedidosError;
+    } catch (err) {
+      console.warn('No se pudo eliminar pedido en Supabase:', err?.message || err);
+      showToast('No se pudo eliminar en Supabase. No se aplicaron cambios.', 'error');
+      return;
+    }
+  }
+
+  const local = getLocalOrders().filter(o => String(o.pedido_ref) !== ref);
+  saveLocalOrders(local);
+
+  const localItems = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]')
+    .filter(i => String(i.pedido_ref) !== ref);
+  localStorage.setItem('blj_pedidos_items', JSON.stringify(localItems));
+
+  await loadPedidosAdmin();
+  await loadDashboard();
+  showToast(`<i class="fa-solid fa-trash mr-1.5"></i> Pedido #${ref} eliminado`, 'success');
 }
 
 async function loadPedidosAdmin() {
@@ -1932,8 +2123,12 @@ async function loadPedidosAdmin() {
                 </span>
                 ${order.estado === ORDER_STATUS.pending
                   ? `<button onclick="aceptarPedido('${escHtml(order.pedido_ref)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Aceptar</button>
-                     <button onclick="rechazarPedido('${escHtml(order.pedido_ref)}')" class="bg-red-700/70 hover:bg-red-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Rechazar</button>`
-                  : ''}
+                     <button onclick="rechazarPedido('${escHtml(order.pedido_ref)}')" class="bg-red-700/70 hover:bg-red-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Rechazar</button>
+                     <button onclick="modificarPedido('${escHtml(order.pedido_ref)}')" class="bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Modificar</button>`
+                  : order.estado === ORDER_STATUS.accepted
+                    ? `<button onclick="modificarPedido('${escHtml(order.pedido_ref)}')" class="bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Modificar</button>
+                       <button onclick="eliminarPedidoAceptado('${escHtml(order.pedido_ref)}')" class="bg-red-900/70 hover:bg-red-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Eliminar</button>`
+                    : `<button onclick="modificarPedido('${escHtml(order.pedido_ref)}')" class="bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Modificar</button>`}
               </div>
             </div>
           `;
@@ -2019,8 +2214,26 @@ async function loadPedidosAdmin() {
             <button onclick="rechazarPedido('${escHtml(order.pedido_ref)}')" class="flex-1 bg-red-700/70 hover:bg-red-600 text-white text-sm font-black py-2.5 rounded-xl transition-colors">
               <i class="fa-solid fa-xmark mr-1.5"></i>Rechazar
             </button>
+            <button onclick="modificarPedido('${escHtml(order.pedido_ref)}')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-black py-2.5 rounded-xl transition-colors">
+              <i class="fa-solid fa-pen-to-square mr-1.5"></i>Modificar
+            </button>
           </div>
-        ` : ''}
+        ` : order.estado === ORDER_STATUS.accepted ? `
+          <div class="flex gap-2 mt-3">
+            <button onclick="modificarPedido('${escHtml(order.pedido_ref)}')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-black py-2.5 rounded-xl transition-colors">
+              <i class="fa-solid fa-pen-to-square mr-1.5"></i>Modificar
+            </button>
+            <button onclick="eliminarPedidoAceptado('${escHtml(order.pedido_ref)}')" class="flex-1 bg-red-900/70 hover:bg-red-700 text-white text-sm font-black py-2.5 rounded-xl transition-colors">
+              <i class="fa-solid fa-trash mr-1.5"></i>Eliminar pedido
+            </button>
+          </div>
+        ` : `
+          <div class="flex gap-2 mt-3">
+            <button onclick="modificarPedido('${escHtml(order.pedido_ref)}')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-black py-2.5 rounded-xl transition-colors">
+              <i class="fa-solid fa-pen-to-square mr-1.5"></i>Modificar
+            </button>
+          </div>
+        `}
       </div>
     `;
   }).join('');
