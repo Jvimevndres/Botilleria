@@ -5,7 +5,7 @@
 
 // ─── CONFIG ───────────────────────────────────────────────────────────
 const CONFIG = {
-  whatsappNumber: '56988265568',
+  whatsappNumber: '56927341080',
   adminPassword: 'admin2026',
   deliveryFee: 1500,
   deliveryFeeNight: 3000,  // después de las 22:00
@@ -290,7 +290,14 @@ const BADGE_CLASSES = {
 // ─── STORE ────────────────────────────────────────────────────────────
 const LS_PRODUCTS_KEY = 'blj_productos_v1';
 const LS_DELETE_KEY = 'pf_delete_id';
+const LS_ORDERS_KEY = 'blj_orders_v1';
 let cart = [];
+
+const ORDER_STATUS = {
+  pending: 'pendiente',
+  accepted: 'aceptado',
+  rejected: 'rechazado',
+};
 
 // Cache global de productos (se llena en init)
 let _productosCache = null;
@@ -558,7 +565,7 @@ function addToCart(id) {
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, qty: 1 });
+    cart.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, categoria: prod.categoria || null, qty: 1 });
   }
   updateCartUI();
   showToast(`<i class="fa-solid fa-cart-plus mr-1.5"></i> ${prod.nombre} agregado al carrito`, 'success');
@@ -682,6 +689,9 @@ function openCheckout() {
     return;
   }
   closeCart();
+  document.getElementById('f-entrega').value = 'delivery';
+  document.getElementById('f-pago').value = 'transferencia';
+  setEntregaMode('delivery');
   buildCheckoutSummary();
   buildTransferBox();
   const overlay = document.getElementById('checkout-overlay');
@@ -702,9 +712,70 @@ function closeCheckoutOutside(e) {
   if (e.target === document.getElementById('checkout-overlay')) closeCheckout();
 }
 
+function getEntregaMode() {
+  return document.getElementById('f-entrega')?.value === 'retiro' ? 'retiro' : 'delivery';
+}
+
+function getPagoMode() {
+  return document.getElementById('f-pago')?.value === 'tarjeta' ? 'tarjeta' : 'transferencia';
+}
+
+function getCheckoutDeliveryFee() {
+  return getEntregaMode() === 'delivery' ? getDeliveryFee() : 0;
+}
+
+function styleChoiceButton(btn, active, tone = 'red') {
+  if (!btn) return;
+  const activeBg = tone === 'sky' ? 'rgba(14,165,233,0.14)' : 'rgba(239,68,68,0.14)';
+  const activeBorder = tone === 'sky' ? 'rgba(14,165,233,0.55)' : 'rgba(239,68,68,0.55)';
+  btn.style.backgroundColor = active ? activeBg : '#1e293b';
+  btn.style.borderColor = active ? activeBorder : 'rgba(255,255,255,0.08)';
+}
+
+function updateCheckoutChoiceStyles() {
+  const entrega = getEntregaMode();
+  const pago = getPagoMode();
+  styleChoiceButton(document.getElementById('entrega-delivery-btn'), entrega === 'delivery', 'red');
+  styleChoiceButton(document.getElementById('entrega-retiro-btn'), entrega === 'retiro', 'sky');
+  styleChoiceButton(document.getElementById('pago-transferencia-btn'), pago === 'transferencia', 'red');
+  styleChoiceButton(document.getElementById('pago-tarjeta-btn'), pago === 'tarjeta', 'sky');
+}
+
+function setEntregaMode(mode) {
+  const entrega = mode === 'retiro' ? 'retiro' : 'delivery';
+  document.getElementById('f-entrega').value = entrega;
+
+  const addressBlock = document.getElementById('checkout-address-block');
+  if (addressBlock) addressBlock.classList.toggle('hidden', entrega === 'retiro');
+
+  if (entrega === 'delivery' && getPagoMode() === 'tarjeta') {
+    document.getElementById('f-pago').value = 'transferencia';
+    showToast('Para delivery solo se permite transferencia bancaria', 'info');
+  }
+  updateCheckoutChoiceStyles();
+  buildCheckoutSummary();
+  buildTransferBox();
+}
+
+function setPagoMode(mode) {
+  const entrega = getEntregaMode();
+  const pago = mode === 'tarjeta' ? 'tarjeta' : 'transferencia';
+  if (pago === 'tarjeta' && entrega === 'delivery') {
+    showToast('Pago con tarjeta solo disponible para retiro en local', 'warning');
+    document.getElementById('f-pago').value = 'transferencia';
+  } else {
+    document.getElementById('f-pago').value = pago;
+  }
+  updateCheckoutChoiceStyles();
+  buildTransferBox();
+}
+
 function buildCheckoutSummary() {
   const box = document.getElementById('checkout-summary');
   if (!box) return;
+  const entrega = getEntregaMode();
+  const deliveryFee = getCheckoutDeliveryFee();
+  const subtotal = cartTotal();
   box.innerHTML = cart.map(item => `
     <div class="flex items-center justify-between px-4 py-3 text-sm">
       <div class="flex items-center gap-2.5">
@@ -715,20 +786,40 @@ function buildCheckoutSummary() {
     </div>
   `).join('') + `
     <div class="flex justify-between px-4 py-3 border-t border-white/5 text-xs text-slate-500">
-      <span>Subtotal</span><span>${formatPeso(cartTotal())}</span>
+      <span>Subtotal</span><span>${formatPeso(subtotal)}</span>
     </div>
     <div class="flex justify-between px-4 py-3 text-xs text-slate-500">
-      <span>Delivery</span><span class="text-red-400">+ ${formatPeso(getDeliveryFee())}</span>
+      <span>${entrega === 'delivery' ? 'Delivery' : 'Retiro en local'}</span>
+      <span class="${entrega === 'delivery' ? 'text-red-400' : 'text-sky-300'}">${entrega === 'delivery' ? `+ ${formatPeso(deliveryFee)}` : 'Sin costo'}</span>
     </div>
   `;
   const tot = document.getElementById('checkout-total-display');
-  if (tot) tot.textContent = formatPeso(cartTotal() + getDeliveryFee());
+  if (tot) tot.textContent = formatPeso(subtotal + deliveryFee);
+  const note = document.getElementById('checkout-delivery-note');
+  if (note) {
+    note.textContent = entrega === 'delivery'
+      ? `Incluye delivery (${formatPeso(deliveryFee)})`
+      : 'Retiro en local (sin costo de delivery)';
+  }
 }
 
 function buildTransferBox() {
   const box = document.getElementById('transfer-info-box');
+  const tarjetaBox = document.getElementById('tarjeta-info-box');
   if (!box) return;
+  const pago = getPagoMode();
+
+  if (pago === 'tarjeta') {
+    box.classList.add('hidden');
+    tarjetaBox?.classList.remove('hidden');
+    return;
+  }
+
+  box.classList.remove('hidden');
+  tarjetaBox?.classList.add('hidden');
+
   const t = CONFIG.transferencia;
+  const total = cartTotal() + getCheckoutDeliveryFee();
   box.innerHTML = `
     <div class="grid grid-cols-2 gap-y-2">
       <span class="text-slate-500">Banco</span>      <span class="text-white font-semibold">${t.banco}</span>
@@ -740,7 +831,7 @@ function buildTransferBox() {
     </div>
     <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
       <span class="text-slate-500 text-xs">Monto a transferir:</span>
-      <span class="text-red-400 font-black text-xl">${formatPeso(cartTotal() + getDeliveryFee())}</span>
+      <span class="text-red-400 font-black text-xl">${formatPeso(total)}</span>
     </div>
     <div class="mt-3 pt-3 border-t border-white/5 flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2">
       <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 flex-shrink-0"></i>
@@ -763,7 +854,7 @@ function toggleCheckbox(el) {
   }
 }
 
-function enviarPedidoWhatsApp() {
+async function enviarPedidoWhatsApp() {
   const nombre = document.getElementById('f-nombre')?.value.trim();
   const telefono = document.getElementById('f-telefono')?.value.trim();
   const direccion = document.getElementById('f-direccion')?.value.trim();
@@ -771,6 +862,8 @@ function enviarPedidoWhatsApp() {
   const comuna = document.getElementById('f-comuna')?.value.trim();
   const referencia = document.getElementById('f-referencia')?.value.trim();
   const notas = document.getElementById('f-notas')?.value.trim();
+  const entrega = getEntregaMode();
+  const pago = getPagoMode();
   const comp = document.getElementById('f-comprobante')?.checked;
   const errBox = document.getElementById('checkout-error');
   const errMsg = document.getElementById('checkout-error-msg');
@@ -784,20 +877,52 @@ function enviarPedidoWhatsApp() {
 
   if (!nombre) return showErr('Por favor ingresa tu nombre completo.');
   if (!telefono) return showErr('Por favor ingresa tu número de WhatsApp o teléfono.');
-  if (!direccion) return showErr('Por favor ingresa la dirección de entrega.');
-  if (!comuna) return showErr('Por favor ingresa la comuna.');
+  if (entrega === 'delivery' && !direccion) return showErr('Por favor ingresa la dirección de entrega.');
+  if (entrega === 'delivery' && !comuna) return showErr('Por favor ingresa la comuna.');
+  if (entrega === 'delivery' && pago !== 'transferencia') return showErr('Para delivery solo está disponible pago por transferencia.');
   errBox.classList.add('hidden');
   errBox.classList.remove('flex');
 
   const orderNum = getOrderNum();
   const t = CONFIG.transferencia;
-  const total = cartTotal() + getDeliveryFee();
+  const subtotal = cartTotal();
+  const deliveryFee = getCheckoutDeliveryFee();
+  const total = subtotal + deliveryFee;
+
+  const orderItems = cart.map(item => ({
+    id: item.id,
+    nombre: item.nombre,
+    categoria: item.categoria || getProductos().find(p => p.id === item.id)?.categoria || null,
+    precio: item.precio,
+    qty: item.qty,
+  }));
 
   const lineasProductos = cart.map(item =>
     `  • ${item.nombre} x${item.qty}  →  ${formatPeso(item.precio * item.qty)}`
   ).join('\n');
 
-  const direccionCompleta = [direccion, depto, comuna].filter(Boolean).join(', ');
+  const direccionCompleta = entrega === 'delivery'
+    ? [direccion, depto, comuna].filter(Boolean).join(', ')
+    : 'Retiro en local: Germán Tenderini 1802, Renca';
+
+  const detallePago = pago === 'transferencia'
+    ? [
+      `*PAGO – TRANSFERENCIA BANCARIA*`,
+      `  Banco:    ${t.banco}`,
+      `  Tipo:     ${t.tipo}`,
+      `  N° Cta:   ${t.numero}`,
+      `  RUT:      ${t.rut}`,
+      `  Titular:  ${t.titular}`,
+      `  Email:    ${t.email}`,
+      `  *Monto:   ${formatPeso(total)}*`,
+      ``,
+      `*ADJUNTAR COMPROBANTE DE TRANSFERENCIA*`,
+    ]
+    : [
+      `*PAGO – TARJETA EN LOCAL*`,
+      `  Cliente pagará con tarjeta al retirar en tienda.`,
+      `  *Monto estimado: ${formatPeso(total)}*`,
+    ];
 
   const msg = [
     `*${CONFIG.storeName}*`,
@@ -812,33 +937,45 @@ function enviarPedidoWhatsApp() {
     `*PRODUCTOS SOLICITADOS*`,
     lineasProductos,
     ``,
-    `  Subtotal:          ${formatPeso(cartTotal())}`,
-    `  Delivery:          + ${formatPeso(getDeliveryFee())}`,
+    `*MODALIDAD*`,
+    `  Entrega:           ${entrega === 'delivery' ? 'Delivery' : 'Retiro en local'}`,
+    `  Pago:              ${pago === 'transferencia' ? 'Transferencia bancaria' : 'Tarjeta en local'}`,
+    ``,
+    `  Subtotal:          ${formatPeso(subtotal)}`,
+    `  ${entrega === 'delivery' ? 'Delivery' : 'Retiro'}:          ${entrega === 'delivery' ? `+ ${formatPeso(deliveryFee)}` : '$0'}`,
     `  ─────────────────────`,
     `  *TOTAL A PAGAR:    ${formatPeso(total)}*`,
     ``,
-    `*DIRECCIÓN DE ENTREGA*`,
+    `*${entrega === 'delivery' ? 'DIRECCIÓN DE ENTREGA' : 'RETIRO EN LOCAL'}*`,
     `  ${direccionCompleta}`,
-    referencia ? `  Referencia: ${referencia}` : null,
+    entrega === 'delivery' && referencia ? `  Referencia: ${referencia}` : null,
     ``,
-    `*PAGO – TRANSFERENCIA BANCARIA*`,
-    `  Banco:    ${t.banco}`,
-    `  Tipo:     ${t.tipo}`,
-    `  N° Cta:   ${t.numero}`,
-    `  RUT:      ${t.rut}`,
-    `  Titular:  ${t.titular}`,
-    `  Email:    ${t.email}`,
-    `  *Monto:   ${formatPeso(total)}*`,
-    ``,
-    `*ADJUNTAR COMPROBANTE DE TRANSFERENCIA*`,
+    ...detallePago,
     notas ? `\n*Notas del cliente:*\n  ${notas}` : null,
     ``,
     `${'─'.repeat(30)}`,
     `Por favor espere confirmación de su pedido.`,
-    `_Enviado desde botillerialectorjean.cl_`,
+    `_Enviado desde https://lectorjean.netlify.app/_`,
   ].filter(l => l !== null).join('\n');
 
-  guardarPedido(orderNum);
+  const orderPayload = {
+    pedido_ref: String(orderNum),
+    cliente_nombre: nombre,
+    cliente_telefono: telefono,
+    direccion,
+    depto,
+    comuna,
+    referencia,
+    notas,
+    comprobante_declarado: !!comp,
+    subtotal,
+    delivery_fee: deliveryFee,
+    total,
+    estado: ORDER_STATUS.pending,
+    items: orderItems,
+  };
+
+  const orderSaved = await guardarPedido(orderPayload);
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank', 'noopener');
 
@@ -846,6 +983,9 @@ function enviarPedidoWhatsApp() {
   cart = [];
   updateCartUI();
   showToast('<i class="fa-brands fa-whatsapp mr-1.5"></i> Pedido enviado con éxito por WhatsApp', 'success');
+  if (!orderSaved) {
+    showToast('<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> El pedido se envió por WhatsApp, pero no se pudo guardar en historial', 'warning');
+  }
 }
 
 // ─── CATALOG RENDER ────────────────────────────────────────────────────
@@ -1425,38 +1565,177 @@ function showAdminPanel() {
   updateAdminStats();
   renderAdminProducts('todos');
   initAdminFiltros();
+  loadPedidosAdmin();
   switchAdminTab('dashboard');
 }
 
 function switchAdminTab(tab) {
-  ['dashboard', 'gestion', 'sugerencias'].forEach(t => {
+  ['dashboard', 'gestion', 'pedidos', 'sugerencias'].forEach(t => {
     const el = document.getElementById(`admin-tab-${t}`);
     if (el) el.classList.toggle('hidden', t !== tab);
   });
   document.querySelectorAll('.admin-tab-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tab);
   });
+  if (tab === 'pedidos') loadPedidosAdmin();
   if (tab === 'sugerencias') loadSugerencias();
   if (tab === 'dashboard') loadDashboard();
 }
 
-// ─── PEDIDOS (tracking confirmados) ─────────────────────────────────────────
-async function guardarPedido(orderRef) {
-  const items = cart.map(item => ({
-    pedido_ref:      String(orderRef),
-    producto_id:     item.id || null,
-    producto_nombre: item.nombre,
-    categoria:       item.categoria || null,
-    precio:          item.precio,
-    qty:             item.qty,
+function getLocalOrders() {
+  try {
+    return JSON.parse(localStorage.getItem(LS_ORDERS_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalOrders(orders) {
+  localStorage.setItem(LS_ORDERS_KEY, JSON.stringify(orders));
+}
+
+function getStatusMeta(status) {
+  if (status === ORDER_STATUS.accepted) {
+    return {
+      label: 'Aceptado',
+      badgeClass: 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-300',
+      dotClass: 'bg-emerald-400',
+    };
+  }
+  if (status === ORDER_STATUS.rejected) {
+    return {
+      label: 'Rechazado',
+      badgeClass: 'bg-red-500/20 border border-red-500/30 text-red-300',
+      dotClass: 'bg-red-400',
+    };
+  }
+  return {
+    label: 'Pendiente',
+    badgeClass: 'bg-amber-500/20 border border-amber-500/30 text-amber-200',
+    dotClass: 'bg-amber-300',
+  };
+}
+
+function mergeOrdersByRef(primary, secondary) {
+  const map = new Map();
+  [...secondary, ...primary].forEach(order => {
+    if (!order || !order.pedido_ref) return;
+    const prev = map.get(order.pedido_ref);
+    if (!prev) {
+      map.set(order.pedido_ref, order);
+      return;
+    }
+    const prevAt = Date.parse(prev.updated_at || prev.created_at || 0) || 0;
+    const currAt = Date.parse(order.updated_at || order.created_at || 0) || 0;
+    map.set(order.pedido_ref, currAt >= prevAt ? order : prev);
+  });
+  return [...map.values()].sort((a, b) => {
+    const aAt = Date.parse(a.created_at || 0) || 0;
+    const bAt = Date.parse(b.created_at || 0) || 0;
+    return bAt - aAt;
+  });
+}
+
+function safeParseJsonArray(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== 'string' || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeOrderRow(raw) {
+  if (!raw) return null;
+  return {
+    ...raw,
+    pedido_ref: String(raw.pedido_ref || ''),
+    estado: raw.estado || ORDER_STATUS.pending,
+    items: safeParseJsonArray(raw.items),
+    status_historial: safeParseJsonArray(raw.status_historial),
+  };
+}
+
+async function fetchOrders() {
+  const localOrders = getLocalOrders();
+  if (!isSupabaseReady()) return localOrders;
+  try {
+    const { data, error } = await _sbClient.from('pedidos').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    const remoteOrders = (data || []).map(normalizeOrderRow).filter(Boolean);
+    return mergeOrdersByRef(remoteOrders, localOrders);
+  } catch (err) {
+    console.warn('No fue posible leer pedidos desde Supabase, usando localStorage:', err?.message || err);
+    return localOrders;
+  }
+}
+
+async function syncAcceptedItems(order) {
+  const ref = String(order.pedido_ref);
+  const items = (order.items || []).map(i => ({
+    pedido_ref: ref,
+    producto_id: i.id || null,
+    producto_nombre: i.nombre,
+    categoria: i.categoria || null,
+    precio: i.precio,
+    qty: i.qty,
   }));
+
+  if (!items.length) return;
+
   if (isSupabaseReady()) {
-    await _sbClient.from('pedidos_items').insert(items);
-  } else {
-    const saved = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
+    try {
+      const { data, error } = await _sbClient.from('pedidos_items').select('pedido_ref').eq('pedido_ref', ref).limit(1);
+      if (error) throw error;
+      if (data && data.length > 0) return;
+      await _sbClient.from('pedidos_items').insert(items);
+      return;
+    } catch (err) {
+      console.warn('No fue posible sincronizar pedidos_items en Supabase:', err?.message || err);
+    }
+  }
+
+  const saved = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
+  const already = saved.some(i => String(i.pedido_ref) === ref);
+  if (!already) {
     const now = new Date().toISOString();
     items.forEach(i => saved.push({ ...i, created_at: now }));
     localStorage.setItem('blj_pedidos_items', JSON.stringify(saved));
+  }
+}
+
+async function guardarPedido(payload) {
+  const now = new Date().toISOString();
+  const baseHistory = [{
+    estado: ORDER_STATUS.pending,
+    fecha: now,
+    actor: 'cliente',
+    nota: 'Pedido enviado por WhatsApp',
+  }];
+
+  const order = {
+    ...payload,
+    estado: payload.estado || ORDER_STATUS.pending,
+    created_at: now,
+    updated_at: now,
+    status_historial: payload.status_historial || baseHistory,
+  };
+
+  const localOrders = getLocalOrders();
+  localOrders.unshift(order);
+  saveLocalOrders(localOrders);
+
+  if (!isSupabaseReady()) return true;
+
+  try {
+    const { error } = await _sbClient.from('pedidos').insert(order);
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.warn('No fue posible guardar pedido en Supabase. Quedó respaldado localmente:', err?.message || err);
+    return false;
   }
 }
 
@@ -1510,6 +1789,241 @@ async function loadDashboard() {
     </div>
     <p class="text-slate-600 text-xs text-right mt-2">Basado en ${items.length} líneas de ${new Set(items.map(i=>i.pedido_ref)).size} pedido(s) confirmado(s)</p>
   `;
+}
+
+let _pedidosFilter = 'todos';
+let _pedidosView = 'detalle';
+
+function setPedidosFilter(filter) {
+  _pedidosFilter = filter;
+  document.querySelectorAll('#pedidos-filtros .admin-cat-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.estado === filter);
+  });
+  loadPedidosAdmin();
+}
+
+function setPedidosView(view) {
+  _pedidosView = view === 'lista' ? 'lista' : 'detalle';
+  document.getElementById('pedidos-view-detalle')?.classList.toggle('active', _pedidosView === 'detalle');
+  document.getElementById('pedidos-view-lista')?.classList.toggle('active', _pedidosView === 'lista');
+  loadPedidosAdmin();
+}
+
+function formatOrderDate(value) {
+  if (!value) return '-';
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return '-';
+  return dt.toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
+  const all = await fetchOrders();
+  const target = all.find(o => String(o.pedido_ref) === String(pedidoRef));
+  if (!target) {
+    showToast('No se encontró el pedido en historial', 'error');
+    return;
+  }
+  if (target.estado === nuevoEstado) {
+    showToast('Este pedido ya tiene ese estado', 'info');
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const history = Array.isArray(target.status_historial) ? [...target.status_historial] : [];
+  history.push({
+    estado: nuevoEstado,
+    fecha: now,
+    actor: 'admin',
+    nota: nota || (nuevoEstado === ORDER_STATUS.accepted ? 'Pedido aceptado desde panel admin' : 'Pedido rechazado desde panel admin'),
+  });
+
+  const updatedOrder = {
+    ...target,
+    estado: nuevoEstado,
+    status_historial: history,
+    updated_at: now,
+  };
+
+  const local = getLocalOrders();
+  const idx = local.findIndex(o => String(o.pedido_ref) === String(pedidoRef));
+  if (idx >= 0) local[idx] = updatedOrder;
+  else local.unshift(updatedOrder);
+  saveLocalOrders(local);
+
+  if (isSupabaseReady()) {
+    try {
+      const { error } = await _sbClient
+        .from('pedidos')
+        .update({
+          estado: updatedOrder.estado,
+          status_historial: updatedOrder.status_historial,
+          updated_at: updatedOrder.updated_at,
+        })
+        .eq('pedido_ref', String(pedidoRef));
+      if (error) throw error;
+    } catch (err) {
+      console.warn('No se pudo actualizar estado en Supabase:', err?.message || err);
+      showToast('Estado actualizado localmente. Revisa conexión a Supabase.', 'warning');
+    }
+  }
+
+  if (nuevoEstado === ORDER_STATUS.accepted) {
+    await syncAcceptedItems(updatedOrder);
+  }
+
+  await loadPedidosAdmin();
+  await loadDashboard();
+  showToast(`<i class="fa-solid fa-check mr-1.5"></i> Pedido #${pedidoRef} marcado como ${nuevoEstado}`, 'success');
+}
+
+function aceptarPedido(pedidoRef) {
+  updatePedidoEstado(String(pedidoRef), ORDER_STATUS.accepted);
+}
+
+function rechazarPedido(pedidoRef) {
+  const motivo = prompt('Opcional: escribe el motivo del rechazo para historial interno', '') || '';
+  updatePedidoEstado(String(pedidoRef), ORDER_STATUS.rejected, motivo.trim());
+}
+
+async function loadPedidosAdmin() {
+  const container = document.getElementById('admin-pedidos');
+  const badge = document.getElementById('ped-badge');
+  if (!container) return;
+
+  container.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">Cargando pedidos...</p>';
+
+  let pedidos = await fetchOrders();
+  const pendingCount = pedidos.filter(p => p.estado === ORDER_STATUS.pending).length;
+  if (badge) {
+    if (pendingCount > 0) {
+      badge.textContent = String(pendingCount);
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+
+  if (_pedidosFilter !== 'todos') {
+    pedidos = pedidos.filter(p => p.estado === _pedidosFilter);
+  }
+
+  if (!pedidos.length) {
+    container.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">No hay pedidos para este filtro</p>';
+    return;
+  }
+
+  if (_pedidosView === 'lista') {
+    container.innerHTML = `
+      <div class="bg-slate-900/45 border border-white/5 rounded-2xl overflow-hidden">
+        ${pedidos.map((order, idx) => {
+          const st = getStatusMeta(order.estado);
+          const items = Array.isArray(order.items) ? order.items : [];
+          const itemsCount = items.reduce((acc, i) => acc + (Number(i.qty) || 0), 0);
+          const total = formatPeso(order.total || 0);
+          return `
+            <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/5 last:border-b-0">
+              <div class="min-w-0">
+                <p class="text-white text-sm font-bold truncate">Pedido ${idx + 1} · #${escHtml(order.pedido_ref)}</p>
+                <p class="text-slate-500 text-xs truncate">${escHtml(order.cliente_nombre || 'Sin nombre')} · ${itemsCount} item(s) · ${total}</p>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-1 rounded-full ${st.badgeClass}">
+                  <span class="w-1.5 h-1.5 rounded-full ${st.dotClass}"></span>${st.label}
+                </span>
+                ${order.estado === ORDER_STATUS.pending
+                  ? `<button onclick="aceptarPedido('${escHtml(order.pedido_ref)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Aceptar</button>
+                     <button onclick="rechazarPedido('${escHtml(order.pedido_ref)}')" class="bg-red-700/70 hover:bg-red-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg">Rechazar</button>`
+                  : ''}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = pedidos.map(order => {
+    const st = getStatusMeta(order.estado);
+    const items = Array.isArray(order.items) ? order.items : [];
+    const itemsCount = items.reduce((acc, i) => acc + (Number(i.qty) || 0), 0);
+    const lastEvents = (Array.isArray(order.status_historial) ? order.status_historial : []).slice(-4).reverse();
+    return `
+      <div class="bg-slate-800/70 border border-white/5 rounded-2xl p-4">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <p class="text-white font-black text-base">Pedido #${escHtml(order.pedido_ref)}</p>
+            <p class="text-slate-500 text-xs mt-0.5">${formatOrderDate(order.created_at)}</p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full ${st.badgeClass}">
+            <span class="w-1.5 h-1.5 rounded-full ${st.dotClass}"></span>${st.label}
+          </span>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mt-3 text-xs">
+          <div class="bg-slate-900/60 border border-white/5 rounded-xl px-3 py-2">
+            <p class="text-slate-500">Cliente</p>
+            <p class="text-slate-200 font-semibold mt-0.5">${escHtml(order.cliente_nombre || '-')}</p>
+          </div>
+          <div class="bg-slate-900/60 border border-white/5 rounded-xl px-3 py-2">
+            <p class="text-slate-500">Teléfono</p>
+            <p class="text-slate-200 font-semibold mt-0.5">${escHtml(order.cliente_telefono || '-')}</p>
+          </div>
+          <div class="bg-slate-900/60 border border-white/5 rounded-xl px-3 py-2">
+            <p class="text-slate-500">Items</p>
+            <p class="text-slate-200 font-semibold mt-0.5">${itemsCount} unidad(es)</p>
+          </div>
+          <div class="bg-slate-900/60 border border-white/5 rounded-xl px-3 py-2">
+            <p class="text-slate-500">Total</p>
+            <p class="text-red-400 font-black mt-0.5">${formatPeso(order.total || 0)}</p>
+          </div>
+        </div>
+
+        <div class="mt-3 bg-slate-900/60 border border-white/5 rounded-xl p-3">
+          <p class="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-2">Dirección</p>
+          <p class="text-slate-200 text-sm">${escHtml([order.direccion, order.depto, order.comuna].filter(Boolean).join(', ') || '-')}</p>
+          ${order.referencia ? `<p class="text-slate-500 text-xs mt-1">Referencia: ${escHtml(order.referencia)}</p>` : ''}
+        </div>
+
+        <div class="mt-3 bg-slate-900/60 border border-white/5 rounded-xl p-3">
+          <p class="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-2">Productos</p>
+          <div class="space-y-1.5">
+            ${items.map(i => `
+              <div class="flex items-center justify-between text-xs gap-3">
+                <span class="text-slate-300">${escHtml(i.nombre)} x${Number(i.qty) || 0}</span>
+                <span class="text-white font-semibold">${formatPeso((Number(i.precio) || 0) * (Number(i.qty) || 0))}</span>
+              </div>
+            `).join('') || '<p class="text-slate-500 text-xs">Sin detalle de productos</p>'}
+          </div>
+        </div>
+
+        <div class="mt-3 bg-slate-900/40 border border-white/5 rounded-xl p-3">
+          <p class="text-slate-500 text-[11px] uppercase tracking-wider font-bold mb-2">Historial de estado</p>
+          <div class="space-y-1.5">
+            ${lastEvents.map(ev => `
+              <div class="text-xs text-slate-300">
+                <span class="text-slate-500">${formatOrderDate(ev.fecha)}</span>
+                <span class="mx-1">·</span>
+                <span class="font-semibold">${escHtml(ev.estado || '-')}</span>
+                ${ev.nota ? `<span class="text-slate-500"> (${escHtml(ev.nota)})</span>` : ''}
+              </div>
+            `).join('') || '<p class="text-slate-500 text-xs">Sin historial</p>'}
+          </div>
+        </div>
+
+        ${order.estado === ORDER_STATUS.pending ? `
+          <div class="flex gap-2 mt-3">
+            <button onclick="aceptarPedido('${escHtml(order.pedido_ref)}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-black py-2.5 rounded-xl transition-colors">
+              <i class="fa-solid fa-check mr-1.5"></i>Aceptar
+            </button>
+            <button onclick="rechazarPedido('${escHtml(order.pedido_ref)}')" class="flex-1 bg-red-700/70 hover:bg-red-600 text-white text-sm font-black py-2.5 rounded-xl transition-colors">
+              <i class="fa-solid fa-xmark mr-1.5"></i>Rechazar
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
 }
 
 // ─── SUGERENCIAS ─────────────────────────────────────────────────────────────
