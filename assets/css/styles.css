@@ -14,6 +14,12 @@ body {
     radial-gradient(ellipse 60% 40% at 85% 10%, rgba(100,0,0,0.07) 0%, transparent 65%),
     linear-gradient(170deg, #080c18 0%, #0b1020 35%, #0d1228 65%, #0a0e1c 100%);
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+html,
+body {
+  overscroll-behavior-x: none;
 }
 
 ::-webkit-scrollbar {
@@ -753,6 +759,21 @@ select.form-input option {
 /* ─── CHECKOUT MODAL ─────────────────────────────── */
 .checkout-modal {
   animation: modalScale .3s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@media (max-width: 639px) {
+  #checkout-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .checkout-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100dvh;
+    border-radius: 1.25rem 1.25rem 0 0;
+    animation-duration: .2s;
+  }
 }
 
 @keyframes modalScale {

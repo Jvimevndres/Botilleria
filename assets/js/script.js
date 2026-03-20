@@ -299,6 +299,36 @@ const ORDER_STATUS = {
   rejected: 'rechazado',
 };
 
+let _uiLockCount = 0;
+let _uiScrollY = 0;
+
+function lockBodyScroll() {
+  if (_uiLockCount === 0) {
+    _uiScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.classList.add('overflow-hidden');
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${_uiScrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+  }
+  _uiLockCount += 1;
+}
+
+function unlockBodyScroll() {
+  if (_uiLockCount <= 0) return;
+  _uiLockCount -= 1;
+  if (_uiLockCount === 0) {
+    document.body.classList.remove('overflow-hidden');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    window.scrollTo(0, _uiScrollY);
+  }
+}
+
 // Cache global de productos (se llena en init)
 let _productosCache = null;
 
@@ -666,18 +696,18 @@ function toggleCart() {
   if (open) {
     drawer.classList.add('translate-x-full');
     overlay.classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
+    unlockBodyScroll();
   } else {
     drawer.classList.remove('translate-x-full');
     overlay.classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
+    lockBodyScroll();
   }
 }
 
 function closeCart() {
   document.getElementById('cart-drawer')?.classList.add('translate-x-full');
   document.getElementById('cart-overlay')?.classList.add('hidden');
-  document.body.classList.remove('overflow-hidden');
+  unlockBodyScroll();
 }
 
 // ─── CHECKOUT ─────────────────────────────────────────────────────────
@@ -697,14 +727,14 @@ function openCheckout() {
   const overlay = document.getElementById('checkout-overlay');
   overlay.classList.remove('hidden');
   overlay.classList.add('flex');
-  document.body.classList.add('overflow-hidden');
+  lockBodyScroll();
 }
 
 function closeCheckout() {
   const overlay = document.getElementById('checkout-overlay');
   overlay.classList.add('hidden');
   overlay.classList.remove('flex');
-  document.body.classList.remove('overflow-hidden');
+  unlockBodyScroll();
   document.getElementById('checkout-error')?.classList.add('hidden');
 }
 
@@ -955,7 +985,7 @@ async function enviarPedidoWhatsApp() {
     ``,
     `${'─'.repeat(30)}`,
     `Por favor espere confirmación de su pedido.`,
-    `_Enviado desde https://lectorjean.netlify.app/_`,
+    `_Enviado desde ${window.location.origin}/_`,
   ].filter(l => l !== null).join('\n');
 
   const orderPayload = {
@@ -975,9 +1005,13 @@ async function enviarPedidoWhatsApp() {
     items: orderItems,
   };
 
-  const orderSaved = await guardarPedido(orderPayload);
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank', 'noopener');
+  const waWin = window.open(url, '_blank', 'noopener');
+  if (!waWin) {
+    window.location.href = url;
+  }
+
+  const orderSaved = await guardarPedido(orderPayload);
 
   closeCheckout();
   cart = [];
@@ -1515,7 +1549,7 @@ function openAdmin() {
   const overlay = document.getElementById('admin-overlay');
   overlay.classList.remove('hidden');
   overlay.classList.add('flex');
-  document.body.classList.add('overflow-hidden');
+  lockBodyScroll();
   const session = sessionStorage.getItem('blj_admin_session');
   if (session === 'true') {
     showAdminPanel();
@@ -1529,7 +1563,7 @@ function openAdmin() {
 function closeAdmin() {
   document.getElementById('admin-overlay')?.classList.add('hidden');
   document.getElementById('admin-overlay')?.classList.remove('flex');
-  document.body.classList.remove('overflow-hidden');
+  unlockBodyScroll();
 }
 
 function loginAdmin() {
@@ -1636,97 +1670,113 @@ function mergeOrdersByRef(primary, secondary) {
   });
 }
 
-function safeParseJsonArray(value) {
-  if (Array.isArray(value)) return value;
-  if (typeof value !== 'string' || !value.trim()) return [];
+async function fetchOrdersFromItemsTable() {
+  if (!isSupabaseReady()) return { ok: false, orders: [] };
   try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
+    const { data, error } = await _sbClient
+      .from('pedidos_items')
+      .select('id,pedido_ref,producto_id,producto_nombre,categoria,precio,qty,created_at')
+      .order('id', { ascending: false });
+    if (error) throw error;
 
-function normalizeOrderRow(raw) {
-  if (!raw) return null;
-  return {
-    ...raw,
-    pedido_ref: String(raw.pedido_ref || ''),
-    estado: raw.estado || ORDER_STATUS.pending,
-    items: safeParseJsonArray(raw.items),
-    status_historial: safeParseJsonArray(raw.status_historial),
-  };
+    const groups = new Map();
+    (data || []).forEach(row => {
+      const ref = String(row.pedido_ref || '');
+      if (!ref) return;
+      if (!groups.has(ref)) {
+        groups.set(ref, {
+          pedido_ref: ref,
+          estado: ORDER_STATUS.pending,
+          cliente_nombre: '',
+          cliente_telefono: '',
+          direccion: '',
+          depto: '',
+          comuna: '',
+          referencia: '',
+          notas: '',
+          subtotal: 0,
+          delivery_fee: 0,
+          total: 0,
+          items: [],
+          status_historial: [],
+          created_at: row.created_at || null,
+          updated_at: row.created_at || null,
+        });
+      }
+
+      const order = groups.get(ref);
+      const qty = Number(row.qty) || 0;
+      const precio = Number(row.precio) || 0;
+      order.items.push({
+        id: row.producto_id || null,
+        nombre: row.producto_nombre || 'Producto',
+        categoria: row.categoria || null,
+        precio,
+        qty,
+      });
+      order.subtotal += precio * qty;
+      order.total = order.subtotal;
+
+      const rowTime = Date.parse(row.created_at || 0) || 0;
+      const currTime = Date.parse(order.created_at || 0) || 0;
+      if (!currTime || (rowTime && rowTime < currTime)) {
+        order.created_at = row.created_at || order.created_at;
+      }
+    });
+
+    const orders = [...groups.values()].sort((a, b) => {
+      const aAt = Date.parse(a.created_at || 0) || 0;
+      const bAt = Date.parse(b.created_at || 0) || 0;
+      return bAt - aAt;
+    });
+    return { ok: true, orders };
+  } catch (err) {
+    console.warn('No fue posible leer pedidos desde pedidos_items en Supabase:', err?.message || err);
+    return { ok: false, orders: [] };
+  }
 }
 
 async function fetchOrders() {
   const localOrders = getLocalOrders();
   if (!isSupabaseReady()) return localOrders;
-  try {
-    const { data, error } = await _sbClient.from('pedidos').select('*').order('created_at', { ascending: false });
-    if (error) throw error;
-    const remoteOrders = (data || []).map(normalizeOrderRow).filter(Boolean);
-    return mergeOrdersByRef(remoteOrders, localOrders);
-  } catch (err) {
-    console.warn('No fue posible leer pedidos desde Supabase, usando localStorage:', err?.message || err);
-    return localOrders;
-  }
+
+  const { ok, orders } = await fetchOrdersFromItemsTable();
+  if (!ok) return localOrders;
+
+  // Supabase is the source of truth when reachable; keep local cache aligned.
+  saveLocalOrders(orders);
+  return orders;
 }
 
-async function removeAcceptedItemsByRef(ref) {
-  const pedidoRef = String(ref);
-
-  if (isSupabaseReady()) {
-    try {
-      const { error } = await _sbClient.from('pedidos_items').delete().eq('pedido_ref', pedidoRef);
-      if (error) throw error;
-    } catch (err) {
-      console.warn('No fue posible eliminar pedidos_items en Supabase:', err?.message || err);
-      throw err;
-    }
-  }
-
-  const saved = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
-  const filtered = saved.filter(i => String(i.pedido_ref) !== pedidoRef);
-  localStorage.setItem('blj_pedidos_items', JSON.stringify(filtered));
-}
-
-async function syncAcceptedItems(order, forceReplace = false) {
+async function saveOrderItemsToSupabase(order) {
+  if (!isSupabaseReady()) return true;
   const ref = String(order.pedido_ref);
-  const items = (order.items || []).map(i => ({
+  const lines = (order.items || []).map(i => ({
     pedido_ref: ref,
     producto_id: i.id || null,
     producto_nombre: i.nombre,
     categoria: i.categoria || null,
-    precio: i.precio,
-    qty: i.qty,
+    precio: Number(i.precio) || 0,
+    qty: Number(i.qty) || 0,
   }));
+  if (!lines.length) return true;
 
-  if (!items.length) return;
-
-  if (isSupabaseReady()) {
-    try {
-      if (forceReplace) {
-        const { error: delErr } = await _sbClient.from('pedidos_items').delete().eq('pedido_ref', ref);
-        if (delErr) throw delErr;
-      }
-      const { data, error } = await _sbClient.from('pedidos_items').select('pedido_ref').eq('pedido_ref', ref).limit(1);
-      if (error) throw error;
-      if (data && data.length > 0) return;
-      await _sbClient.from('pedidos_items').insert(items);
-    } catch (err) {
-      console.warn('No fue posible sincronizar pedidos_items en Supabase:', err?.message || err);
-      throw err;
+  try {
+    const { data: existing, error: existingErr } = await _sbClient
+      .from('pedidos_items')
+      .select('pedido_ref')
+      .eq('pedido_ref', ref)
+      .limit(1);
+    if (existingErr) throw existingErr;
+    if (!existing || existing.length === 0) {
+      const { error: insErr } = await _sbClient.from('pedidos_items').insert(lines);
+      if (insErr) throw insErr;
     }
+    return true;
+  } catch (err) {
+    console.warn('No fue posible guardar pedido en pedidos_items de Supabase:', err?.message || err);
+    return false;
   }
-
-  const saved = JSON.parse(localStorage.getItem('blj_pedidos_items') || '[]');
-  const cleaned = forceReplace ? saved.filter(i => String(i.pedido_ref) !== ref) : saved;
-  const already = cleaned.some(i => String(i.pedido_ref) === ref);
-  if (!already) {
-    const now = new Date().toISOString();
-    items.forEach(i => cleaned.push({ ...i, created_at: now }));
-  }
-  localStorage.setItem('blj_pedidos_items', JSON.stringify(cleaned));
 }
 
 async function guardarPedido(payload) {
@@ -1749,17 +1799,7 @@ async function guardarPedido(payload) {
   const localOrders = getLocalOrders();
   localOrders.unshift(order);
   saveLocalOrders(localOrders);
-
-  if (!isSupabaseReady()) return true;
-
-  try {
-    const { error } = await _sbClient.from('pedidos').insert(order);
-    if (error) throw error;
-    return true;
-  } catch (err) {
-    console.warn('No fue posible guardar pedido en Supabase. Quedó respaldado localmente:', err?.message || err);
-    return false;
-  }
+  return saveOrderItemsToSupabase(order);
 }
 
 async function loadDashboard() {
@@ -1867,43 +1907,11 @@ async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
     updated_at: now,
   };
 
-  if (isSupabaseReady()) {
-    try {
-      const { error } = await _sbClient
-        .from('pedidos')
-        .update({
-          estado: updatedOrder.estado,
-          status_historial: updatedOrder.status_historial,
-          updated_at: updatedOrder.updated_at,
-        })
-        .eq('pedido_ref', String(pedidoRef));
-      if (error) throw error;
-
-      if (nuevoEstado === ORDER_STATUS.accepted) {
-        await syncAcceptedItems(updatedOrder, true);
-      } else {
-        await removeAcceptedItemsByRef(String(pedidoRef));
-      }
-    } catch (err) {
-      console.warn('No se pudo actualizar estado en Supabase:', err?.message || err);
-      showToast('No se pudo actualizar en Supabase. No se aplicaron cambios.', 'error');
-      return;
-    }
-  }
-
   const local = getLocalOrders();
   const idx = local.findIndex(o => String(o.pedido_ref) === String(pedidoRef));
   if (idx >= 0) local[idx] = updatedOrder;
   else local.unshift(updatedOrder);
   saveLocalOrders(local);
-
-  if (!isSupabaseReady()) {
-    if (nuevoEstado === ORDER_STATUS.accepted) {
-      await syncAcceptedItems(updatedOrder, true);
-    } else {
-      await removeAcceptedItemsByRef(String(pedidoRef));
-    }
-  }
 
   await loadPedidosAdmin();
   await loadDashboard();
@@ -1917,33 +1925,6 @@ function aceptarPedido(pedidoRef) {
 function rechazarPedido(pedidoRef) {
   const motivo = prompt('Opcional: escribe el motivo del rechazo para historial interno', '') || '';
   updatePedidoEstado(String(pedidoRef), ORDER_STATUS.rejected, motivo.trim());
-}
-
-async function reiniciarPedidosAdmin() {
-  const warning = 'Esto eliminará TODOS los pedidos e items confirmados. El próximo pedido será #0001. ¿Continuar?';
-  if (!confirm(warning)) return;
-
-  if (isSupabaseReady()) {
-    try {
-      const { error: itemsErr } = await _sbClient.from('pedidos_items').delete().neq('id', -1);
-      if (itemsErr) throw itemsErr;
-
-      const { error: pedidosErr } = await _sbClient.from('pedidos').delete().neq('pedido_ref', '__never__');
-      if (pedidosErr) throw pedidosErr;
-    } catch (err) {
-      console.warn('No se pudo reiniciar pedidos en Supabase:', err?.message || err);
-      showToast('No se pudo reiniciar en Supabase. No se aplicaron cambios.', 'error');
-      return;
-    }
-  }
-
-  saveLocalOrders([]);
-  localStorage.setItem('blj_pedidos_items', JSON.stringify([]));
-  localStorage.setItem('blj_order_counter', '0');
-
-  await loadPedidosAdmin();
-  await loadDashboard();
-  showToast('<i class="fa-solid fa-check mr-1.5"></i> Pedidos reiniciados. El próximo será #0001', 'success');
 }
 
 async function modificarPedido(pedidoRef) {
@@ -1993,34 +1974,6 @@ async function modificarPedido(pedidoRef) {
     updated_at: now,
   };
 
-  if (isSupabaseReady()) {
-    try {
-      const { error } = await _sbClient
-        .from('pedidos')
-        .update({
-          cliente_nombre: updatedOrder.cliente_nombre,
-          cliente_telefono: updatedOrder.cliente_telefono,
-          direccion: updatedOrder.direccion,
-          depto: updatedOrder.depto,
-          comuna: updatedOrder.comuna,
-          referencia: updatedOrder.referencia,
-          notas: updatedOrder.notas,
-          status_historial: updatedOrder.status_historial,
-          updated_at: updatedOrder.updated_at,
-        })
-        .eq('pedido_ref', ref);
-      if (error) throw error;
-
-      if (updatedOrder.estado === ORDER_STATUS.accepted) {
-        await syncAcceptedItems(updatedOrder, true);
-      }
-    } catch (err) {
-      console.warn('No se pudo modificar pedido en Supabase:', err?.message || err);
-      showToast('No se pudo modificar en Supabase. No se aplicaron cambios.', 'error');
-      return;
-    }
-  }
-
   const local = getLocalOrders();
   const idx = local.findIndex(o => String(o.pedido_ref) === ref);
   if (idx >= 0) local[idx] = updatedOrder;
@@ -2056,9 +2009,6 @@ async function eliminarPedidoAceptado(pedidoRef) {
     try {
       const { error: pedidosItemsError } = await _sbClient.from('pedidos_items').delete().eq('pedido_ref', ref);
       if (pedidosItemsError) throw pedidosItemsError;
-
-      const { error: pedidosError } = await _sbClient.from('pedidos').delete().eq('pedido_ref', ref);
-      if (pedidosError) throw pedidosError;
     } catch (err) {
       console.warn('No se pudo eliminar pedido en Supabase:', err?.message || err);
       supabaseDeleteOk = false;
