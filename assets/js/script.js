@@ -290,7 +290,6 @@ const BADGE_CLASSES = {
 // ─── STORE ────────────────────────────────────────────────────────────
 const LS_PRODUCTS_KEY = 'blj_productos_v1';
 const LS_DELETE_KEY = 'pf_delete_id';
-const LS_ORDERS_KEY = 'blj_orders_v1';
 let cart = [];
 
 const ORDER_STATUS = {
@@ -491,35 +490,27 @@ function genId() {
 }
 
 async function getNextOrderCounter() {
-  let localCounter = parseInt(localStorage.getItem('blj_order_counter') || '0', 10);
-  if (!Number.isFinite(localCounter) || localCounter < 0) localCounter = 0;
-
-  if (isSupabaseReady()) {
-    try {
-      const { data, error } = await _sbClient
-        .from('pedidos')
-        .select('pedido_ref')
-        .not('pedido_ref', 'is', null)
-        .limit(10000);
-      if (!error && Array.isArray(data)) {
-        const maxRemote = data.reduce((max, row) => {
-          const n = parseInt(String(row.pedido_ref || '').replace(/\D/g, ''), 10);
-          return Number.isFinite(n) ? Math.max(max, n) : max;
-        }, 0);
-        localCounter = Math.max(localCounter, maxRemote);
-      }
-    } catch {
-      // fallback local
-    }
+  if (!isSupabaseReady()) return null;
+  try {
+    const { data, error } = await _sbClient
+      .from('pedidos')
+      .select('pedido_ref')
+      .not('pedido_ref', 'is', null)
+      .limit(10000);
+    if (error || !Array.isArray(data)) return null;
+    const maxRemote = data.reduce((max, row) => {
+      const n = parseInt(String(row.pedido_ref || '').replace(/\D/g, ''), 10);
+      return Number.isFinite(n) ? Math.max(max, n) : max;
+    }, 0);
+    return maxRemote + 1;
+  } catch {
+    return null;
   }
-
-  const next = localCounter + 1;
-  localStorage.setItem('blj_order_counter', String(next));
-  return next;
 }
 
 async function getOrderNum() {
   const n = await getNextOrderCounter();
+  if (!Number.isFinite(n)) return null;
   return String(n).padStart(4, '0');
 }
 
@@ -912,6 +903,11 @@ function toggleCheckbox(el) {
 }
 
 async function enviarPedidoWhatsApp() {
+  if (!isSupabaseReady()) {
+    showToast('Supabase no está conectado. No se puede enviar el pedido.', 'error');
+    return;
+  }
+
   const nombre = document.getElementById('f-nombre')?.value.trim();
   const telefono = document.getElementById('f-telefono')?.value.trim();
   const direccion = document.getElementById('f-direccion')?.value.trim();
@@ -941,6 +937,10 @@ async function enviarPedidoWhatsApp() {
   errBox.classList.remove('flex');
 
   const orderNum = await getOrderNum();
+  if (!orderNum) {
+    showToast('No se pudo generar folio de pedido en Supabase', 'error');
+    return;
+  }
   const t = CONFIG.transferencia;
   const subtotal = cartTotal();
   const deliveryFee = getCheckoutDeliveryFee();
@@ -1618,8 +1618,8 @@ function showAdminPanel() {
       sbEl.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border bg-green-900/40 border-green-500/30 text-green-400';
       sbEl.innerHTML = '<i class="fa-solid fa-database"></i> Supabase conectado';
     } else {
-      sbEl.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border bg-amber-900/40 border-amber-500/30 text-amber-400';
-      sbEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Modo local (sin Supabase)';
+      sbEl.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border bg-red-900/40 border-red-500/30 text-red-300';
+      sbEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Supabase no conectado';
     }
     sbEl.classList.remove('hidden');
   }
@@ -1643,18 +1643,6 @@ function switchAdminTab(tab) {
   if (tab === 'dashboard') loadDashboard();
 }
 
-function getLocalOrders() {
-  try {
-    return JSON.parse(localStorage.getItem(LS_ORDERS_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveLocalOrders(orders) {
-  localStorage.setItem(LS_ORDERS_KEY, JSON.stringify(orders));
-}
-
 function getStatusMeta(status) {
   if (status === ORDER_STATUS.accepted) {
     return {
@@ -1675,26 +1663,6 @@ function getStatusMeta(status) {
     badgeClass: 'bg-amber-500/20 border border-amber-500/30 text-amber-200',
     dotClass: 'bg-amber-300',
   };
-}
-
-function mergeOrdersByRef(primary, secondary) {
-  const map = new Map();
-  [...secondary, ...primary].forEach(order => {
-    if (!order || !order.pedido_ref) return;
-    const prev = map.get(order.pedido_ref);
-    if (!prev) {
-      map.set(order.pedido_ref, order);
-      return;
-    }
-    const prevAt = Date.parse(prev.updated_at || prev.created_at || 0) || 0;
-    const currAt = Date.parse(order.updated_at || order.created_at || 0) || 0;
-    map.set(order.pedido_ref, currAt >= prevAt ? order : prev);
-  });
-  return [...map.values()].sort((a, b) => {
-    const aAt = Date.parse(a.created_at || 0) || 0;
-    const bAt = Date.parse(b.created_at || 0) || 0;
-    return bAt - aAt;
-  });
 }
 
 function parseHistory(value) {
@@ -1762,55 +1730,15 @@ async function fetchOrdersFromPedidosTable() {
 }
 
 async function fetchOrders() {
-  const localOrders = getLocalOrders();
-  if (!isSupabaseReady()) return localOrders;
+  if (!isSupabaseReady()) return [];
 
   const { ok, orders } = await fetchOrdersFromPedidosTable();
-  if (!ok) return localOrders;
-
-  const localByRef = new Map(
-    localOrders
-      .filter(o => o && o.pedido_ref)
-      .map(o => [String(o.pedido_ref), o])
-  );
-
-  const hydratedRemote = orders.map(o => {
-    const ref = String(o.pedido_ref || '');
-    const local = localByRef.get(ref);
-    const subtotal = Number(o.subtotal) || Number(local?.subtotal) || 0;
-    const deliveryFee = Number(o.delivery_fee) || Number(local?.delivery_fee) || 0;
-    const total = Number(o.total) || Number(local?.total) || (subtotal + deliveryFee);
-    const hasRemoteHistory = Array.isArray(o.status_historial) && o.status_historial.length > 0;
-
-    return {
-      ...o,
-      estado: o.estado || local?.estado || ORDER_STATUS.pending,
-      cliente_nombre: o.cliente_nombre || local?.cliente_nombre || '',
-      cliente_telefono: o.cliente_telefono || local?.cliente_telefono || '',
-      direccion: o.direccion || local?.direccion || '',
-      depto: o.depto || local?.depto || '',
-      comuna: o.comuna || local?.comuna || '',
-      referencia: o.referencia || local?.referencia || '',
-      notas: o.notas || local?.notas || '',
-      comprobante_declarado: o.comprobante_declarado === true || local?.comprobante_declarado === true,
-      subtotal,
-      delivery_fee: deliveryFee,
-      total,
-      status_historial: hasRemoteHistory ? o.status_historial : (local?.status_historial || []),
-      updated_at: o.updated_at || local?.updated_at || o.created_at || local?.created_at || null,
-    };
-  });
-
-  const remoteRefs = new Set(hydratedRemote.map(o => String(o.pedido_ref || '')));
-  const localOnly = localOrders.filter(o => !remoteRefs.has(String(o.pedido_ref || '')));
-  const finalOrders = mergeOrdersByRef(hydratedRemote, localOnly);
-
-  saveLocalOrders(finalOrders);
-  return finalOrders;
+  if (!ok) return [];
+  return orders;
 }
 
 async function saveOrderToSupabase(order) {
-  if (!isSupabaseReady()) return true;
+  if (!isSupabaseReady()) return false;
   const ref = String(order.pedido_ref);
   const row = {
     pedido_ref: ref,
@@ -1872,10 +1800,6 @@ async function guardarPedido(payload) {
     updated_at: now,
     status_historial: payload.status_historial || baseHistory,
   };
-
-  const localOrders = getLocalOrders();
-  localOrders.unshift(order);
-  saveLocalOrders(localOrders);
   return saveOrderToSupabase(order);
 }
 
@@ -1888,7 +1812,8 @@ async function loadDashboard() {
     const { data } = await _sbClient.from('pedidos').select('*');
     orders = data || [];
   } else {
-    orders = getLocalOrders();
+    container.innerHTML = '<p class="text-red-300 text-sm text-center py-6">Conecta Supabase para ver dashboard de pedidos</p>';
+    return;
   }
 
   const acceptedOrders = orders.filter(o => (o?.estado || ORDER_STATUS.pending) === ORDER_STATUS.accepted);
@@ -1961,6 +1886,10 @@ function formatOrderDate(value) {
 }
 
 async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
+  if (!isSupabaseReady()) {
+    showToast('Supabase no conectado', 'error');
+    return;
+  }
   const all = await fetchOrders();
   const target = all.find(o => String(o.pedido_ref) === String(pedidoRef));
   if (!target) {
@@ -2003,12 +1932,6 @@ async function updatePedidoEstado(pedidoRef, nuevoEstado, nota = '') {
     }
   }
 
-  const local = getLocalOrders();
-  const idx = local.findIndex(o => String(o.pedido_ref) === String(pedidoRef));
-  if (idx >= 0) local[idx] = updatedOrder;
-  else local.unshift(updatedOrder);
-  saveLocalOrders(local);
-
   await loadPedidosAdmin();
   await loadDashboard();
   showToast(`<i class="fa-solid fa-check mr-1.5"></i> Pedido #${pedidoRef} marcado como ${nuevoEstado}`, 'success');
@@ -2026,19 +1949,19 @@ function rechazarPedido(pedidoRef) {
 async function resetPedidosAdmin() {
   if (!confirm('Se eliminarán todos los pedidos y el contador volverá a 0001. ¿Continuar?')) return;
 
-  if (isSupabaseReady()) {
-    try {
-      const { error } = await _sbClient.from('pedidos').delete().neq('pedido_ref', '');
-      if (error) throw error;
-    } catch (err) {
-      console.warn('No se pudo resetear pedidos en Supabase:', err?.message || err);
-      showToast('No se pudo resetear en Supabase', 'error');
-      return;
-    }
+  if (!isSupabaseReady()) {
+    showToast('Supabase no conectado', 'error');
+    return;
   }
 
-  saveLocalOrders([]);
-  localStorage.setItem('blj_order_counter', '0');
+  try {
+    const { error } = await _sbClient.from('pedidos').delete().neq('pedido_ref', '');
+    if (error) throw error;
+  } catch (err) {
+    console.warn('No se pudo resetear pedidos en Supabase:', err?.message || err);
+    showToast('No se pudo resetear en Supabase', 'error');
+    return;
+  }
 
   await loadPedidosAdmin();
   await loadDashboard();
@@ -2046,6 +1969,10 @@ async function resetPedidosAdmin() {
 }
 
 async function modificarPedido(pedidoRef) {
+  if (!isSupabaseReady()) {
+    showToast('Supabase no conectado', 'error');
+    return;
+  }
   const ref = String(pedidoRef);
   const all = await fetchOrders();
   const target = all.find(o => String(o.pedido_ref) === ref);
@@ -2113,18 +2040,16 @@ async function modificarPedido(pedidoRef) {
     }
   }
 
-  const local = getLocalOrders();
-  const idx = local.findIndex(o => String(o.pedido_ref) === ref);
-  if (idx >= 0) local[idx] = updatedOrder;
-  else local.unshift(updatedOrder);
-  saveLocalOrders(local);
-
   await loadPedidosAdmin();
   await loadDashboard();
   showToast(`<i class="fa-solid fa-pen-to-square mr-1.5"></i> Pedido #${ref} modificado`, 'success');
 }
 
 async function eliminarPedidoAceptado(pedidoRef) {
+  if (!isSupabaseReady()) {
+    showToast('Supabase no conectado', 'error');
+    return;
+  }
   const ref = String(pedidoRef);
   const all = await fetchOrders();
   const target = all.find(o => String(o.pedido_ref) === ref);
@@ -2154,9 +2079,6 @@ async function eliminarPedidoAceptado(pedidoRef) {
     }
   }
 
-  const local = getLocalOrders().filter(o => String(o.pedido_ref) !== ref);
-  saveLocalOrders(local);
-
   await loadPedidosAdmin();
   await loadDashboard();
 
@@ -2173,6 +2095,12 @@ async function loadPedidosAdmin() {
   if (!container) return;
 
   container.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">Cargando pedidos...</p>';
+
+  if (!isSupabaseReady()) {
+    if (badge) badge.classList.add('hidden');
+    container.innerHTML = '<p class="text-red-300 text-sm text-center py-6">Conecta Supabase para ver pedidos</p>';
+    return;
+  }
 
   let pedidos = await fetchOrders();
   const pendingCount = pedidos.filter(p => p.estado === ORDER_STATUS.pending).length;
